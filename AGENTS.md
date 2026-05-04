@@ -1,6 +1,7 @@
 ## Codex work instructions
 
-- This repository is a Remotion-related project.
+- This repository contains the restored Remotion codebase plus the user's own project files.
+- The current main user-owned tool area is `Mytool/`.
 - Match the existing code structure, naming, and style when making changes.
 - Check the current worktree state with `git status` before starting edits.
 - Do not revert or overwrite uncommitted user changes unless the user explicitly asks.
@@ -10,6 +11,7 @@
 - Before committing, briefly explain what changed.
 - Explain work and results in Japanese when talking with the user.
 - When using technical terms, add short explanations where helpful for beginners.
+- Use `AI_CONTEXT.md`, `DESIGN.md`, and `SKILL.md` as supporting project context when relevant.
 
 ## GitHub sync policy
 
