@@ -1,3 +1,22 @@
+## Codex work instructions
+
+- This repository is a Remotion-related project.
+- Match the existing code structure, naming, and style when making changes.
+- Check the current worktree state with `git status` before starting edits.
+- Do not revert or overwrite uncommitted user changes unless the user explicitly asks.
+- Keep changes focused and avoid broad refactors unless they are necessary for the task.
+- After changes, run relevant tests, lint, type checks, or builds when practical.
+- Do not run `git push` unless the user explicitly asks for it.
+- Before committing, briefly explain what changed.
+- Explain work and results in Japanese when talking with the user.
+- When using technical terms, add short explanations where helpful for beginners.
+
+## GitHub sync policy
+
+- Before reflecting changes on GitHub, review the changed files and diff.
+- Use short English commit messages that describe the change.
+- Ask for user approval before pushing or creating a pull request.
+
 ## Setup commands
 
 ```bash

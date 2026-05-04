@@ -36,3 +36,8 @@ packages/example/build
 packages/example-without-zod/build
 packages/docs/out
 packages/cloudrun/container/ensure-browser.mjs
+
+Mytool/*.exe
+Mytool/*_output.pdf
+Mytool/~temp_*.pdf
+Mytool/merge_state.txt
