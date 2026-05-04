@@ -48,3 +48,29 @@ Mytool/
 ```
 
 It contains `.bat` launchers, Python scripts, and a README. Generated `.exe` files are intentionally ignored by Git.
+
+## Current Conversion Workflow Area
+
+The user's article conversion process is stored in:
+
+```text
+MyConversion/
+```
+
+It records the workflow used in this chat:
+
+```text
+Google Document source article
+-> reference-page-style HTML
+-> Google Document submission DOCX
+-> WordPress body HTML
+```
+
+Important files:
+
+- `MyConversion/README.md`
+- `MyConversion/頭皮アートメイク_痛み記事_リライト_再現手順.md`
+- `MyConversion/html_to_google_docx_replay.py`
+- `MyConversion/docx_to_wordpress_replay.py`
+
+The conversion folder is intended to preserve reusable process knowledge. Do not commit private article source files, generated DOCX outputs, or rendered QA images unless the user explicitly asks.

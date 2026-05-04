@@ -9,6 +9,7 @@ Myownproject/
   CLAUDE.md
   DESIGN.md
   SKILL.md
+  MyConversion/
   Mytool/
   packages/
 ```
@@ -31,6 +32,17 @@ Mytool/
   *.bat
   *.py
 ```
+
+Article conversion workflows should live in `MyConversion/`:
+
+```text
+MyConversion/
+  README.md
+  *_replay.py
+  *_再現手順.md
+```
+
+Keep reusable scripts and process notes in Git. Keep generated deliverables, private source documents, temporary extraction folders, and render-check images out of Git unless the user explicitly asks to publish them.
 
 For generated applications or outputs:
 

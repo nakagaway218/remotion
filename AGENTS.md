@@ -1,7 +1,7 @@
 ## Codex work instructions
 
 - This repository contains the restored Remotion codebase plus the user's own project files.
-- The current main user-owned tool area is `Mytool/`.
+- The current main user-owned tool areas are `Mytool/` and `MyConversion/`.
 - Match the existing code structure, naming, and style when making changes.
 - Check the current worktree state with `git status` before starting edits.
 - Do not revert or overwrite uncommitted user changes unless the user explicitly asks.
@@ -12,6 +12,7 @@
 - Explain work and results in Japanese when talking with the user.
 - When using technical terms, add short explanations where helpful for beginners.
 - Use `AI_CONTEXT.md`, `DESIGN.md`, and `SKILL.md` as supporting project context when relevant.
+- For article conversion work, check `MyConversion/README.md` and `MyConversion/頭皮アートメイク_痛み記事_リライト_再現手順.md` before editing scripts or regenerating files.
 
 ## GitHub sync policy
 

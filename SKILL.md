@@ -33,6 +33,31 @@ git status --short --branch
    - how generated files are handled
 4. If a launcher depends on a script, keep both in the same tool folder when practical.
 
+## Article Conversion Workflow
+
+Use `MyConversion/` for the recorded article conversion process.
+
+The current documented flow is:
+
+```text
+Google Document source article
+-> reference-page-style HTML
+-> Google Document submission DOCX
+-> WordPress body HTML
+```
+
+Before changing this workflow, read:
+
+- `MyConversion/README.md`
+- `MyConversion/頭皮アートメイク_痛み記事_リライト_再現手順.md`
+
+Current replay scripts:
+
+- `MyConversion/html_to_google_docx_replay.py`
+- `MyConversion/docx_to_wordpress_replay.py`
+
+Keep generated DOCX, rendered QA images, private Google Document exports, and article source assets out of Git unless the user explicitly asks to publish them.
+
 ## Handling Generated Files
 
 Use `.gitignore` for files that should exist locally but not on GitHub.
