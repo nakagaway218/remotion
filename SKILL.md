@@ -94,22 +94,29 @@ Only sync after the user asks for it.
 git status --short --branch
 ```
 
-2. Stage only relevant files:
+2. Review `.md` files before staging:
+
+- Stage project rules, reusable context, design notes, tool README files, and reproducible workflow notes.
+- Do not stage private notes, temporary drafts, confidential case information, secrets, or one-time logs.
+- If the purpose of an `.md` file is unclear, ask the user before staging it.
+
+3. Stage only relevant files:
 
 ```bash
 git add <files>
 ```
 
-3. Commit with a short English message:
+4. Commit with a short English message:
 
 ```bash
 git commit -m "Add PDF tools"
 ```
 
-4. Push only after user approval:
+5. Push only after user approval. Push the current branch unless the user explicitly asks for a different branch:
 
 ```bash
-git push origin main
+git branch --show-current
+git push origin <current-branch>
 ```
 
 ## Explanation Style

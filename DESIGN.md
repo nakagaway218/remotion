@@ -67,6 +67,28 @@ This means `何でもPDF結合ツール.exe` can exist locally, but it is not co
 
 Only committed files are reflected on GitHub.
 
+## Markdown File Selection Policy
+
+Before pushing, decide whether each `.md` file should be public project knowledge.
+
+Commit `.md` files when they contain:
+
+- project rules for AI agents, such as `AGENTS.md`, `CLAUDE.md`, or `SKILL.md`
+- reusable project context or decisions, such as `AI_CONTEXT.md`
+- repository structure, design, or file-management policy, such as `DESIGN.md`
+- user-facing tool instructions, such as a tool `README.md`
+- reproducible workflow notes that will be useful again
+
+Do not commit `.md` files when they contain:
+
+- private personal notes
+- temporary drafts or scratch logs
+- customer, client, or case-specific confidential information
+- passwords, API keys, account details, or other secrets
+- generated one-time logs that are not useful as reusable project knowledge
+
+When uncertain, ask the user before staging the file.
+
 Recommended flow:
 
 ```bash
