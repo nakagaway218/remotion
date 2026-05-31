@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube台本作成</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">YouTube script workflow</p>
+        <h1>YouTube台本作成</h1>
+      </div>
+      <div class="server-status">
+        <span id="statusDot" aria-hidden="true"></span>
+        <span id="statusText">接続確認中</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="editor-pane" aria-label="台本作成ステップ">
+        <div class="settings-grid">
+          <label class="wide">
+            動画タイトル
+            <input id="videoTitle" autocomplete="off" placeholder="例：初心者が副業ブログで月1万円を目指す方法" />
+          </label>
+          <label>
+            台本タイプ
+            <select id="scriptType">
+              <option value="solo">一人語り系</option>
+              <option value="dialogue">対談系</option>
+            </select>
+          </label>
+          <label>
+            チャンネル名
+            <input id="channelName" placeholder="例：〇〇チャンネル" />
+          </label>
+          <label>
+            メイン演者
+            <input id="hostName" placeholder="例：田中" />
+          </label>
+          <label>
+            想定視聴者
+            <input id="audience" placeholder="例：副業ブログの知識がない初心者" />
+          </label>
+          <label>
+            目標文字数
+            <input id="targetLength" inputmode="numeric" type="number" min="800" step="100" value="6000" />
+          </label>
+          <label>
+            本文1回の文字数
+            <input id="bodyLength" inputmode="numeric" type="number" min="600" step="100" value="2000" />
+          </label>
+          <label>
+            動画トーン
+            <select id="videoTone">
+              <option value="beginner">初心者向け</option>
+              <option value="lively">テンポよく親しみやすい</option>
+              <option value="expert">専門性あり</option>
+              <option value="dramatic">問題提起強め</option>
+            </select>
+          </label>
+        </div>
+
+        <section class="character-pane" aria-label="キャラクター設定">
+          <div class="solo-settings">
+            <label>
+              話者の立場
+              <input id="soloRole" placeholder="例：視聴者の悩みに寄り添う解説者" />
+            </label>
+            <label>
+              話者の口調
+              <input id="soloTone" placeholder="例：やさしく、自然な話し言葉。少し背中を押す" />
+            </label>
+            <label class="wide">
+              話し方の注意
+              <textarea id="soloRules" rows="3" placeholder="例：専門用語は言い換える。押し売り感を出さない。"></textarea>
+            </label>
+            <label>
+              サブキャラ
+              <select id="soloSubCharacter">
+                <option value="no">使わない</option>
+                <option value="yes">要所で使う</option>
+              </select>
+            </label>
+            <div class="sub-character-settings wide" hidden>
+              <label>
+                サブキャラ名
+                <input id="subCharacterName" placeholder="例：ずんだもん / 初心者くん" />
+              </label>
+              <label>
+                サブキャラの役割
+                <input id="subCharacterRole" placeholder="例：視聴者の疑問を代弁する" />
+              </label>
+              <label>
+                サブキャラの口調
+                <input id="subCharacterTone" placeholder="例：語尾に「なのだ」。無邪気で不安が強い" />
+              </label>
+              <label>
+                登場頻度
+                <input id="subCharacterFrequency" placeholder="例：各中見出しに1〜2回まで" />
+              </label>
+              <label class="wide">
+                登場場面
+                <textarea id="subCharacterScenes" rows="3" placeholder="例：専門用語が出たとき、注意点の前、視聴者がつまずきやすい箇所"></textarea>
+              </label>
+              <label class="wide">
+                メイン話者との関係
+                <textarea id="subCharacterRelationship" rows="3" placeholder="例：メイン話者に質問する初心者ポジション。疑問や不安を短く投げる。"></textarea>
+              </label>
+              <label class="wide">
+                サブキャラを使う目的
+                <textarea id="subCharacterPurpose" rows="3" placeholder="例：難しい内容を会話で噛み砕き、視聴者の離脱を防ぐ。"></textarea>
+              </label>
+            </div>
+          </div>
+          <div class="dialogue-settings" hidden>
+            <label>
+              キャラクターA
+              <input id="characterAName" placeholder="例：霊夢 / 相談者" />
+            </label>
+            <label>
+              Aの立場
+              <input id="characterARole" placeholder="例：聞き役、初心者目線で質問する" />
+            </label>
+            <label>
+              Aの口調
+              <input id="characterATone" placeholder="例：感情的、リアクション多め" />
+            </label>
+            <label>
+              キャラクターB
+              <input id="characterBName" placeholder="例：魔理沙 / 専門家" />
+            </label>
+            <label>
+              Bの立場
+              <input id="characterBRole" placeholder="例：説明役、根拠を添えて解説する" />
+            </label>
+            <label>
+              Bの口調
+              <input id="characterBTone" placeholder="例：落ち着いた解説、語尾は単調にしない" />
+            </label>
+            <label class="wide">
+              二人の立場の違い
+              <textarea id="relationship" rows="3" placeholder="例：Aは悩みを持つ初心者、Bは経験者。Aが疑問を投げ、Bが噛み砕いて説明する。"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="chatgpt-prompt-pane" aria-label="プロンプト連携">
+          <div class="prompt-head">
+            <div>
+              <p class="eyebrow">Manual prompt flow</p>
+              <h2>プロンプトを作って貼る</h2>
+            </div>
+            <button id="copyPrompt" title="プロンプトをコピー">コピー</button>
+          </div>
+          <textarea
+            id="chatgptPrompt"
+            rows="8"
+            placeholder="各ステップのプロンプト作成ボタンを押すと、ここに貼り付け用の指示文が入ります。"
+          ></textarea>
+        </section>
+
+        <details class="api-details" id="apiDetails">
+          <summary>API生成の詳細設定</summary>
+          <div class="api-settings">
+            <label>
+              API用モデル
+              <select id="model">
+                <option value="gpt-5-mini">gpt-5-mini</option>
+                <option value="gpt-5-nano">gpt-5-nano</option>
+              </select>
+            </label>
+            <div class="budget-strip" aria-live="polite">
+              <strong id="budgetText">費用上限を確認中</strong>
+              <p id="budgetMeta">API生成の使用量を保存して停止判定します。</p>
+            </div>
+          </div>
+        </details>
+
+        <nav class="step-tabs" aria-label="作成ステップ">
+          <button class="is-active" data-panel="knowledge">1 基礎知識</button>
+          <button data-panel="intent">2 検索意図</button>
+          <button data-panel="audienceInsight">3 視聴者理解</button>
+          <button data-panel="outline">4 目次構成</button>
+          <button data-panel="synopsis">5 あらすじ確認</button>
+          <button data-panel="preflight">6 台本前チェック</button>
+          <button data-panel="introEnding">7 冒頭・締め</button>
+          <button data-panel="body">8 本文</button>
+          <button data-panel="transcriptCleanup">9 書き起こし整形</button>
+          <button data-panel="rewriteAnalysis">10 対話化設計</button>
+          <button data-panel="rewriteSynopsis">11 リライトあらすじ</button>
+          <button data-panel="dialogueRewrite">12 対話リライト</button>
+        </nav>
+
+        <article class="step-panel is-active" id="knowledge">
+          <div class="panel-head">
+            <h2>基礎知識</h2>
+            <div class="panel-actions">
+              <label class="file-action">
+                資料読込
+                <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
+              </label>
+              <button class="primary" data-prompt="knowledge">NotebookLM用プロンプト</button>
+              <button id="buildResearchSet">リサーチセット作成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            専門性が高い台本では、NotebookLMで作ったメモに加えて、参考動画、手元の文献・資料の本文や抜粋も入れられます。一人語り、対談系、一人語りから対話形式への変換のすべてに使われます。
+          </p>
+          <label>
+            NotebookLMで作成した基礎知識メモ
+            <textarea
+              id="knowledgeMemo"
+              rows="12"
+              placeholder="NotebookLMの出力を貼り付けます。制度、用語、注意点、台本に活かす観点などがあると後続の内容がぶれにくくなります。"
+            ></textarea>
+          </label>
+          <label>
+            参考動画
+            <textarea
+              id="referenceVideos"
+              rows="10"
+              placeholder="参考動画が複数ある場合は、1本ずつURL、タイトル、要点、使いたい表現、書き起こし抜粋を入れます。例：動画1｜URL｜タイトル｜参考にしたい構成・言い回し"
+            ></textarea>
+          </label>
+          <label>
+            インポートした文献・資料
+            <textarea
+              id="sourceMaterials"
+              rows="12"
+              placeholder="資料読込で txt / md / csv を読み込むか、文献の要約・抜粋・URL・出典メモを貼り付けます。後続プロンプトに反映されます。"
+            ></textarea>
+          </label>
+          <label>
+            NotebookLM用リサーチセット
+            <textarea
+              id="notebookResearchSet"
+              rows="12"
+              placeholder="CSVや資料URLを入れた後に「リサーチセット作成」を押すと、NotebookLMに貼る調査依頼文とURL一覧が入ります。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="intent">
+          <div class="panel-head">
+            <h2>検索意図</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="intent">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="intent">API生成</button>
+            </div>
+          </div>
+          <label>
+            検索上位記事タイトル
+            <textarea id="articleTitles" rows="8" placeholder="ラッコなどで取得した上位10記事のタイトルを貼り付けます。"></textarea>
+          </label>
+          <label>
+            検索意図保存用
+            <textarea id="intentOutput" rows="10" placeholder="a、b、c の検索意図と重要度を保存します。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="audienceInsight">
+          <div class="panel-head">
+            <h2>視聴者理解</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="audienceInsight">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="audienceInsight">API生成</button>
+            </div>
+          </div>
+          <label>
+            ペルソナ・顕在ニーズ・潜在ニーズ
+            <textarea
+              id="audienceInsightOutput"
+              rows="14"
+              placeholder="ペルソナ、顕在ニーズ、潜在ニーズ、冒頭で刺す不安、視聴後の理想状態を保存します。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="outline">
+          <div class="panel-head">
+            <h2>目次構成</h2>
+            <div class="panel-actions">
+              <label class="file-action">
+                CSV/JSON読込
+                <input id="outlineCsv" type="file" accept=".csv,.json,text/csv,application/json" />
+              </label>
+              <button class="primary" data-prompt="outline">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="outline">API生成</button>
+            </div>
+          </div>
+          <label>
+            検索上位記事の目次構成
+            <textarea id="competitorOutlines" rows="10" placeholder="参考記事の h1、h2、h3 を貼り付けます。CSV/JSON読込も使えます。"></textarea>
+          </label>
+          <p class="inline-note" id="csvStatus">CSV/JSONを読み込むと、h2/h3 を中見出し/小見出しに整えて入力します。</p>
+          <label>
+            目次構成保存用
+            <textarea id="outlineOutput" rows="14" placeholder="中見出し、小見出し形式の目次を保存します。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="synopsis">
+          <div class="panel-head">
+            <h2>あらすじ確認</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="synopsis">ChatGPT用プロンプト</button>
+              <button data-prompt="synopsisReview">修正プロンプト</button>
+              <button class="api-action" data-generate="synopsis">API生成</button>
+            </div>
+          </div>
+          <label>
+            あらすじ下書き
+            <textarea id="synopsisOutput" rows="10" placeholder="中心メッセージ、全体の流れ、キャラクター運用メモを貼り付けます。"></textarea>
+          </label>
+          <label>
+            修正したい点
+            <textarea id="synopsisRevisionNote" rows="4" placeholder="例：Aをもっと初心者目線にする / 冒頭の不安を強める / 断定を弱める"></textarea>
+          </label>
+          <div class="adopt-row">
+            <button id="adoptSynopsis">このあらすじを採用</button>
+            <p id="synopsisAdoptStatus">採用版が後続ステップに使われます。</p>
+          </div>
+          <label>
+            採用するあらすじ
+            <textarea id="approvedSynopsis" rows="10" placeholder="ゴーサインを出すあらすじをここに残します。後続ステップはこちらを参照します。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="preflight">
+          <div class="panel-head">
+            <h2>台本前チェック</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="preflight">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="preflight">API生成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            台本を書く前に、動画タイトルの約束、各中見出しの役割、冒頭とエンディングの回収、話者・キャラクターの役割を確認します。
+          </p>
+          <label>
+            台本前チェック結果
+            <textarea
+              id="preflightCheck"
+              rows="14"
+              placeholder="タイトルと構成のズレ、中見出しごとの話すこと・話さないこと、冒頭・エンディング設計、対話リライト注意点を保存します。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="introEnding">
+          <div class="panel-head">
+            <h2>冒頭・エンディング</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="introEnding">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="introEnding">API生成</button>
+            </div>
+          </div>
+          <label>
+            冒頭・エンディング生成結果
+            <textarea id="introEndingOutput" rows="14" placeholder="イントロダクションとエンディングが入ります。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="body">
+          <div class="panel-head">
+            <h2>本文</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="body">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="body">API生成</button>
+            </div>
+          </div>
+          <label>
+            出力したい目次箇所
+            <textarea id="bodyHeadings" rows="8" placeholder="中見出しごとに、今回作りたい範囲を貼り付けます。"></textarea>
+          </label>
+          <label>
+            根拠・データの扱い
+            <textarea id="evidenceRules" rows="4" placeholder="例：公的機関のデータがある場合だけ触れる。未確認の数字は出さない。"></textarea>
+          </label>
+          <label>
+            追加ルール
+            <textarea id="extraRules" rows="4" placeholder="禁止表現、言い回し、尺、演者固有の話し方など。"></textarea>
+          </label>
+          <label>
+            本文生成結果
+            <textarea id="bodyDraft" rows="16" placeholder="生成した本文を追記しながら整えます。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="transcriptCleanup">
+          <div class="panel-head">
+            <h2>書き起こし整形</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="transcriptCleanup">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="transcriptCleanup">API生成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            YouTubeの元動画URL、音声認識、手入力メモから、一人語りの書き起こしを対話リライトしやすい形に整えます。
+          </p>
+          <label>
+            YouTube元動画URL
+            <textarea
+              id="transcriptVideoUrls"
+              rows="4"
+              placeholder="元動画のURLを入力します。複数ある場合は1行に1URLずつ入れてください。字幕や文字起こしが取得できる場合は、プロンプト先で参照します。"
+            ></textarea>
+          </label>
+          <label>
+            元の書き起こし
+            <textarea id="rawTranscript" rows="12" placeholder="すでに書き起こしがある場合は、一人語り系YouTubeのセリフ、音声認識結果、メモ書きなどを貼り付けます。"></textarea>
+          </label>
+          <label>
+            整形ルール
+            <textarea id="transcriptRules" rows="4" placeholder="例：言い直しは整理するが、元の順番と重要表現は残す。聞き取りが怪しい箇所は要確認にする。"></textarea>
+          </label>
+          <label>
+            整形済み一人語りセリフ
+            <textarea id="cleanedTranscript" rows="14" placeholder="整形した一人語りセリフを保存します。以降のリライト工程で使います。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="rewriteAnalysis">
+          <div class="panel-head">
+            <h2>対話化設計</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="rewriteAnalysis">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="rewriteAnalysis">API生成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            上の対談系キャラクター設定を使って、一人語りを二人語りへ変える方針を作ります。
+          </p>
+          <label>
+            リライト目的
+            <textarea id="rewriteGoal" rows="4" placeholder="例：情報量は保ちつつ、初心者キャラが疑問を投げる形にして視聴維持を高める。"></textarea>
+          </label>
+          <label>
+            対話化設計
+            <textarea id="rewriteAnalysisOutput" rows="14" placeholder="推定検索意図、ペルソナ、ニーズ、二人の役割、対話用の目次構成を保存します。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="rewriteSynopsis">
+          <div class="panel-head">
+            <h2>リライトあらすじ</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="rewriteSynopsis">ChatGPT用プロンプト</button>
+              <button data-prompt="rewriteSynopsisReview">修正プロンプト</button>
+              <button class="api-action" data-generate="rewriteSynopsis">API生成</button>
+            </div>
+          </div>
+          <label>
+            リライトあらすじ下書き
+            <textarea id="rewriteSynopsisOutput" rows="10" placeholder="中心メッセージ、リライト全体の流れ、キャラクター運用メモを貼り付けます。"></textarea>
+          </label>
+          <label>
+            修正したい点
+            <textarea id="rewriteSynopsisRevisionNote" rows="4" placeholder="例：Aの質問をもっと初心者目線にする / 元セリフの順番をより残す"></textarea>
+          </label>
+          <div class="adopt-row">
+            <button id="adoptRewriteSynopsis">このリライトあらすじを採用</button>
+            <p id="rewriteSynopsisAdoptStatus">採用版が対話リライトに使われます。</p>
+          </div>
+          <label>
+            採用するリライトあらすじ
+            <textarea id="approvedRewriteSynopsis" rows="10" placeholder="ゴーサインを出すリライトあらすじをここに残します。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="dialogueRewrite">
+          <div class="panel-head">
+            <h2>対話リライト</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="dialogueRewrite">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="dialogueRewrite">API生成</button>
+            </div>
+          </div>
+          <label>
+            今回リライトしたい範囲
+            <textarea id="rewriteSourceRange" rows="8" placeholder="整形済みセリフのうち、今回二人語りにしたい範囲を貼り付けます。空欄なら全体として扱います。"></textarea>
+          </label>
+          <label>
+            追加ルール
+            <textarea id="rewriteExtraRules" rows="4" placeholder="例：元の数字は変えない / Aのセリフは短め / Bは語尾を単調にしない"></textarea>
+          </label>
+          <label>
+            対話リライト結果
+            <textarea id="dialogueRewriteDraft" rows="16" placeholder="一人語りを二人語りへリライトした台本を追記しながら整えます。"></textarea>
+          </label>
+        </article>
+      </section>
+
+      <aside class="preview-pane" aria-label="台本プレビュー">
+        <div class="preview-head">
+          <div>
+            <p class="eyebrow">Script draft</p>
+            <h2>台本下書き</h2>
+          </div>
+          <div class="preview-actions">
+            <button id="copyMarkdown" title="Markdownをコピー">コピー</button>
+            <button id="downloadMarkdown" title="Markdownファイルを保存">保存</button>
+            <button id="saveProject" title="中間成果物を保存">プロジェクト保存</button>
+          </div>
+        </div>
+        <pre id="scriptPreview"></pre>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
