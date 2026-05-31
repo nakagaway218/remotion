@@ -41,3 +41,5 @@ Mytool/*.exe
 Mytool/*_output.pdf
 Mytool/~temp_*.pdf
 Mytool/merge_state.txt
+Mytool/folder_backup_sync_settings.json
+*.lnk
