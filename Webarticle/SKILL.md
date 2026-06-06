@@ -14,6 +14,7 @@ Use this skill when editing the Webarticle tool.
 
 - Edit prompt builders in `server.mjs`.
 - Preserve `knowledgeSection(fields)` in downstream prompts.
+- Preserve trusted-source discovery before NotebookLM memo creation for specialized topics.
 - Preserve synopsis approval behavior.
 - Preserve the preflight check behavior and pass `preflightCheck` into body and summary prompts.
 - Keep prompt output labels clear for manual ChatGPT or NotebookLM transfer.
@@ -28,6 +29,7 @@ Use this skill when editing the Webarticle tool.
 ### Import Changes
 
 - CSV and source material import logic lives in `public/app.js`.
+- Rakko GPTs pasteback parsing also lives in `public/app.js`.
 - Rakko API logic lives in `server.mjs`.
 - New source-material fields must be included in `fields()`.
 

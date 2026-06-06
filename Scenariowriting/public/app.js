@@ -27,15 +27,22 @@ const ids = [
   "relationship",
   "model",
   "chatgptPrompt",
+  "trustedSources",
   "knowledgeMemo",
   "referenceVideos",
+  "referenceScripts",
+  "referencePlots",
   "sourceMaterials",
   "notebookResearchSet",
   "articleTitles",
   "intentOutput",
   "audienceInsightOutput",
+  "rakkoGptsResult",
   "competitorOutlines",
   "outlineOutput",
+  "synopsisTaskType",
+  "plotInput",
+  "planningCheckPoints",
   "synopsisOutput",
   "synopsisRevisionNote",
   "approvedSynopsis",
@@ -74,6 +81,7 @@ const adoptSynopsisButton = document.getElementById("adoptSynopsis");
 const synopsisAdoptStatus = document.getElementById("synopsisAdoptStatus");
 const outlineCsv = document.getElementById("outlineCsv");
 const csvStatus = document.getElementById("csvStatus");
+const applyRakkoGptsResultButton = document.getElementById("applyRakkoGptsResult");
 const storageKey = "youtube-script-workflow-state-v1";
 let outlineSourcePages = [];
 
@@ -158,15 +166,22 @@ const fields = () => ({
   characterBRole: elements.characterBRole.value,
   characterBTone: elements.characterBTone.value,
   relationship: elements.relationship.value,
+  trustedSources: elements.trustedSources.value,
   knowledgeMemo: elements.knowledgeMemo.value,
   referenceVideos: elements.referenceVideos.value,
+  referenceScripts: elements.referenceScripts.value,
+  referencePlots: elements.referencePlots.value,
   sourceMaterials: elements.sourceMaterials.value,
   notebookResearchSet: elements.notebookResearchSet.value,
   articleTitles: elements.articleTitles.value,
   intent: elements.intentOutput.value,
   audienceInsight: elements.audienceInsightOutput.value,
+  rakkoGptsResult: elements.rakkoGptsResult.value,
   competitorOutlines: elements.competitorOutlines.value,
   outline: elements.outlineOutput.value,
+  synopsisTaskType: elements.synopsisTaskType.value,
+  plotInput: elements.plotInput.value,
+  planningCheckPoints: elements.planningCheckPoints.value,
   synopsis: elements.approvedSynopsis.value || elements.synopsisOutput.value,
   synopsisOutput: elements.synopsisOutput.value,
   approvedSynopsis: elements.approvedSynopsis.value,
@@ -194,6 +209,7 @@ const fields = () => ({
 });
 
 const outputTarget = {
+  sourceDiscovery: elements.trustedSources,
   knowledge: elements.knowledgeMemo,
   intent: elements.intentOutput,
   audienceInsight: elements.audienceInsightOutput,
@@ -398,6 +414,20 @@ const parseCsv = (text) => {
 };
 
 const cleanCell = (value) => String(value || "").replace(/\s+/g, " ").trim();
+const irrelevantHeadingPatterns = [
+  /関連記事|関連する記事|おすすめ記事|おすすめの商品|あなたへのおすすめ/,
+  /人気記事|新着記事|最近の投稿|よく読まれている記事|ランキング/,
+  /記事を探す|記事検索|検索フォーム|検索 article|search article/i,
+  /カテゴリー|カテゴリから探す|category|タグ|keywords|キーワード/,
+  /商品を探す|商品一覧|買い物|ショッピングガイド|shopping guide/i,
+  /sns|フォロー|follow me/i,
+  /メニュー|menu|qrコード|アクセスマップ|会社情報|問い合わせ|資料請求/,
+  /ブランドサイト|キャンペーン|応募|参加する|pick up/i,
+];
+const isRelevantHeadingLine = (line) => {
+  const text = cleanCell(line).replace(/^(?:h[1-6]|中見出し|小見出し)\s*[:：]\s*/i, "");
+  return text && !irrelevantHeadingPatterns.some((pattern) => pattern.test(text));
+};
 const headingLevel = (value) => {
   const normalized = cleanCell(value).toLowerCase();
   const match = normalized.match(/(?:^|[^a-z0-9])(h[1-6])(?:[^a-z0-9]|$)/);
@@ -451,7 +481,7 @@ const jsonToOutline = (text) => {
           const label = level === "h2" ? "中見出し" : "小見出し";
           return `${label}：${cleanCell(headline.text)}`;
         })
-        .filter((line) => !line.endsWith("："));
+        .filter((line) => !line.endsWith("：") && isRelevantHeadingLine(line));
 
       return {rank, title, url, headlines};
     })
@@ -476,6 +506,89 @@ const jsonToOutline = (text) => {
         .join("\n"),
     )
     .join("\n\n");
+};
+
+const extractJsonCandidate = (text) => {
+  const source = String(text || "").trim();
+  const fenced = source.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) {
+    return fenced[1].trim();
+  }
+  const firstBrace = source.indexOf("{");
+  const lastBrace = source.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return source.slice(firstBrace, lastBrace + 1);
+  }
+  return source;
+};
+
+const textToOutline = (text) => {
+  const lines = String(text || "")
+    .split(/\r?\n/)
+    .map(cleanCell)
+    .filter(Boolean);
+  const kept = [];
+  let headingCount = 0;
+  const prefixPattern =
+    /^(?:\d+\s*位の記事|記事\s*\d+|タイトル[:：]|URL[:：]|https?:\/\/|中見出し[:：]|小見出し[:：]|h[23]\s*[:：])/i;
+
+  lines.forEach((line) => {
+    const normalized = line.replace(/^\s*[-*]\s*/, "");
+    const htmlHeading = normalized.match(/^(h[23])\s*[:：]\s*(.+)$/i);
+    const scriptHeading = normalized.match(/^(中見出し|小見出し)\s*[:：]\s*(.+)$/);
+    if (htmlHeading) {
+      const label = htmlHeading[1].toLowerCase() === "h2" ? "中見出し" : "小見出し";
+      const heading = `${label}：${htmlHeading[2].trim()}`;
+      if (isRelevantHeadingLine(heading)) {
+        kept.push(heading);
+        headingCount += 1;
+      }
+      return;
+    }
+    if (scriptHeading) {
+      const heading = `${scriptHeading[1]}：${scriptHeading[2].trim()}`;
+      if (isRelevantHeadingLine(heading)) {
+        kept.push(heading);
+        headingCount += 1;
+      }
+      return;
+    }
+    if (prefixPattern.test(normalized)) {
+      kept.push(normalized);
+    }
+  });
+
+  if (!headingCount) {
+    throw new Error("GPTs結果からh2/h3見出しを判定できませんでした。JSONか、h2：/h3：形式の出力を貼り付けてください。");
+  }
+
+  return kept.join("\n");
+};
+
+const rakkoGptsResultToOutline = (text) => {
+  const candidate = extractJsonCandidate(text);
+  if (candidate.trimStart().startsWith("{")) {
+    return jsonToOutline(candidate);
+  }
+  return textToOutline(text);
+};
+
+const applyRakkoGptsResult = () => {
+  const text = elements.rakkoGptsResult.value.trim();
+  if (!text) {
+    setToast("先にラッコGPTsの結果を貼り付けてください。", "error");
+    return;
+  }
+
+  try {
+    elements.competitorOutlines.value = rakkoGptsResultToOutline(text);
+    saveState();
+    csvStatus.textContent =
+      "ラッコGPTs結果を反映しました。台本では、視聴者ニーズと話題候補の材料として扱ってください。";
+    setToast("ラッコGPTs結果を反映しました。", "success");
+  } catch (error) {
+    setToast(error.message || "ラッコGPTs結果の反映に失敗しました。", "error");
+  }
 };
 
 const rowsToOutline = (rows) => {
@@ -515,7 +628,10 @@ const rowsToOutline = (rows) => {
     const key = url || title || `CSV ${Math.floor(rowIndex / 60) + 1}`;
     const page = pageGroups.get(key) || {title, url, headlines: []};
     const label = level === "h2" ? "中見出し" : level === "h3" ? "小見出し" : "h1";
-    page.headlines.push(`${label}：${text}`);
+    const line = `${label}：${text}`;
+    if (isRelevantHeadingLine(line)) {
+      page.headlines.push(line);
+    }
     if (!page.title && title) {
       page.title = title;
     }
@@ -602,7 +718,10 @@ const uniqueUrls = (urls) => [...new Set(urls.map((url) => url.trim()).filter(Bo
 const buildNotebookResearchSet = () => {
   const sourceUrls = uniqueUrls([
     ...outlineSourcePages.map((page) => page.url),
+    ...urlsFromText(elements.trustedSources.value),
     ...urlsFromText(elements.referenceVideos.value),
+    ...urlsFromText(elements.referenceScripts.value),
+    ...urlsFromText(elements.referencePlots.value),
     ...urlsFromText(elements.transcriptVideoUrls.value),
     ...urlsFromText(elements.sourceMaterials.value),
     ...urlsFromText(elements.competitorOutlines.value),
@@ -624,8 +743,17 @@ const buildNotebookResearchSet = () => {
   elements.notebookResearchSet.value = `# NotebookLMへの調査依頼
 「${elements.videoTitle.value.trim()}」のYouTube台本を作るために、以下のURLや資料をソースとして確認してください。
 
+# 重要情報ソース候補
+${elements.trustedSources.value.trim() || "まだ重要情報ソース候補がありません。先に「情報ソース候補プロンプト」で候補を整理すると、NotebookLMに読み込ませる資料を選びやすくなります。"}
+
 # 参考動画
 ${elements.referenceVideos.value.trim() || "参考動画がある場合は、動画URL・タイトル・要点・書き起こし抜粋をここに追加してください。"}
+
+# 参考台本
+${elements.referenceScripts.value.trim() || "参考台本がある場合は、台本本文・URL・使いたい言い回しをここに追加してください。"}
+
+# 参考プロット
+${elements.referencePlots.value.trim() || "参考プロットがある場合は、構成・展開・山場・感情変化をここに追加してください。"}
 
 # 参考URL
 ${rankedSources || urlList || "まだURLがありません。CSVを読み込むか、資料URLを貼り付けてください。"}
@@ -771,6 +899,7 @@ apiDetails.addEventListener("toggle", syncApiActions);
 adoptSynopsisButton.addEventListener("click", adoptSynopsis);
 document.getElementById("adoptRewriteSynopsis").addEventListener("click", adoptRewriteSynopsis);
 outlineCsv.addEventListener("change", importOutlineCsv);
+applyRakkoGptsResultButton.addEventListener("click", applyRakkoGptsResult);
 sourceMaterialsFile.addEventListener("change", importSourceMaterials);
 
 checkServer();

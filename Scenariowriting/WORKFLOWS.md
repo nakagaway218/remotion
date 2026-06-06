@@ -1,15 +1,39 @@
 # Workflows: Scenariowriting
 
+## Launch
+
+- Double-click `B_Scenariowriting_Start.cmd` to start the local server and open the browser.
+- Use `B_Scenariowriting_Index.html` only when the server is already running.
+- The app opens at `http://localhost:4174`.
+
 ## Shared Knowledge Workflow
 
 1. Enter the video title and script settings.
-2. For specialized topics, create a `NotebookLM用プロンプト`.
-3. Paste NotebookLM output into `NotebookLMで作成した基礎知識メモ`.
+2. For specialized topics, create an `情報ソース候補プロンプト`.
+3. Paste trusted source candidates into `重要情報ソースリスト`.
 4. Import or paste source materials into `インポートした文献・資料`.
-5. If URLs are available from CSV/JSON or source materials, click `リサーチセット作成` and paste the generated research set into NotebookLM.
-6. Continue into the script workflow.
+5. If URLs are available from CSV/JSON, trusted sources, reference videos, or source materials, click `リサーチセット作成` and paste the generated research set into NotebookLM.
+6. Load high-priority sources into NotebookLM.
+7. Paste NotebookLM output into `NotebookLMで作成した基礎知識メモ`.
+8. Continue into the script workflow.
 
 The knowledge memo and source materials should be reflected in all three script workflows.
+The trusted source list should also be reflected in all three script workflows.
+
+## Trusted Source Workflow
+
+1. In `基礎知識`, click `情報ソース候補プロンプト`.
+2. Paste the prompt into ChatGPT.
+3. Paste the returned list into `重要情報ソースリスト`.
+4. Separate sources for:
+   - fact checking
+   - basic knowledge
+   - structure reference
+   - speaking-style reference
+   - dialogue-conversion reference
+5. Use `リサーチセット作成` to prepare the NotebookLM request.
+6. Load the high-priority sources into NotebookLM.
+7. Paste NotebookLM's source-grounded memo into `NotebookLMで作成した基礎知識メモ`.
 
 ## 一人語り Workflow
 
@@ -60,6 +84,21 @@ The knowledge memo and source materials should be reflected in all three script 
 2. In `目次構成`, click `CSV/JSON読込`.
 3. The tool converts h2/h3 into `中見出し` and `小見出し`.
 4. URLs from the imported file are also used by `リサーチセット作成`.
+5. Treat imported headings as viewer needs and topic candidates, not as the final script outline.
+
+## Rakko GPTs Workflow
+
+1. In `目次構成`, click `ラッコGPTs用プロンプト`.
+2. Paste the prompt into the user's ChatGPT GPTs that has Rakko Keyword API Actions configured.
+3. Paste the returned JSON or h2/h3 text into `ラッコGPTs結果`.
+4. Click `GPTs結果を反映`.
+5. Confirm the converted `中見出し` and `小見出し` appear in `検索上位記事の目次構成`.
+6. Use the outline prompt to reorganize the material for video flow.
+7. Run `台本前チェック` to separate:
+   - viewer needs to pick up
+   - topic candidates to use
+   - points not to cover in the video
+   - anxieties or questions usable in the opening
 
 ## Verification Workflow
 
@@ -84,8 +123,10 @@ The tool writes:
 
 - `request.json`
 - `characters.json`
+- `trusted-sources.md`
 - `knowledge.md`
 - `sources.md`
+- `rakko-gpts.md`
 - `search-intent.md`
 - `serp-analysis.md`
 - `outline.md`

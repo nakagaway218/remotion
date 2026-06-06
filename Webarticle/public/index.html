@@ -117,13 +117,22 @@
                 資料読込
                 <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
               </label>
+              <button data-prompt="sourceDiscovery">情報ソース候補プロンプト</button>
               <button class="primary" data-prompt="knowledge">NotebookLM用プロンプト</button>
               <button id="buildResearchSet">リサーチセット作成</button>
             </div>
           </div>
           <p class="inline-note">
-            専門性が高い記事では、NotebookLMで作ったメモに加えて、手元の文献・資料の本文や抜粋も入れられます。空欄でも次へ進めます。
+            専門性が高い記事では、先に信頼できる情報ソース候補を整理し、NotebookLMに読み込ませてから基礎知識メモを作ります。通常の記事では空欄でも次へ進めます。
           </p>
+          <label>
+            重要情報ソースリスト
+            <textarea
+              id="trustedSources"
+              rows="10"
+              placeholder="公的機関、専門団体、一次情報、信頼できる解説記事など、NotebookLMに読み込ませたいソース候補を貼り付けます。URL、資料名、信頼できる理由、記事で使う観点を書いてください。"
+            ></textarea>
+          </label>
           <label>
             NotebookLMで作成した基礎知識メモ
             <textarea
@@ -172,11 +181,21 @@
                 CSV/JSON読込
                 <input id="rakkoCsv" type="file" accept=".csv,.json,text/csv,application/json" />
               </label>
+              <button data-prompt="rakkoGpts">ラッコGPTs用プロンプト</button>
+              <button id="applyRakkoGptsResult">GPTs結果を反映</button>
               <button id="fetchRakko">ラッコから取得</button>
               <button class="primary" data-prompt="outline">ChatGPT用プロンプト</button>
               <button class="api-action" data-generate="outline">API生成</button>
             </div>
           </div>
+          <label>
+            ラッコGPTs結果
+            <textarea
+              id="rakkoGptsResult"
+              rows="8"
+              placeholder="ChatGPTのラッコキーワード連携GPTsが返したJSONまたは見出しテキストを貼り付けます。貼り付け後に「GPTs結果を反映」を押します。"
+            ></textarea>
+          </label>
           <label>
             検索上位5記事の構成
             <textarea

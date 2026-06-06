@@ -6,10 +6,12 @@ const ids = [
   "articlePurpose",
   "articleTone",
   "chatgptPrompt",
+  "trustedSources",
   "knowledgeMemo",
   "sourceMaterials",
   "notebookResearchSet",
   "intentOutput",
+  "rakkoGptsResult",
   "competitorOutlines",
   "outlineOutput",
   "synopsisOutput",
@@ -40,6 +42,7 @@ const rakkoCsv = document.getElementById("rakkoCsv");
 const sourceMaterialsFile = document.getElementById("sourceMaterialsFile");
 const copyPromptButton = document.getElementById("copyPrompt");
 const buildResearchSetButton = document.getElementById("buildResearchSet");
+const applyRakkoGptsResultButton = document.getElementById("applyRakkoGptsResult");
 const apiDetails = document.getElementById("apiDetails");
 const adoptSynopsisButton = document.getElementById("adoptSynopsis");
 const synopsisAdoptStatus = document.getElementById("synopsisAdoptStatus");
@@ -98,9 +101,11 @@ const fields = () => ({
   bodyAllocation: elements.bodyAllocation.value,
   articlePurpose: elements.articlePurpose.value,
   articleTone: elements.articleTone.value,
+  trustedSources: elements.trustedSources.value,
   knowledgeMemo: elements.knowledgeMemo.value,
   sourceMaterials: elements.sourceMaterials.value,
   intent: elements.intentOutput.value,
+  rakkoGptsResult: elements.rakkoGptsResult.value,
   competitorOutlines: elements.competitorOutlines.value,
   outline: elements.outlineOutput.value,
   synopsis: elements.approvedSynopsis.value || elements.synopsisOutput.value,
@@ -116,6 +121,7 @@ const fields = () => ({
 });
 
 const outputTarget = {
+  sourceDiscovery: elements.trustedSources,
   knowledge: elements.knowledgeMemo,
   intent: elements.intentOutput,
   outline: elements.outlineOutput,
@@ -481,6 +487,78 @@ const jsonToRakkoOutline = (text) => {
     .join("\n\n");
 };
 
+const extractJsonCandidate = (text) => {
+  const source = String(text || "").trim();
+  const fenced = source.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fenced) {
+    return fenced[1].trim();
+  }
+  const firstBrace = source.indexOf("{");
+  const lastBrace = source.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) {
+    return source.slice(firstBrace, lastBrace + 1);
+  }
+  return source;
+};
+
+const textToRakkoOutline = (text) => {
+  const lines = String(text || "")
+    .split(/\r?\n/)
+    .map(cleanCell)
+    .filter(Boolean);
+  const kept = [];
+  let headingCount = 0;
+  const prefixPattern =
+    /^(?:\d+\s*位の記事|記事\s*\d+|タイトル[:：]|URL[:：]|https?:\/\/|h[23]\s*[:：])/i;
+
+  lines.forEach((line) => {
+    const normalized = line.replace(/^\s*[-*]\s*/, "");
+    const match = normalized.match(/^(h[23])\s*[:：]\s*(.+)$/i);
+    if (match) {
+      const heading = `${match[1].toLowerCase()}：${match[2].trim()}`;
+      if (isRelevantHeadingLine(heading)) {
+        kept.push(heading);
+        headingCount += 1;
+      }
+      return;
+    }
+    if (prefixPattern.test(normalized)) {
+      kept.push(normalized);
+    }
+  });
+
+  if (!headingCount) {
+    throw new Error("GPTs結果からh2/h3見出しを判定できませんでした。JSONか、h2：/h3：形式の出力を貼り付けてください。");
+  }
+
+  return kept.join("\n");
+};
+
+const rakkoGptsResultToOutline = (text) => {
+  const candidate = extractJsonCandidate(text);
+  if (candidate.trimStart().startsWith("{")) {
+    return jsonToRakkoOutline(candidate);
+  }
+  return textToRakkoOutline(text);
+};
+
+const applyRakkoGptsResult = () => {
+  const text = elements.rakkoGptsResult.value.trim();
+  if (!text) {
+    setToast("先にラッコGPTsの結果を貼り付けてください。", "error");
+    return;
+  }
+
+  try {
+    elements.competitorOutlines.value = rakkoGptsResultToOutline(text);
+    saveState();
+    rakkoStatus.textContent = "ラッコGPTs結果を構成用の上位見出しテキストへ反映しました。";
+    setToast("ラッコGPTs結果を反映しました。", "success");
+  } catch (error) {
+    setToast(error.message || "ラッコGPTs結果の反映に失敗しました。", "error");
+  }
+};
+
 const transposedRowsToRakkoOutline = (rows) => {
   const labels = new Map(rows.map((row) => [rowLabel(row[0]), row]));
   const rankRow = labels.get("rank") || [];
@@ -587,6 +665,7 @@ const uniqueUrls = (urls) => [...new Set(urls.map((url) => url.trim()).filter(Bo
 const buildNotebookResearchSet = () => {
   const sourceUrls = uniqueUrls([
     ...rakkoSourcePages.map((page) => page.url),
+    ...urlsFromText(elements.trustedSources.value),
     ...urlsFromText(elements.sourceMaterials.value),
     ...urlsFromText(elements.competitorOutlines.value),
   ]).slice(0, 20);
@@ -605,6 +684,9 @@ const buildNotebookResearchSet = () => {
 
   elements.notebookResearchSet.value = `# NotebookLMへの調査依頼
 「${elements.keyword.value.trim()}」の記事を書くために、以下のURLや資料をソースとして確認してください。
+
+# 重要情報ソース候補
+${elements.trustedSources.value.trim() || "まだ重要情報ソース候補がありません。先に「情報ソース候補プロンプト」で候補を整理すると、NotebookLMに読み込ませる資料を選びやすくなります。"}
 
 # 参考URL
 ${rankedSources || urlList || "まだURLがありません。ラッコJSON/CSVを読み込むか、文献URLを貼り付けてください。"}
@@ -758,6 +840,7 @@ rakkoCsv.addEventListener("change", importRakkoCsv);
 sourceMaterialsFile.addEventListener("change", importSourceMaterials);
 copyPromptButton.addEventListener("click", copyPrompt);
 buildResearchSetButton.addEventListener("click", buildNotebookResearchSet);
+applyRakkoGptsResultButton.addEventListener("click", applyRakkoGptsResult);
 apiDetails.addEventListener("toggle", syncApiActions);
 adoptSynopsisButton.addEventListener("click", adoptSynopsis);
 

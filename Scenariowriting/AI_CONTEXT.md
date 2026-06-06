@@ -41,9 +41,13 @@ The broader system now treats this as part of a four-flow content workspace toge
 
 ## Important Product Decisions
 
-- `NotebookLMで作成した基礎知識メモ` and `インポートした文献・資料` are optional but should feed all relevant script prompts.
+- `重要情報ソースリスト`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` are optional but should feed all relevant script prompts.
 - The knowledge step applies to all three script workflows.
+- Specialized topics should support a trusted-source discovery step before NotebookLM memo creation.
+- Trusted sources for scripts should distinguish fact-checking sources from structure, speaking-style, and dialogue-conversion references.
 - `リサーチセット作成` builds a NotebookLM research prompt and URL list from imported outline/source fields.
+- Rakko CSV/JSON and Rakko GPTs results should be treated as viewer needs and topic candidates for scripts, not as the final script outline.
+- The preflight check should explicitly review which Rakko-derived topics to pick up, which to exclude, and which anxieties/questions can be used in the opening.
 - Imported source materials currently support `txt`, `md`, and `csv`.
 - PDF and Word files should be copied or converted to text unless parsing is added later.
 - Synopsis approval is intentional:
@@ -55,9 +59,9 @@ The broader system now treats this as part of a four-flow content workspace toge
 
 ## Main Files
 
-- `server.mjs`: local server, prompt builders, OpenAI API generation, cost guardrails.
-- `public/index.html`: UI structure and workflow panels.
-- `public/app.js`: UI behavior, local storage, CSV/JSON/source import, prompt calls.
+- `server.mjs`: local server, prompt builders, trusted-source discovery, OpenAI API generation, Rakko GPTs prompt, cost guardrails.
+- `public/index.html`: UI structure and workflow panels, including Rakko GPTs pasteback controls.
+- `public/app.js`: UI behavior, local storage, CSV/JSON/source import, Rakko GPTs result parsing, prompt calls.
 - `public/styles.css`: visual design.
 - `package.json`: scripts.
 - `script-projects/`: saved per-script intermediate artifacts.

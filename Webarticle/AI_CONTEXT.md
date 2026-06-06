@@ -25,21 +25,22 @@ The default operation is manual prompt transfer:
 
 ## Important Product Decisions
 
-- `NotebookLMで作成した基礎知識メモ` and `インポートした文献・資料` are optional, but when present they must be included in downstream prompts.
+- `重要情報ソースリスト`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` are optional, but when present they must be included in downstream prompts.
 - The knowledge step must not require OpenAI API usage.
+- Specialized topics should support a trusted-source discovery step before NotebookLM memo creation.
 - Imported source materials currently support text-like files such as `txt`, `md`, and `csv`.
 - PDF and Word files should be handled by copying text into the source materials field or by converting to text first, unless a future feature explicitly adds parsing.
 - The synopsis approval step is intentional. Downstream prompts should use `approvedSynopsis` first, then fall back to `synopsisOutput`.
 - The preflight check step is intentional. Body and summary prompts should use it when present to preserve title promises, h2 boundaries, and summary design.
-- Rakko keyword integration supports both manual CSV import and API-based headline fetching. CSV import is the preferred low-cost path.
+- Rakko keyword integration supports manual CSV/JSON import, ChatGPT GPTs Actions handoff, and API-based headline fetching. CSV/JSON import and GPTs handoff are the preferred low-cost paths.
 - API calls must keep cost guardrails: `OPENAI_COST_CAP_USD`, `OPENAI_MAX_OUTPUT_TOKENS`, and saved usage in `data/usage.json`.
 - `プロジェクト保存` writes structured intermediate artifacts under `article-projects/` so future skills or sub-agents can resume without relying on chat history.
 
 ## Main Files
 
 - `server.mjs`: local server, prompt builders, OpenAI API generation, Rakko API integration, cost guardrails.
-- `public/index.html`: UI structure and workflow panels.
-- `public/app.js`: UI behavior, local storage, CSV/source import, prompt creation calls.
+- `public/index.html`: UI structure and workflow panels, including Rakko GPTs pasteback controls.
+- `public/app.js`: UI behavior, local storage, CSV/source import, Rakko GPTs result parsing, prompt creation calls.
 - `public/styles.css`: visual design.
 - `README.md`: user-facing usage guide.
 - `ANTIGRAVITY.md`: handoff notes for Antigravity.

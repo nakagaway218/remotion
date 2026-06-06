@@ -24,7 +24,9 @@ const contentTypes = {
 };
 
 const stepLabels = {
+  sourceDiscovery: "情報ソース候補",
   knowledge: "基礎知識",
+  rakkoGpts: "ラッコGPTs連携",
   intent: "検索意図",
   outline: "構成",
   synopsis: "あらすじ",
@@ -37,7 +39,9 @@ const stepLabels = {
 };
 
 const stepTokenLimits = {
+  sourceDiscovery: 1200,
   knowledge: 1200,
+  rakkoGpts: 1200,
   intent: 1000,
   outline: 1700,
   synopsis: 1100,
@@ -101,7 +105,10 @@ const articleSettings = (fields) => {
 - 本文の分量配分：${bodyAllocation}
 - トーン：${articleTone}`;
 };
-const knowledgeSection = (fields) => `# NotebookLMで作成した基礎知識メモ
+const knowledgeSection = (fields) => `# 重要情報ソースリスト
+${fields.trustedSources || "なし"}
+
+# NotebookLMで作成した基礎知識メモ
 ${fields.knowledgeMemo || "なし"}
 
 # インポートした文献・資料
@@ -148,6 +155,42 @@ const usageSummary = (usage) => ({
 });
 
 const promptBuilders = {
+  sourceDiscovery: ({keyword, ...fields}) => ({
+    instructions:
+      "あなたはWeb記事のリサーチ設計者です。NotebookLMに読み込ませるための、重要で信頼性の高い情報ソース候補を日本語で整理してください。",
+    input: `「${keyword}」の記事を書く前に、NotebookLMへ読み込ませるべき重要情報ソースをリストアップしてください。
+
+${articleSettings(fields)}
+
+# 既にある文献・資料
+${fields.sourceMaterials || "なし"}
+
+# 検索上位記事の構成・URL
+${fields.competitorOutlines || "なし"}
+
+# 選定方針
+- 公的機関、専門団体、学会、法律・制度の一次情報、メーカー公式、専門家監修ページなどを優先する
+- 医療、美容、法律、金融、育児、教育など高い正確性が必要な分野では、古い情報や出典不明のまとめ記事を避ける
+- SEO上位記事は参考にしてよいが、事実確認の根拠としては一次情報や専門性の高い資料を優先する
+- NotebookLMに読み込ませる価値が低い広告ページ、商品一覧、口コミだけのページ、出典不明記事は除外する
+- URLが不明な場合は、探すべき資料名や組織名を示す
+
+# 出力形式
+重要情報ソースリスト
+- ソース名：
+  URL：
+  種別：公的機関 / 専門団体 / 一次情報 / 専門家解説 / その他
+  信頼できる理由：
+  記事で使う観点：
+  NotebookLMへ読み込ませる優先度：高 / 中 / 低
+
+除外した方がよいソース
+- ソースの種類：
+  理由：
+
+追加で探すべきキーワード
+- ...`,
+  }),
   knowledge: ({keyword, ...fields}) => ({
     target: "NotebookLM",
     instructions:
@@ -156,6 +199,9 @@ const promptBuilders = {
 
 # インポートした文献・資料
 ${fields.sourceMaterials || "なし"}
+
+# 重要情報ソースリスト
+${fields.trustedSources || "なし"}
 
 # 調査の観点
 - 読者が理解しておくべき前提知識
@@ -179,6 +225,50 @@ ${fields.sourceMaterials || "なし"}
 
 記事へ活かす観点
 - 構成や本文に反映したいこと`,
+  }),
+  rakkoGpts: ({keyword, ...fields}) => ({
+    target: "ラッコキーワード連携GPTs",
+    instructions:
+      "あなたはラッコキーワードAPIと接続されたGPTsです。キーワードの検索上位記事から、SEO記事構成に使うh2/h3見出しだけを取得し、指定形式のJSONだけで返してください。",
+    input: `「${keyword}」について、ラッコキーワードAPIの見出し抽出を使い、検索上位5記事のh2/h3を取得してください。
+
+${articleSettings(fields)}
+
+# API取得条件
+- 対象キーワード：${keyword}
+- 取得件数：上位5記事
+- 見出し：h2、h3のみ
+- h1、h4、h5、h6、本文文字数、不要な本文データは含めない
+- 検索順位の昇順で並べる
+
+# 除外する見出し
+以下のような、記事本文ではないサイト共通パーツや回遊導線は除外してください。
+- 関連記事、おすすめ記事、人気記事、新着記事、記事一覧
+- カテゴリー、タグ、キーワード一覧、検索フォーム
+- ランキング、商品一覧、買い物情報、ショッピングガイド
+- SNSフォロー、メニュー、会社情報、アクセス、問い合わせ、資料請求
+- ブランドサイト、キャンペーン、応募、参加
+
+# 出力形式
+説明文や補足は入れず、以下のJSONだけを返してください。
+
+{
+  "data": {
+    "items": [
+      {
+        "metrics": {"position": 1},
+        "page": {
+          "title": "記事タイトル",
+          "url": "https://example.com/article"
+        },
+        "headlines": [
+          {"level": "h2", "text": "見出し"},
+          {"level": "h3", "text": "見出し"}
+        ]
+      }
+    ]
+  }
+}`,
   }),
   intent: ({keyword, ...fields}) => ({
     instructions:
@@ -536,7 +626,9 @@ ${prompt.input}`;
 };
 
 const requiredFields = {
+  sourceDiscovery: ["keyword"],
   knowledge: ["keyword"],
+  rakkoGpts: ["keyword"],
   intent: ["keyword"],
   outline: ["keyword", "intent", "competitorOutlines"],
   synopsis: ["keyword", "intent", "outline"],
@@ -734,8 +826,10 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
+    "trusted-sources.md": `# 重要情報ソースリスト\n\n${compact(fields.trustedSources) || "なし"}\n`,
     "knowledge.md": `# NotebookLMで作成した基礎知識メモ\n\n${compact(fields.knowledgeMemo) || "なし"}\n\n# NotebookLM用リサーチセット\n\n${compact(fields.notebookResearchSet) || "なし"}\n`,
     "sources.md": `# インポートした文献・資料\n\n${compact(fields.sourceMaterials) || "なし"}\n`,
+    "rakko-gpts.md": `# ラッコGPTs結果\n\n${compact(fields.rakkoGptsResult) || "なし"}\n`,
     "search-intent.md": `# 検索意図\n\n${compact(fields.intent) || "なし"}\n`,
     "serp-analysis.md": `# 検索上位記事の構成\n\n${compact(fields.competitorOutlines) || "なし"}\n`,
     "outline.md": `# 記事構成\n\n${compact(fields.outline) || "なし"}\n`,
@@ -752,7 +846,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
   };
 
   await mkdir(projectDir, {recursive: true});

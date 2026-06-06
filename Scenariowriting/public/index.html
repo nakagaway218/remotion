@@ -184,7 +184,7 @@
           <button data-panel="intent">2 検索意図</button>
           <button data-panel="audienceInsight">3 視聴者理解</button>
           <button data-panel="outline">4 目次構成</button>
-          <button data-panel="synopsis">5 あらすじ確認</button>
+          <button data-panel="synopsis">5 設計確認</button>
           <button data-panel="preflight">6 台本前チェック</button>
           <button data-panel="introEnding">7 冒頭・締め</button>
           <button data-panel="body">8 本文</button>
@@ -202,13 +202,22 @@
                 資料読込
                 <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
               </label>
+              <button data-prompt="sourceDiscovery">情報ソース候補プロンプト</button>
               <button class="primary" data-prompt="knowledge">NotebookLM用プロンプト</button>
               <button id="buildResearchSet">リサーチセット作成</button>
             </div>
           </div>
           <p class="inline-note">
-            専門性が高い台本では、NotebookLMで作ったメモに加えて、参考動画、手元の文献・資料の本文や抜粋も入れられます。一人語り、対談系、一人語りから対話形式への変換のすべてに使われます。
+            専門性が高い台本では、先に信頼できる情報ソース候補を整理し、NotebookLMに読み込ませてから基礎知識メモを作ります。一人語り、対談系、一人語りから対話形式への変換のすべてに使われます。
           </p>
+          <label>
+            重要情報ソースリスト
+            <textarea
+              id="trustedSources"
+              rows="10"
+              placeholder="公的機関、専門団体、一次情報、信頼できる解説、参考動画、参考台本など、NotebookLMに読み込ませたいソース候補を貼り付けます。URL、資料名、信頼できる理由、台本で使う観点を書いてください。"
+            ></textarea>
+          </label>
           <label>
             NotebookLMで作成した基礎知識メモ
             <textarea
@@ -223,6 +232,22 @@
               id="referenceVideos"
               rows="10"
               placeholder="参考動画が複数ある場合は、1本ずつURL、タイトル、要点、使いたい表現、書き起こし抜粋を入れます。例：動画1｜URL｜タイトル｜参考にしたい構成・言い回し"
+            ></textarea>
+          </label>
+          <label>
+            参考台本
+            <textarea
+              id="referenceScripts"
+              rows="10"
+              placeholder="参考にしたい台本本文、URL、セリフの言い回し、構成上よい箇所を貼り付けます。複数ある場合は台本1、台本2のように分けてください。"
+            ></textarea>
+          </label>
+          <label>
+            参考プロット
+            <textarea
+              id="referencePlots"
+              rows="10"
+              placeholder="参考にしたいプロット、展開、山場、感情変化、構成メモを貼り付けます。複数ある場合はプロット1、プロット2のように分けてください。"
             ></textarea>
           </label>
           <label>
@@ -287,15 +312,25 @@
                 CSV/JSON読込
                 <input id="outlineCsv" type="file" accept=".csv,.json,text/csv,application/json" />
               </label>
+              <button data-prompt="rakkoGpts">ラッコGPTs用プロンプト</button>
+              <button id="applyRakkoGptsResult">GPTs結果を反映</button>
               <button class="primary" data-prompt="outline">ChatGPT用プロンプト</button>
               <button class="api-action" data-generate="outline">API生成</button>
             </div>
           </div>
           <label>
+            ラッコGPTs結果
+            <textarea
+              id="rakkoGptsResult"
+              rows="8"
+              placeholder="ChatGPTのラッコキーワード連携GPTsが返したJSONまたは見出しテキストを貼り付けます。台本では、見出しをそのまま使わず、視聴者ニーズと話題候補として扱います。"
+            ></textarea>
+          </label>
+          <label>
             検索上位記事の目次構成
             <textarea id="competitorOutlines" rows="10" placeholder="参考記事の h1、h2、h3 を貼り付けます。CSV/JSON読込も使えます。"></textarea>
           </label>
-          <p class="inline-note" id="csvStatus">CSV/JSONを読み込むと、h2/h3 を中見出し/小見出しに整えて入力します。</p>
+          <p class="inline-note" id="csvStatus">CSV/JSONやGPTs結果を読み込むと、h2/h3 を中見出し/小見出しに整えます。台本では、これを視聴者ニーズと話題候補の材料として使います。</p>
           <label>
             目次構成保存用
             <textarea id="outlineOutput" rows="14" placeholder="中見出し、小見出し形式の目次を保存します。"></textarea>
@@ -304,7 +339,7 @@
 
         <article class="step-panel" id="synopsis">
           <div class="panel-head">
-            <h2>あらすじ確認</h2>
+            <h2>あらすじ・構成・プロット確認</h2>
             <div class="panel-actions">
               <button class="primary" data-prompt="synopsis">ChatGPT用プロンプト</button>
               <button data-prompt="synopsisReview">修正プロンプト</button>
@@ -312,8 +347,34 @@
             </div>
           </div>
           <label>
-            あらすじ下書き
-            <textarea id="synopsisOutput" rows="10" placeholder="中心メッセージ、全体の流れ、キャラクター運用メモを貼り付けます。"></textarea>
+            この工程で作成・確認するもの
+            <select id="synopsisTaskType">
+              <option value="synopsis">あらすじ作成</option>
+              <option value="outlineCheck">構成チェック</option>
+              <option value="plot">プロット作成</option>
+              <option value="plotCheck">プロットチェック</option>
+              <option value="fullPlanning">あらすじ・構成・プロット総合チェック</option>
+            </select>
+          </label>
+          <label>
+            既存プロット・確認したいメモ
+            <textarea
+              id="plotInput"
+              rows="6"
+              placeholder="プロットチェックをする場合は既存プロットを貼り付けます。構成チェックの場合は気になる点や前提条件を書けます。"
+            ></textarea>
+          </label>
+          <label>
+            チェック観点
+            <textarea
+              id="planningCheckPoints"
+              rows="4"
+              placeholder="例：検索意図からズレていないか / 参考プロットの山場を活かせているか / 冒頭の問題提起が弱くないか"
+            ></textarea>
+          </label>
+          <label>
+            作成・確認結果
+            <textarea id="synopsisOutput" rows="10" placeholder="あらすじ、構成チェック結果、プロット、プロットチェック結果などを貼り付けます。"></textarea>
           </label>
           <label>
             修正したい点
