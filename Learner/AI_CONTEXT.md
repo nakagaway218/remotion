@@ -43,6 +43,8 @@ OpenAI API direct answering is a secondary future-ready option. It exists in the
 - Voice input through Chrome Web Speech API.
 - Automatic prompt creation with `出力の深さ：解答解説を教えてほしい`.
 - Prompt wording asks the AI for problem-book style explanations, not just answers.
+- First answers should stay readable: usually 300-450 Japanese characters, with 600-700 characters allowed for difficult math, advanced science, English long-form tasks, or classical text structure analysis.
+- Math and science answers should include a concise `模範解答` section that reads like an answer sheet, separate from the explanatory section.
 - AI answer pasteback area before Step4 follow-up.
 - Step4 follow-up options:
   - 数学・理科: `[別解を知りたい]`, `[解説を詳しく説明してほしい]`, `[次に進む]`
@@ -63,7 +65,7 @@ Important behavior to preserve:
 
 - Step guidance should return button-like labels in `[ラベル]` form.
 - Learning answers should use a high-school friendly schema.
-- Math and science should include reasoning, formulas, intermediate steps, and why the method is chosen.
+- Math and science should include reasoning, formulas, intermediate steps, why the method is chosen, and a clean model-answer section.
 - English composition should provide formal and casual versions, nuance differences, and unnatural-expression warnings.
 - 古文・漢文 should include original source names when applicable.
 - Hidden warning rules about homework dumping and repeated formula/word-meaning questions should stay in the GPTs prompt if the user asks for them, but they should not appear as visible UI controls.
