@@ -1,0 +1,1284 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>京大理系院卒のスーパー講師ならこう教える・・・ってお前AIだろ！</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --ink: #1d2433;
+      --muted: #687386;
+      --line: #dfe4ee;
+      --brand: #2457c5;
+      --brand-strong: #163f9c;
+      --accent: #0f8b6f;
+      --warn: #b45309;
+      --danger: #b42318;
+      --shadow: 0 10px 26px rgba(29, 36, 51, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    button,
+    textarea,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+    }
+
+    .sidebar {
+      background: #172033;
+      color: #fff;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .brand-description {
+      margin: 8px 0 0;
+      color: #cdd6e7;
+      font-size: 14px;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .status-item {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .status-label {
+      display: block;
+      color: #aebbd2;
+      font-size: 12px;
+    }
+
+    .status-value {
+      display: block;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    .main {
+      padding: 28px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .step-title {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(320px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .guide {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .button-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .choice-button,
+    .secondary-button,
+    .icon-button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
+    }
+
+    .choice-button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      font-weight: 700;
+    }
+
+    .choice-button:hover,
+    .choice-button:focus-visible {
+      border-color: var(--brand);
+      background: #eef4ff;
+      outline: none;
+    }
+
+    .choice-button.primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .choice-button.primary:hover,
+    .choice-button.primary:focus-visible {
+      background: var(--brand-strong);
+      border-color: var(--brand-strong);
+    }
+
+    .secondary-button,
+    .icon-button {
+      padding: 8px 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .secondary-button:hover,
+    .icon-button:hover {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: #eef4ff;
+    }
+
+    .question-area {
+      display: grid;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    textarea:focus {
+      border-color: var(--brand);
+      outline: 3px solid rgba(36, 87, 197, 0.16);
+    }
+
+    .file-row {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px dashed #a8b3c7;
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+
+    .preview {
+      max-width: 100%;
+      max-height: 220px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      object-fit: contain;
+      background: #fff;
+      display: none;
+    }
+
+    .output-box {
+      display: grid;
+      gap: 10px;
+    }
+
+    .copy-target {
+      min-height: 210px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #f9fafc;
+    }
+
+    .answer-target {
+      min-height: 180px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .hint {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .notice {
+      border-left: 4px solid var(--accent);
+      background: #eefaf6;
+      padding: 10px 12px;
+      border-radius: 0 8px 8px 0;
+      color: #17463b;
+      font-size: 14px;
+    }
+
+    .warning {
+      border-left-color: var(--warn);
+      background: #fff7ed;
+      color: #663c00;
+    }
+
+    .danger {
+      border-left-color: var(--danger);
+      background: #fff1f0;
+      color: #7a1d16;
+    }
+
+    .history {
+      display: grid;
+      gap: 8px;
+      max-height: 260px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .history-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .history-item strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        padding: 22px 18px;
+      }
+
+      .main {
+        padding: 18px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div>
+        <h1 class="brand-title">京大理系院卒のスーパー講師ならこう教える・・・ってお前AIだろ！</h1>
+        <p class="brand-description">理系高校生向け学習ガイド（Wi-Fi環境下での使用を推奨します）</p>
+      </div>
+
+      <ul class="status-list" aria-label="現在の状態">
+        <li class="status-item">
+          <span class="status-label">使用AI</span>
+          <span class="status-value" id="statusProvider">未選択</span>
+        </li>
+        <li class="status-item">
+          <span class="status-label">科目</span>
+          <span class="status-value" id="statusSubject">未選択</span>
+        </li>
+        <li class="status-item">
+          <span class="status-label">入力方法</span>
+          <span class="status-value" id="statusInput">未選択</span>
+        </li>
+        <li class="status-item">
+          <span class="status-label">出力の深さ</span>
+          <span class="status-value" id="statusDepth">未選択</span>
+        </li>
+      </ul>
+
+      <div class="notice">
+        このHTMLはAIへ送る操作文を作る補助ツールです。選んだAIの画面に貼り付けて使えます。
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar" id="toolbar">
+        <h2 class="step-title" id="stepTitle">Step0 AI選択</h2>
+        <div class="toolbar-actions">
+          <button class="secondary-button" type="button" id="setupPromptButton">初期設定を作成</button>
+          <button class="secondary-button" type="button" id="backButton">戻る</button>
+          <button class="secondary-button" type="button" id="forwardButton">進む</button>
+          <button class="secondary-button" type="button" id="resetButton">最初から</button>
+        </div>
+      </div>
+
+      <section class="panel hidden" id="finishedPanel">
+        <p id="finishedMessage">お疲れ様でした。ご利用ありがとうございます。画面を閉じてください。</p>
+      </section>
+
+      <div class="layout" id="mainLayout">
+        <section class="panel" id="operationPanel">
+          <h2>操作ボタン</h2>
+          <p class="guide" id="stepGuide">次の操作は、この中から選んで入力するかコピペしてください</p>
+          <div class="button-grid" id="buttonGrid"></div>
+
+          <div class="question-area hidden" id="questionArea">
+            <label for="questionText"><strong>質問文</strong></label>
+            <textarea id="questionText" placeholder="例：二次関数 y=x^2-4x+3 の最小値を求める方法を教えて"></textarea>
+            <button class="choice-button" type="button" id="voiceInputButton">音声入力を開始</button>
+            <p class="hint" id="voiceInputStatus">Chromeでマイク許可をオンにすると、質問文を音声入力できます。</p>
+            <button class="choice-button primary" type="button" id="makeQuestionButton">質問文を作成</button>
+            <button class="choice-button" type="button" id="askApiButton">ChatGPT APIで直接質問</button>
+          </div>
+
+          <div class="question-area hidden" id="answerPasteArea">
+            <label for="answerPasteText"><strong>AIから返ってきた回答</strong></label>
+            <textarea id="answerPasteText" placeholder="ChatGPT / Claude / Gemini の回答をここに貼り付けてください"></textarea>
+            <label>
+              <input id="includePreviousAnswer" type="checkbox">
+              前回回答を追加依頼に含める
+            </label>
+            <button class="choice-button primary" type="button" id="saveAnswerButton">回答を保存して追加オプションへ</button>
+          </div>
+
+          <div class="question-area hidden" id="detailRequestArea">
+            <label for="detailRequestText"><strong>どこを詳しく説明してほしいですか？</strong></label>
+            <textarea id="detailRequestText" placeholder="例：なぜ77の倍数を数えればよいのかを詳しく説明してほしい"></textarea>
+            <button class="choice-button primary" type="button" id="makeDetailRequestButton">詳しい解説依頼を作成</button>
+          </div>
+
+          <div class="file-row hidden" id="imageArea">
+            <label for="imageInput"><strong>画像を選択</strong></label>
+            <input id="imageInput" type="file" accept="image/*">
+            <img class="preview" id="imagePreview" alt="選択した画像のプレビュー">
+            <p class="hint">OCRは選択したAI側で行います。ここでは画像送信後に使う確認ボタンを作れます。</p>
+          </div>
+        </section>
+
+        <section class="panel output-box" id="outputPanel">
+          <h2>AIに送る文面</h2>
+          <div class="copy-target" id="copyTarget">まず使用するAIを選んでください。</div>
+          <div class="toolbar-actions">
+            <button class="secondary-button" type="button" id="copyButton">コピー</button>
+            <button class="secondary-button" type="button" id="openChatButton">コピーしてAIを開く</button>
+          </div>
+          <p class="hint" id="openChatHint">「コピーしてAIを開く」を押した後、開いたチャット欄に Ctrl+V で貼り付けて送信してください。</p>
+        </section>
+
+        <section class="panel output-box" id="apiPanel">
+          <h2>直接回答</h2>
+          <div class="answer-target" id="apiAnswer">ローカルサーバー起動後、「ChatGPT APIで直接質問」から回答を表示できます。</div>
+          <p class="hint">APIキーはHTMLに保存しません。`C_Learner_Server.cjs` 側で環境変数 `OPENAI_API_KEY` を使います。</p>
+        </section>
+
+        <section class="panel" id="historyPanel">
+          <h2>履歴</h2>
+          <div class="history" id="history"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const subjects = ["数学", "英語", "物理", "化学", "生物", "地学", "古文", "漢文"];
+    const scienceSubjects = ["数学", "物理", "化学", "生物", "地学"];
+    const providers = [
+      {
+        id: "chatgpt",
+        label: "ChatGPT",
+        url: "https://chatgpt.com/",
+      },
+      {
+        id: "claude",
+        label: "Claude",
+        url: "https://claude.ai/",
+      },
+      {
+        id: "gemini",
+        label: "Gemini",
+        url: "https://gemini.google.com/",
+      },
+    ];
+    const state = {
+      step: "provider",
+      provider: "",
+      providerUrl: "",
+      subject: "",
+      input: "",
+      depth: "",
+      lastAnswer: "",
+      pendingFollowupLabel: "",
+      history: [],
+      stack: [],
+      forwardStack: [],
+      outputLabel: "",
+    };
+
+    const elements = {
+      statusProvider: document.getElementById("statusProvider"),
+      statusSubject: document.getElementById("statusSubject"),
+      statusInput: document.getElementById("statusInput"),
+      statusDepth: document.getElementById("statusDepth"),
+      sidebar: document.getElementById("sidebar"),
+      toolbar: document.getElementById("toolbar"),
+      stepTitle: document.getElementById("stepTitle"),
+      stepGuide: document.getElementById("stepGuide"),
+      buttonGrid: document.getElementById("buttonGrid"),
+      questionArea: document.getElementById("questionArea"),
+      questionText: document.getElementById("questionText"),
+      voiceInputButton: document.getElementById("voiceInputButton"),
+      voiceInputStatus: document.getElementById("voiceInputStatus"),
+      makeQuestionButton: document.getElementById("makeQuestionButton"),
+      askApiButton: document.getElementById("askApiButton"),
+      answerPasteArea: document.getElementById("answerPasteArea"),
+      answerPasteText: document.getElementById("answerPasteText"),
+      includePreviousAnswer: document.getElementById("includePreviousAnswer"),
+      saveAnswerButton: document.getElementById("saveAnswerButton"),
+      detailRequestArea: document.getElementById("detailRequestArea"),
+      detailRequestText: document.getElementById("detailRequestText"),
+      makeDetailRequestButton: document.getElementById("makeDetailRequestButton"),
+      imageArea: document.getElementById("imageArea"),
+      imageInput: document.getElementById("imageInput"),
+      imagePreview: document.getElementById("imagePreview"),
+      mainLayout: document.getElementById("mainLayout"),
+      finishedPanel: document.getElementById("finishedPanel"),
+      copyTarget: document.getElementById("copyTarget"),
+      apiAnswer: document.getElementById("apiAnswer"),
+      copyButton: document.getElementById("copyButton"),
+      openChatButton: document.getElementById("openChatButton"),
+      setupPromptButton: document.getElementById("setupPromptButton"),
+      backButton: document.getElementById("backButton"),
+      forwardButton: document.getElementById("forwardButton"),
+      resetButton: document.getElementById("resetButton"),
+      openChatHint: document.getElementById("openChatHint"),
+      history: document.getElementById("history"),
+    };
+
+    function setOutput(text, label = "操作文") {
+      state.outputLabel = label;
+      elements.copyTarget.textContent = text;
+      if (text && text !== "まず科目を選んでください。" && text !== "まず使用するAIを選んでください。") {
+        state.history.unshift({ label, text, time: new Date().toLocaleTimeString("ja-JP") });
+        state.history = state.history.slice(0, 10);
+      }
+      renderOutputActions();
+      renderHistory();
+    }
+
+    function pushStep(nextStep) {
+      state.stack.push(state.step);
+      state.forwardStack = [];
+      state.step = nextStep;
+      render();
+    }
+
+    function isFollowupStep() {
+      return ["afterAnswer", "scienceExtra", "detailRequest", "nextAction", "continueSubject"].includes(state.step);
+    }
+
+    function renderOutputActions() {
+      const hideOpenChat = isFollowupStep() || state.outputLabel === "追加オプション" || state.outputLabel === "回答保存";
+      elements.openChatButton.classList.toggle("hidden", hideOpenChat);
+      elements.openChatHint.classList.toggle("hidden", hideOpenChat);
+    }
+
+    function setFollowupOutput(text) {
+      setOutput(text, "追加オプション");
+      elements.openChatButton.classList.add("hidden");
+      elements.openChatHint.classList.add("hidden");
+    }
+
+    function makeButton(label, onClick, primary = false) {
+      const button = document.createElement("button");
+      button.className = primary ? "choice-button primary" : "choice-button";
+      button.type = "button";
+      button.textContent = `[${label}]`;
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    function renderButtons(items) {
+      elements.buttonGrid.innerHTML = "";
+      items.forEach((item) => {
+        elements.buttonGrid.appendChild(makeButton(item.label, item.onClick, item.primary));
+      });
+    }
+
+    function showOnlyBaseControls() {
+      elements.questionArea.classList.add("hidden");
+      elements.answerPasteArea.classList.add("hidden");
+      elements.detailRequestArea.classList.add("hidden");
+      elements.imageArea.classList.add("hidden");
+      elements.stepGuide.classList.remove("hidden");
+      elements.buttonGrid.classList.remove("hidden");
+    }
+
+    function renderStatus() {
+      elements.statusProvider.textContent = state.provider || "未選択";
+      elements.statusSubject.textContent = state.subject || "未選択";
+      elements.statusInput.textContent = state.input || "未選択";
+      elements.statusDepth.textContent = state.depth || "未選択";
+      elements.openChatButton.textContent = state.provider ? `コピーして${state.provider}を開く` : "コピーしてAIを開く";
+      elements.backButton.disabled = state.stack.length === 0;
+      elements.forwardButton.disabled = state.forwardStack.length === 0;
+      renderOutputActions();
+    }
+
+    function renderHistory() {
+      elements.history.innerHTML = "";
+      if (state.history.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "hint";
+        empty.textContent = "まだ履歴はありません。";
+        elements.history.appendChild(empty);
+        return;
+      }
+      state.history.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "history-item";
+        div.innerHTML = `<strong>${escapeHtml(item.label)} / ${escapeHtml(item.time)}</strong>${escapeHtml(item.text)}`;
+        elements.history.appendChild(div);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+
+    function buildFollowupPrompt(label) {
+      const answerText = elements.includePreviousAnswer.checked && state.lastAnswer
+        ? `\n\n# 前回のAI回答\n${state.lastAnswer}`
+        : "";
+      return `# 追加依頼
+科目：${state.subject || "未選択"}
+依頼：${label}
+
+同じチャットの流れを踏まえて、学習者が理解を深められるように説明してください。${answerText}`;
+    }
+
+    function buildDetailFollowupPrompt(detail) {
+      const target = detail.trim() || "前回の回答で説明が薄い部分";
+      return buildFollowupPrompt(`[解説を詳しく説明してほしい]\n詳しくしてほしい箇所：${target}`);
+    }
+
+    function buildApiQuestion(question) {
+      const depth = state.depth || "解答解説を教えてほしい";
+      return `# 質問
+科目：${state.subject || "未選択"}
+出力の深さ：${depth}
+
+# 回答方針
+答えだけを出さず、問題集の解説のように、考え方、使う公式・定理、途中式、なぜその方法を選ぶのか、最後の確認まで説明してください。
+簡単な問題でも、学習者が同じ型の問題を自力で解けるように手順化してください。
+
+${question}`;
+    }
+
+    function ensureDefaultDepth() {
+      if (!state.depth) {
+        state.depth = "解答解説を教えてほしい";
+      }
+    }
+
+    function appendQuestionText(text) {
+      const current = elements.questionText.value.trim();
+      elements.questionText.value = current ? `${current}\n${text}` : text;
+      elements.questionText.focus();
+    }
+
+    function createSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        return null;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.lang = "ja-JP";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      return recognition;
+    }
+
+    function requestDetailFollowup() {
+      state.pendingFollowupLabel = "解説を詳しく説明してほしい";
+      elements.detailRequestText.value = "";
+      pushStep("detailRequest");
+    }
+
+    function getSetupPrompt() {
+      const providerLine = state.provider ? `使用AI：${state.provider}` : "使用AI：未選択";
+      return `# 初期設定
+${providerLine}
+
+あなたは「高校生専用 学習QAアシスタント」です。
+対象は高校生で、対応科目は数学（数IAから数IIIC）、英語（文法・読解・英作文）、物理・化学・生物・地学、古文・漢文です。
+
+ユーザーはHTML操作パネルから送られる [ラベル] 形式の入力と、自由入力の質問文で操作します。
+Step案内では余計な説明を出さず、次のStepのボタンだけを縦並びで返してください。
+ボタンは1行に1つ、必ず [ラベル] 形式にしてください。
+ボタンを出す直前には一行だけ「次の操作は、この中から選んで入力するかコピペしてください」と表示してください。
+
+Step1 科目選択：
+[数学]
+[英語]
+[物理]
+[化学]
+[生物]
+[地学]
+[古文]
+[漢文]
+
+Step2 入力方法：
+[質問を直接入力]
+[画像を読み取り]
+画像読み取り後は [確認OK] [修正する] を使います。
+
+Step3 出力の深さ：
+[解答解説を教えてほしい]
+[解説を詳しく説明してほしい]
+
+回答スキーマ：
+# 回答（高校生向け）
+## 要点（最大3）
+- ...
+- ...
+- ...
+
+## 方針
+この問題で何に注目し、どの公式・定理・考え方を使うかを説明してください。
+
+## 詳しい説明
+数学・理科は、問題集の解説のように「考え方 → 式や処理 → 計算 → 答えの確認」の順で説明してください。途中式、公式、場合分け、単位、典型的なミスも必要に応じて含めてください。答えだけ、または短い計算列だけで終わらせないでください。
+英語は例文、訳、模範解答2案（フォーマル／カジュアル）、ニュアンス差、不自然表現注意を含めてください。
+古文は原文、現代語訳、文法、原典名を含めてください。
+漢文は書き下し、現代語訳、文法、原典名を含めてください。
+必要に応じてLaTeXやASCII図を使ってください。
+
+## まとめ
+最後に答えと、同じ型の問題で使える見分け方を一言でまとめてください。
+
+回答後の進行：
+数学・理科は [別解を知りたい] [解説を詳しく説明してほしい] [次に進む] を出します。
+英語は [解説を詳しく説明してほしい] [構造分析をしてほしい] [次に進む] を出します。
+古文は [解説を詳しく説明してほしい] [品詞分解をしてほしい] [次に進む] を出します。
+漢文は [解説を詳しく説明してほしい] [書き下しをしてほしい] [品詞分解をしてほしい] [次に進む] を出します。
+ただし、英語・古文・漢文の意味、知識確認、違い、入試に出るかなどの質問ではStep4を省略し、直接 [次の質問] [終了] を出してください。
+
+終了・例外：
+[終了] が押されたら「お疲れ様でした。ご利用ありがとうございます。画面を閉じてください。」だけを表示してください。
+[同じ科目で続ける] の直後は「次は質問を入力してください」と一行だけ表示してからStep2相当へ進めてください。
+「科目選択に戻る」と言われたらStep1を再表示してください。
+プリントやサブノート穴埋め画像を3回連続で読み取った場合は「宿題の丸投げですか？」と表示し、[はい] [いいえ] を出してください。[はい] なら「宿題の代行はしません！」と表示してStep1へ戻してください。
+公式や単語意味の質問が3回連続した場合は「いい加減にしろ！自分で調べろ！」と表示してStep2へ進めてください。
+OCR誤読時は「明るい場所で紙を真上から撮ってください」と表示してください。`;
+    }
+
+    function renderProviderStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step0 AI選択";
+      renderButtons(providers.map((provider) => ({
+        label: provider.label,
+        primary: provider.id === "chatgpt",
+        onClick: () => {
+          state.provider = provider.label;
+          state.providerUrl = provider.url;
+          setOutput(`${provider.label}を選択しました。`, "AI選択");
+          pushStep("subject");
+        },
+      })));
+    }
+
+    function renderSubjectStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step1 科目選択";
+      renderButtons(subjects.map((subject) => ({
+        label: subject,
+          onClick: () => {
+            state.subject = subject;
+            state.input = "";
+            state.depth = "";
+            state.lastAnswer = "";
+            elements.answerPasteText.value = "";
+            elements.includePreviousAnswer.checked = false;
+            setOutput(`[${subject}]`, "科目選択");
+            pushStep("input");
+          },
+      })));
+    }
+
+    function renderInputStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step2 入力方法";
+      renderButtons([
+        {
+          label: "質問を直接入力",
+          primary: true,
+          onClick: () => {
+            state.input = "質問を直接入力";
+            setOutput("[質問を直接入力]\n\n質問を入力してください", "入力方法");
+            pushStep("question");
+          },
+        },
+        {
+          label: "画像を読み取り",
+          onClick: () => {
+            state.input = "画像を読み取り";
+            setOutput("＋ボタンから画像を指定してください\n[画像を読み取り]", "入力方法");
+            pushStep("image");
+          },
+        },
+      ]);
+    }
+
+    function renderQuestionStep() {
+      elements.stepTitle.textContent = "質問入力";
+      elements.stepGuide.classList.add("hidden");
+      elements.buttonGrid.classList.add("hidden");
+      elements.imageArea.classList.add("hidden");
+      elements.answerPasteArea.classList.add("hidden");
+      elements.questionArea.classList.remove("hidden");
+    }
+
+    function renderPasteAnswerStep() {
+      elements.stepTitle.textContent = "AI回答の貼り付け";
+      elements.stepGuide.classList.add("hidden");
+      elements.buttonGrid.classList.add("hidden");
+      elements.questionArea.classList.add("hidden");
+      elements.imageArea.classList.add("hidden");
+      elements.detailRequestArea.classList.add("hidden");
+      elements.answerPasteArea.classList.remove("hidden");
+    }
+
+    function renderDetailRequestStep() {
+      elements.stepTitle.textContent = "詳しい解説の指定";
+      elements.stepGuide.classList.add("hidden");
+      elements.buttonGrid.classList.add("hidden");
+      elements.questionArea.classList.add("hidden");
+      elements.answerPasteArea.classList.add("hidden");
+      elements.imageArea.classList.add("hidden");
+      elements.detailRequestArea.classList.remove("hidden");
+      elements.detailRequestText.focus();
+    }
+
+    function renderImageStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "画像読み取り";
+      elements.imageArea.classList.remove("hidden");
+      renderButtons([
+        {
+          label: "確認OK",
+          primary: true,
+          onClick: () => {
+            setOutput("[確認OK]", "OCR確認");
+            pushStep("depth");
+          },
+        },
+        {
+          label: "修正する",
+          onClick: () => setOutput("[修正する]", "OCR確認"),
+        },
+      ]);
+    }
+
+    function renderDepthStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step3 出力の深さ";
+      renderButtons([
+        {
+          label: "解答解説を教えてほしい",
+          primary: true,
+          onClick: () => {
+            state.depth = "解答解説を教えてほしい";
+            setOutput("[解答解説を教えてほしい]", "出力の深さ");
+            pushStep("afterAnswer");
+          },
+        },
+        {
+          label: "解説を詳しく説明してほしい",
+          onClick: () => {
+            state.depth = "解説を詳しく説明してほしい";
+            setOutput("[解説を詳しく説明してほしい]", "出力の深さ");
+            pushStep("afterAnswer");
+          },
+        },
+      ]);
+    }
+
+    function renderAfterAnswerStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step4 追加オプション";
+      if (scienceSubjects.includes(state.subject)) {
+        renderButtons([
+          {
+            label: "別解を知りたい",
+            primary: true,
+            onClick: () => {
+              setFollowupOutput(buildFollowupPrompt("[別解を知りたい]"));
+              pushStep("scienceExtra");
+            },
+          },
+          {
+            label: "解説を詳しく説明してほしい",
+            onClick: requestDetailFollowup,
+          },
+          {
+            label: "次に進む",
+            onClick: () => {
+              setOutput("[次に進む]", "追加オプション");
+              pushStep("nextAction");
+            },
+          },
+        ]);
+        return;
+      }
+      if (state.subject === "英語") {
+        renderButtons([
+          {
+            label: "解説を詳しく説明してほしい",
+            primary: true,
+            onClick: requestDetailFollowup,
+          },
+          {
+            label: "構造分析をしてほしい",
+            onClick: () => setFollowupOutput(buildFollowupPrompt("[構造分析をしてほしい]")),
+          },
+          {
+            label: "次に進む",
+            onClick: () => {
+              setOutput("[次に進む]", "追加オプション");
+              pushStep("nextAction");
+            },
+          },
+        ]);
+        return;
+      }
+      if (state.subject === "古文") {
+        renderButtons([
+          {
+            label: "解説を詳しく説明してほしい",
+            primary: true,
+            onClick: requestDetailFollowup,
+          },
+          {
+            label: "品詞分解をしてほしい",
+            onClick: () => setFollowupOutput(buildFollowupPrompt("[品詞分解をしてほしい]")),
+          },
+          {
+            label: "次に進む",
+            onClick: () => {
+              setOutput("[次に進む]", "追加オプション");
+              pushStep("nextAction");
+            },
+          },
+        ]);
+        return;
+      }
+      if (state.subject === "漢文") {
+        renderButtons([
+          {
+            label: "解説を詳しく説明してほしい",
+            primary: true,
+            onClick: requestDetailFollowup,
+          },
+          {
+            label: "書き下しをしてほしい",
+            onClick: () => setFollowupOutput(buildFollowupPrompt("[書き下しをしてほしい]")),
+          },
+          {
+            label: "品詞分解をしてほしい",
+            onClick: () => setFollowupOutput(buildFollowupPrompt("[品詞分解をしてほしい]")),
+          },
+          {
+            label: "次に進む",
+            onClick: () => {
+              setOutput("[次に進む]", "追加オプション");
+              pushStep("nextAction");
+            },
+          },
+        ]);
+      }
+    }
+
+    function renderScienceExtraStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step4-2 数学・理科専用";
+      renderButtons([
+        {
+          label: "解説を詳しく説明してほしい",
+          primary: true,
+          onClick: requestDetailFollowup,
+        },
+        {
+          label: "次に進む",
+          onClick: () => {
+            setOutput("[次に進む]", "追加オプション");
+            pushStep("nextAction");
+          },
+        },
+      ]);
+    }
+
+    function renderNextActionStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step5 次アクション";
+      renderButtons([
+        {
+          label: "次の質問",
+          primary: true,
+          onClick: () => {
+            setOutput("[次の質問]", "次アクション");
+            pushStep("continueSubject");
+          },
+        },
+        {
+          label: "終了",
+          onClick: () => {
+            state.outputLabel = "終了";
+            pushStep("finished");
+          },
+        },
+      ]);
+    }
+
+    function renderContinueSubjectStep() {
+      showOnlyBaseControls();
+      elements.stepTitle.textContent = "Step6 科目の継続可否";
+      renderButtons([
+        {
+          label: "同じ科目で続ける",
+          primary: true,
+          onClick: () => {
+            setOutput("次は質問を入力してください\n[同じ科目で続ける]", "科目継続");
+            state.input = "質問を直接入力";
+            state.lastAnswer = "";
+            elements.answerPasteText.value = "";
+            elements.includePreviousAnswer.checked = false;
+            pushStep("question");
+          },
+        },
+        {
+          label: "別の科目にする",
+          onClick: () => {
+            setOutput("[別の科目にする]", "科目変更");
+            pushStep("subject");
+          },
+        },
+      ]);
+    }
+
+    function render() {
+      elements.mainLayout.classList.toggle("hidden", state.step === "finished");
+      elements.finishedPanel.classList.toggle("hidden", state.step !== "finished");
+      elements.sidebar.classList.toggle("hidden", state.step === "finished");
+      elements.toolbar.classList.toggle("hidden", state.step === "finished");
+      elements.setupPromptButton.classList.toggle("hidden", state.step === "finished");
+      elements.backButton.classList.toggle("hidden", state.step === "finished");
+      elements.forwardButton.classList.toggle("hidden", state.step === "finished");
+      elements.resetButton.classList.toggle("hidden", state.step === "finished");
+      if (state.step === "finished") {
+        renderStatus();
+        return;
+      }
+      renderStatus();
+      if (state.step === "provider") renderProviderStep();
+      if (state.step === "subject") renderSubjectStep();
+      if (state.step === "input") renderInputStep();
+      if (state.step === "question") renderQuestionStep();
+      if (state.step === "pasteAnswer") renderPasteAnswerStep();
+      if (state.step === "detailRequest") renderDetailRequestStep();
+      if (state.step === "image") renderImageStep();
+      if (state.step === "depth") renderDepthStep();
+      if (state.step === "afterAnswer") renderAfterAnswerStep();
+      if (state.step === "scienceExtra") renderScienceExtraStep();
+      if (state.step === "nextAction") renderNextActionStep();
+      if (state.step === "continueSubject") renderContinueSubjectStep();
+      renderStatus();
+    }
+
+    let speechRecognition = null;
+    let speechFinalText = "";
+
+    elements.voiceInputButton.addEventListener("click", () => {
+      if (!speechRecognition) {
+        speechRecognition = createSpeechRecognition();
+      }
+
+      if (!speechRecognition) {
+        elements.voiceInputStatus.textContent = "このブラウザは音声入力に対応していません。Google Chromeで開いてください。";
+        return;
+      }
+
+      speechFinalText = "";
+      elements.voiceInputButton.textContent = "聞き取り中...";
+      elements.voiceInputStatus.textContent = "話してください。聞き取りが終わると質問欄に追加されます。";
+
+      speechRecognition.onresult = (event) => {
+        let interimText = "";
+        for (let index = event.resultIndex; index < event.results.length; index += 1) {
+          const transcript = event.results[index][0].transcript.trim();
+          if (event.results[index].isFinal) {
+            speechFinalText += transcript;
+          } else {
+            interimText += transcript;
+          }
+        }
+        elements.voiceInputStatus.textContent = interimText
+          ? `聞き取り中：${interimText}`
+          : "音声を認識しています...";
+      };
+
+      speechRecognition.onend = () => {
+        elements.voiceInputButton.textContent = "音声入力を開始";
+        if (speechFinalText.trim()) {
+          appendQuestionText(speechFinalText.trim());
+          elements.voiceInputStatus.textContent = "音声入力を質問欄に追加しました。";
+        } else {
+          elements.voiceInputStatus.textContent = "音声を認識できませんでした。もう一度試してください。";
+        }
+      };
+
+      speechRecognition.onerror = (event) => {
+        elements.voiceInputButton.textContent = "音声入力を開始";
+        elements.voiceInputStatus.textContent = `音声入力でエラーが出ました：${event.error}`;
+      };
+
+      try {
+        speechRecognition.start();
+      } catch (error) {
+        elements.voiceInputButton.textContent = "音声入力を開始";
+        elements.voiceInputStatus.textContent = "音声入力はすでに起動中です。少し待ってからもう一度押してください。";
+      }
+    });
+
+    elements.makeQuestionButton.addEventListener("click", () => {
+      const question = elements.questionText.value.trim();
+      if (!question) {
+        setOutput("質問を入力してください", "質問入力案内");
+        elements.questionText.focus();
+        return;
+      }
+      ensureDefaultDepth();
+      const message = buildApiQuestion(question);
+      setOutput(message, "質問文");
+      pushStep("pasteAnswer");
+    });
+
+    elements.saveAnswerButton.addEventListener("click", () => {
+      const answer = elements.answerPasteText.value.trim();
+      if (!answer) {
+        setOutput("AIから返ってきた回答を貼り付けてください。", "回答貼り付け案内");
+        elements.answerPasteText.focus();
+        return;
+      }
+      state.lastAnswer = answer;
+      setOutput("回答を保存しました。次の追加オプションを選んでください。", "回答保存");
+      pushStep("afterAnswer");
+    });
+
+    elements.makeDetailRequestButton.addEventListener("click", () => {
+      const detail = elements.detailRequestText.value.trim();
+      if (!detail) {
+        setOutput("どこを詳しく説明してほしいかを入力してください。", "詳細指定案内");
+        elements.detailRequestText.focus();
+        return;
+      }
+      setFollowupOutput(buildDetailFollowupPrompt(detail));
+      pushStep("nextAction");
+    });
+
+    elements.askApiButton.addEventListener("click", async () => {
+      const question = elements.questionText.value.trim();
+      if (!question) {
+        elements.apiAnswer.textContent = "質問を入力してください。";
+        elements.questionText.focus();
+        return;
+      }
+
+      ensureDefaultDepth();
+      const message = buildApiQuestion(question);
+      setOutput(message, "質問文");
+      elements.apiAnswer.textContent = "回答を作成中です...";
+
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            setupPrompt: getSetupPrompt(),
+            prompt: message,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.error || "API通信に失敗しました。");
+        }
+
+        elements.apiAnswer.textContent = data.answer;
+        state.lastAnswer = data.answer;
+        elements.answerPasteText.value = data.answer;
+        pushStep("afterAnswer");
+      } catch (error) {
+        elements.apiAnswer.textContent = `直接回答を使うには、ローカルサーバーを起動してください。\n\n${error.message}`;
+      }
+    });
+
+    elements.imageInput.addEventListener("change", () => {
+      const file = elements.imageInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      elements.imagePreview.src = url;
+      elements.imagePreview.style.display = "block";
+      setOutput("画像を添付したうえで、次を送信してください。\n[画像を読み取り]", "画像読み取り");
+    });
+
+    elements.copyButton.addEventListener("click", async () => {
+      const text = elements.copyTarget.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        elements.copyButton.textContent = "コピー済み";
+        setTimeout(() => {
+          elements.copyButton.textContent = "コピー";
+        }, 1200);
+      } catch {
+        alert("コピーできませんでした。文面を選択してコピーしてください。");
+      }
+    });
+
+    elements.setupPromptButton.addEventListener("click", () => {
+      setOutput(getSetupPrompt(), "初期設定");
+    });
+
+    elements.openChatButton.addEventListener("click", async () => {
+      const text = elements.copyTarget.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+        elements.openChatButton.textContent = "コピー済み";
+        setTimeout(renderStatus, 1200);
+      } catch {
+        alert("自動コピーできませんでした。先に「コピー」を押してから、AI画面で貼り付けてください。");
+      }
+      window.open(state.providerUrl || "https://chatgpt.com/", "_blank", "noopener");
+    });
+
+    elements.backButton.addEventListener("click", () => {
+      const previous = state.stack.pop();
+      if (!previous) return;
+      state.forwardStack.push(state.step);
+      state.step = previous;
+      render();
+    });
+
+    elements.forwardButton.addEventListener("click", () => {
+      const next = state.forwardStack.pop();
+      if (!next) return;
+      state.stack.push(state.step);
+      state.step = next;
+      render();
+    });
+
+    elements.resetButton.addEventListener("click", () => {
+      state.step = "provider";
+      state.provider = "";
+      state.providerUrl = "";
+      state.subject = "";
+      state.input = "";
+      state.depth = "";
+      state.lastAnswer = "";
+      state.pendingFollowupLabel = "";
+      state.stack = [];
+      state.forwardStack = [];
+      state.outputLabel = "";
+      elements.questionText.value = "";
+      elements.answerPasteText.value = "";
+      elements.includePreviousAnswer.checked = false;
+      elements.detailRequestText.value = "";
+      elements.imageInput.value = "";
+      elements.imagePreview.style.display = "none";
+      setOutput("まず使用するAIを選んでください。");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

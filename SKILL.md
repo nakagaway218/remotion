@@ -20,18 +20,27 @@ git status --short --branch
 ```
 
 3. Do not revert user changes unless the user explicitly asks.
+4. For new tools, large workflow changes, automation design, skill/sub-agent design, or unclear requests, read `REQUIREMENTS_DEFINITION.md` and prepare a small requirements definition before implementing.
 
 ## Adding A User Tool
 
 1. Create or use a dedicated folder such as `Mytool/`.
-2. Keep readable source files, such as `.bat`, `.py`, `.md`, and configuration files.
-3. Add a `README.md` explaining:
+2. Confirm the requirements gate:
+   - purpose
+   - standard operation
+   - inputs and outputs
+   - workflow steps
+   - manual vs automatic scope
+   - save files
+   - GitHub inclusion/exclusion
+3. Keep readable source files, such as `.bat`, `.py`, `.md`, and configuration files.
+4. Add a `README.md` explaining:
    - what the tool does
    - which file starts it
    - which script is the main implementation
    - required environment and libraries
    - how generated files are handled
-4. If a launcher depends on a script, keep both in the same tool folder when practical.
+5. If a launcher depends on a script, keep both in the same tool folder when practical.
 
 ## Article Conversion Workflow
 

@@ -67,6 +67,22 @@ This means `何でもPDF結合ツール.exe` can exist locally, but it is not co
 
 Only committed files are reflected on GitHub.
 
+## Requirements Definition Policy
+
+Before creating a new tool or making broad workflow changes, use `REQUIREMENTS_DEFINITION.md` as a gate.
+
+This is especially important when work may involve:
+
+- multiple tools or folders
+- manual ChatGPT/NotebookLM workflows
+- API usage or cost limits
+- external data sources such as Rakko Keyword
+- project-save structures
+- reusable skills or sub-agent style task splitting
+- GitHub sync decisions
+
+The goal is to avoid starting with a narrow implementation and repeatedly expanding it after discovering missing workflow requirements.
+
 ## Markdown File Selection Policy
 
 Before pushing, decide whether each `.md` file should be public project knowledge.

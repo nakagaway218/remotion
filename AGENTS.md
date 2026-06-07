@@ -12,6 +12,7 @@
 - Explain work and results in Japanese when talking with the user.
 - When using technical terms, add short explanations where helpful for beginners.
 - Use `AI_CONTEXT.md`, `DESIGN.md`, and `SKILL.md` as supporting project context when relevant.
+- For new tools, large workflow changes, automation design, skill/sub-agent design, or ambiguous requests, check `REQUIREMENTS_DEFINITION.md` before implementation and confirm a small requirements definition when needed.
 - For article conversion work, check `MyConversion/README.md` and `MyConversion/頭皮アートメイク_痛み記事_リライト_再現手順.md` before editing scripts or regenerating files.
 
 ## GitHub sync policy

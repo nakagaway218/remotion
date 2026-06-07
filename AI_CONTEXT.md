@@ -28,6 +28,7 @@ The local folder name is `Myownproject`, but the GitHub repository is still name
 - `AI_CONTEXT.md` records background and decisions from the conversation.
 - `DESIGN.md` records structure and file-management policy.
 - `SKILL.md` records repeatable workflows for this repository.
+- `REQUIREMENTS_DEFINITION.md` records the requirement-definition gate created after the Webarticle/Scenariowriting iteration, so future tool work starts with clearer scope, workflow, automation, cost, source, and GitHub-sync decisions.
 - Files outside `Myownproject/` are not automatically reflected on GitHub.
 - Files that should be reflected on GitHub should be moved or copied into `Myownproject/`.
 - Files that should not be reflected on GitHub should be ignored with `.gitignore`.
