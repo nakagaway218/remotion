@@ -25,6 +25,9 @@ const ids = [
   "characterBRole",
   "characterBTone",
   "relationship",
+  "dialogueOutputFormat",
+  "spreadsheetColumns",
+  "spreadsheetColumnExamples",
   "model",
   "chatgptPrompt",
   "trustedSources",
@@ -139,6 +142,11 @@ const syncScriptType = () => {
     dialogue || elements.soloSubCharacter.value !== "yes";
 };
 
+const syncDialogueOutputFormat = () => {
+  document.querySelector(".spreadsheet-extra-options").hidden =
+    elements.dialogueOutputFormat.value !== "spreadsheet";
+};
+
 const fields = () => ({
   videoTitle: elements.videoTitle.value,
   scriptType: elements.scriptType.value,
@@ -166,6 +174,9 @@ const fields = () => ({
   characterBRole: elements.characterBRole.value,
   characterBTone: elements.characterBTone.value,
   relationship: elements.relationship.value,
+  dialogueOutputFormat: elements.dialogueOutputFormat.value,
+  spreadsheetColumns: elements.spreadsheetColumns.value,
+  spreadsheetColumnExamples: elements.spreadsheetColumnExamples.value,
   trustedSources: elements.trustedSources.value,
   knowledgeMemo: elements.knowledgeMemo.value,
   referenceVideos: elements.referenceVideos.value,
@@ -881,6 +892,9 @@ ids.forEach((id) => {
     if (id === "scriptType" || id === "soloSubCharacter") {
       syncScriptType();
     }
+    if (id === "dialogueOutputFormat") {
+      syncDialogueOutputFormat();
+    }
     if (id === "approvedSynopsis") {
       syncSynopsisAdoptStatus();
     }
@@ -906,5 +920,6 @@ checkServer();
 refreshPreview();
 syncApiActions();
 syncScriptType();
+syncDialogueOutputFormat();
 syncSynopsisAdoptStatus();
 syncRewriteSynopsisAdoptStatus();

@@ -133,6 +133,38 @@ const characterSettings = (fields) => {
   }`;
 };
 
+const dialogueOutputFormatSettings = (fields) => {
+  if (fields.dialogueOutputFormat === "spreadsheet") {
+    const customColumns = compact(fields.spreadsheetColumns)
+      .split(/\r?\n|,|、/)
+      .map((column) => compact(column))
+      .filter(Boolean);
+    const columns = customColumns.length ? customColumns : ["人物", "セリフ"];
+
+    return `# 複数人物台本の出力形式
+- 形式：Spreadsheet（Excel）向け
+- 区切り：タブ区切り
+- 1行目に列見出しを出力する
+- 列：${columns.join(" / ")}
+- 各行は「${columns.join("\\t")}」の順番で出力する
+- 「人物」「セリフ」の順番も、上記の列順を厳守する
+- セリフ内にタブや改行を入れない
+- 列ごとの選択肢・例がある場合は、できるだけその語彙や粒度に合わせる
+- 情景、表情、カメラ指示、効果音などの列は、列名に合わせて短く具体的に入れる
+- 入れる内容がない列は空欄にする
+- 不要な列がある場合でも、指定された列数は保つ
+
+# 列ごとの選択肢・例
+${compact(fields.spreadsheetColumnExamples) || "指定なし"}`;
+  }
+
+  return `# 複数人物台本の出力形式
+- 形式：Documents（Word）向け
+- 「人物：セリフ」の形式で出力する
+- 情景や表情が必要な場合は、セリフの前後に短い地の文または丸括弧で自然に入れる
+- 読み上げや編集がしやすいよう、1セリフは長くしすぎない`;
+};
+
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
 
@@ -469,6 +501,8 @@ ${scriptSettings(fields)}
 
 ${characterSettings(fields)}
 
+${dialogueOutputFormatSettings(fields)}
+
 ${knowledgeSection(fields)}
 
 # ユーザーの検索意図
@@ -749,11 +783,9 @@ ${preflightCheck || "なし"}
 - 台本前チェック結果に冒頭・エンディング設計がある場合は、それを優先して問いと回収を対応させる
 
 # 出力形式
-## イントロダクション
-台本
-
-## エンディング
-台本`,
+- 「## イントロダクション」「## エンディング」に分ける
+- 複数人物が登場する箇所は「複数人物台本の出力形式」に従う
+- 一人語りだけの箇所は通常の台本文として出力する`,
   }),
   body: ({
     videoTitle,
@@ -775,6 +807,8 @@ ${preflightCheck || "なし"}
 ${scriptSettings({...fields, bodyLength})}
 
 ${characterSettings(fields)}
+
+${dialogueOutputFormatSettings(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -815,10 +849,9 @@ ${extraRules || "なし"}
 - 同じ語尾を続けすぎない
 
 # 出力形式
-中見出し：見出し
-台本
-小見出し：見出し
-台本`,
+- 中見出し・小見出しを残す
+- 複数人物が登場する箇所は「複数人物台本の出力形式」に従う
+- 一人語りだけの箇所は通常の台本文として出力する`,
   }),
   transcriptCleanup: ({videoTitle, transcriptVideoUrls, rawTranscript, transcriptRules, ...fields}) => ({
     instructions:
@@ -863,6 +896,8 @@ ${transcriptRules || "えー、あの、重複、言い直し、不要な相づ�
 ${scriptSettings({...fields, scriptType: "dialogue"})}
 
 ${characterSettings({...fields, scriptType: "dialogue"})}
+
+${dialogueOutputFormatSettings(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -923,6 +958,8 @@ ${scriptSettings({...fields, scriptType: "dialogue"})}
 
 ${characterSettings({...fields, scriptType: "dialogue"})}
 
+${dialogueOutputFormatSettings(fields)}
+
 ${knowledgeSection(fields)}
 
 # 整形済み一人語りセリフ
@@ -966,6 +1003,8 @@ ${rewriteAnalysis}
 ${scriptSettings({...fields, scriptType: "dialogue"})}
 
 ${characterSettings({...fields, scriptType: "dialogue"})}
+
+${dialogueOutputFormatSettings(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -1018,6 +1057,8 @@ ${scriptSettings({...fields, scriptType: "dialogue"})}
 
 ${characterSettings({...fields, scriptType: "dialogue"})}
 
+${dialogueOutputFormatSettings(fields)}
+
 ${knowledgeSection(fields)}
 
 # 整形済み一人語りセリフ
@@ -1050,9 +1091,8 @@ ${rewriteExtraRules || "なし"}
 - 台本前チェック結果がある場合は、対話リライト注意点とキャラの役割分担を守る
 
 # 出力形式
-中見出し：見出し
-${compact(fields.characterAName) || "キャラクターA"}：セリフ
-${compact(fields.characterBName) || "キャラクターB"}：セリフ`,
+- 中見出しを残す
+- 二人の会話部分は「複数人物台本の出力形式」に従う`,
   }),
 };
 
@@ -1196,6 +1236,9 @@ const saveScriptProject = async (fields, draftMarkdown) => {
     targetLength: compact(fields.targetLength),
     bodyLength: compact(fields.bodyLength),
     videoTone: compact(fields.videoTone),
+    dialogueOutputFormat: compact(fields.dialogueOutputFormat),
+    spreadsheetColumns: compact(fields.spreadsheetColumns),
+    spreadsheetColumnExamples: compact(fields.spreadsheetColumnExamples),
     createdAt: now.toISOString(),
   };
   const characterPlan = {

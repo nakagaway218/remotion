@@ -145,6 +145,33 @@
               <textarea id="relationship" rows="3" placeholder="例：Aは悩みを持つ初心者、Bは経験者。Aが疑問を投げ、Bが噛み砕いて説明する。"></textarea>
             </label>
           </div>
+          <div class="output-format-settings">
+            <label>
+              複数人物の出力形式
+              <select id="dialogueOutputFormat">
+                <option value="document">Documents（Word）形式：人物：セリフ</option>
+                <option value="spreadsheet">Spreadsheet（Excel）形式：人物／セリフ列</option>
+              </select>
+            </label>
+            <div class="spreadsheet-extra-options" hidden>
+              <label class="wide">
+                列順
+                <textarea
+                  id="spreadsheetColumns"
+                  rows="3"
+                  placeholder="Excelに出したい列名を順番に入力します。例：セリフ、人物、表情、情景 / 人物、セリフ、カメラ指示、効果音"
+                ></textarea>
+              </label>
+              <label class="wide">
+                列ごとの選択肢・例
+                <textarea
+                  id="spreadsheetColumnExamples"
+                  rows="5"
+                  placeholder="例：&#10;表情：笑顔、驚き、不安、真剣、困惑&#10;情景：室内、街中、スマホ画面、資料表示&#10;カメラ指示：寄り、引き、テロップ表示"
+                ></textarea>
+              </label>
+            </div>
+          </div>
         </section>
 
         <section class="chatgpt-prompt-pane" aria-label="プロンプト連携">

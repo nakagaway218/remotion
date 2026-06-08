@@ -166,13 +166,16 @@ p {
 .settings-grid,
 .solo-settings,
 .sub-character-settings,
-.dialogue-settings {
+.dialogue-settings,
+.output-format-settings,
+.spreadsheet-extra-options {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
 }
 
-.sub-character-settings[hidden] {
+.sub-character-settings[hidden],
+.spreadsheet-extra-options[hidden] {
   display: none;
 }
 
@@ -406,7 +409,9 @@ p {
   .settings-grid,
   .solo-settings,
   .sub-character-settings,
-  .dialogue-settings {
+  .dialogue-settings,
+  .output-format-settings,
+  .spreadsheet-extra-options {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -429,6 +434,8 @@ p {
   .solo-settings,
   .sub-character-settings,
   .dialogue-settings,
+  .output-format-settings,
+  .spreadsheet-extra-options,
   .step-tabs {
     grid-template-columns: 1fr;
   }
