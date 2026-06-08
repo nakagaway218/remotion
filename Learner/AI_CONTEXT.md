@@ -52,6 +52,7 @@ OpenAI API direct answering is a secondary future-ready option. It exists in the
   - 古文: `[解説を詳しく説明してほしい]`, `[品詞分解をしてほしい]`, `[次に進む]`
   - 漢文: `[解説を詳しく説明してほしい]`, `[書き下しをしてほしい]`, `[品詞分解をしてほしい]`, `[次に進む]`
 - Step4 follow-up prompts hide `コピーしてAIを開く`; they only need copying into the already-open chat.
+- Math and science follow-up prompts, especially `[別解を知りたい]`, should also require a model-answer style section, not just explanatory prose.
 - `[解説を詳しく説明してほしい]` asks the user which part needs more detail.
 - Optional checkbox: include previous answer in follow-up prompt for later resumed chats.
 - Back and forward navigation.

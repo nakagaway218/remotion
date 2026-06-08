@@ -722,11 +722,14 @@
       const answerText = elements.includePreviousAnswer.checked && state.lastAnswer
         ? `\n\n# 前回のAI回答\n${state.lastAnswer}`
         : "";
+      const scienceFollowupRule = scienceSubjects.includes(state.subject)
+        ? `\n\n# 数学・理科の追加依頼ルール\n別解や追加説明でも、解説だけで終わらせないでください。\n特に [別解を知りたい] の場合は、次の形で出してください。\n\n## 別解の考え方\n前回とは違う見方、公式、図、式変形、処理方法などを説明してください。\n\n## 別解の模範解答\n答案としてそのまま書ける形で、式変形や根拠を簡潔にまとめてください。\n説明口調ではなく、採点者に見せる答案の形にしてください。\n\n## 答え\n前回の答えと一致するかを確認してください。\n\n自然な別解がない場合は、無理に作らず、その理由を短く説明してください。`
+        : "";
       return `# 追加依頼
 科目：${state.subject || "未選択"}
 依頼：${label}
 
-同じチャットの流れを踏まえて、学習者が理解を深められるように説明してください。${answerText}`;
+同じチャットの流れを踏まえて、学習者が理解を深められるように説明してください。${scienceFollowupRule}${answerText}`;
     }
 
     function buildDetailFollowupPrompt(detail) {
