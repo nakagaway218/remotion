@@ -39,7 +39,7 @@ When `[終了]` is selected:
 - Hide `AIに送る文面`.
 - Show only `お疲れ様でした。ご利用ありがとうございます。画面を閉じてください。`
 
-## Basic Reference-Material Workflow
+## Removed Reference-Material Workflow
 
 The old reference-material workflow was removed intentionally.
 
@@ -47,11 +47,6 @@ Do not restore these behaviors unless explicitly requested:
 
 - Opening Excel or PowerPoint files from the HTML.
 - Showing a reference-material panel.
+- Appending `基本確認資料` to generated prompts.
+- Adding subject-linked notes for trigonometry, English modal expressions, or Japanese auxiliary verbs.
 - Adding `Open_...Reference.cmd` launchers.
-
-The safe replacement is embedded prompt notes:
-
-- Extract stable, concise notes into `materials/`.
-- Keep the normal direct-open HTML workflow.
-- Append the relevant note only when the selected subject matches.
-- Do not make the browser fetch arbitrary local files.

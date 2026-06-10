@@ -457,50 +457,6 @@
   <script>
     const subjects = ["数学", "英語", "物理", "化学", "生物", "地学", "古文", "漢文"];
     const scienceSubjects = ["数学", "物理", "化学", "生物", "地学"];
-    const subjectMaterials = {
-      "数学": {
-        title: "三角比・三角関数の基本確認",
-        source: "三角比改訂版_改善版.pptx",
-        body: [
-          "単位円では半径1の円上の点を考え、横が cosθ、縦が sinθ。",
-          "tanθ = sinθ / cosθ。cosθ = 0 のとき tanθ は未定義。代表例は 90°、270°。",
-          "基本式は sin^2θ + cos^2θ = 1。",
-          "90°ずれでは sin と cos が入れ替わり、180°ずれでは符号だけが反転し、360°ずれでは元に戻る。",
-          "特殊角の目安: 0°は tanθ=0、30°は 1/√3、45°は 1、60°は √3、90°は未定義、120°は -√3、135°は -1、150°は -1/√3、180°は 0。",
-          "解説では公式だけでなく、単位円・座標・象限による符号判断を説明する。",
-        ],
-      },
-      "英語": {
-        title: "英語助動詞表現の基本確認",
-        source: "英語助動詞表現.xlsx",
-        body: [
-          "助動詞の直後にくる動詞は原形。p.p. は過去分詞。",
-          "will は予測・予定、意志、現在の習慣。would は弱めの推測、過去の推測、過去の習慣。",
-          "must / have to は義務。must not は禁止。do/does not have to = need not は不要。",
-          "must は確信の推量、must have p.p. は過去への確信。",
-          "should は必要または確信。should have p.p. は「すべきだったのに」または「したはずだ」。should not have p.p. は「すべきではなかった」。",
-          "may は許可・推量。might は may より弱めの推量。might/may have p.p. は過去への推量。",
-          "can は許可・可能。could は弱めの推量、または過去の一般的能力。was/were able to は一回限りの成功。",
-          "cannot/can't は「のはずがない」。cannot/could not have p.p. は過去への確信否定。",
-          "used to は過去の習慣・状態。be used to -ing「慣れている」と区別する。",
-        ],
-      },
-      "古文": {
-        title: "日本語助動詞の基本確認",
-        source: "日本語助動詞一覧.xlsx",
-        body: [
-          "使役: す、さす、しむ。",
-          "受身・尊敬・可能・自発: る、らる。文脈で意味を判別する。",
-          "断定: なり、たり。なりは伝聞・推定との区別に注意する。",
-          "比況: ごとし。伝聞・推定: なり、めり、らし。",
-          "当然・推量: べし。意志・推量: む。現在推量: らむ。過去推量: けむ。",
-          "希望: たし、まほし。存続: たり、り。完了: つ、ぬ。",
-          "過去・詠嘆: けり。過去: き。打消推量: じ。打消: ず。禁止: な。",
-          "接続では、る・らる・す・さす・しむ・ず・じは未然形接続が基本。たり・けり・き・つ・ぬは連用形接続が基本。りはサ変未然形・四段已然形に接続する。",
-          "品詞分解では、助動詞・活用形・接続・意味をセットで示す。",
-        ],
-      },
-    };
     const providers = [
       {
         id: "chatgpt",
@@ -687,18 +643,27 @@
       return buildFollowupPrompt(`[解説を詳しく説明してほしい]\n詳しくしてほしい箇所：${target}`);
     }
 
-    function getSubjectMaterial() {
-      const material = subjectMaterials[state.subject];
-      if (!material) {
-        return "";
+    function buildAnswerPolicy() {
+      const subject = state.subject || "未選択";
+      if (scienceSubjects.includes(subject)) {
+        return `数学・理科の質問として回答してください。
+答えだけを出さず、問題集の解説のように、考え方、使う公式・定理、途中式、なぜその方法を選ぶのかを説明してください。
+ただし最初の回答は長くしすぎず、通常問題は300〜450字程度、難問・数III・理科の発展問題は必要に応じて600〜700字までにしてください。
+解説の後に、答案としてそのまま書ける「模範解答」を簡潔に示してください。
+簡単な問題でも、学習者が同じ型の問題を自力で解けるようにしてください。`;
       }
-
-      return `\n\n# 基本確認資料\n資料名：${material.source}\n目的：${material.title}\n${material.body.map((item) => `- ${item}`).join("\n")}\n\n上の基本確認資料は、関係する問題で必要に応じて使ってください。問題と関係が薄い場合は、無理に使わず通常通り解説してください。`;
-    }
-
-    function getSubjectMaterialNotice(subject) {
-      const material = subjectMaterials[subject];
-      return material ? `\n\nこの科目では基本確認資料「${material.source}」を必要に応じてAIへの文面に含めます。` : "";
+      if (subject === "英語") {
+        return `英語の質問として回答してください。
+通常の文法・語法質問は300〜450字程度を目安に、長文読解・英作文・構造分析では必要に応じて600〜700字までにしてください。
+例文、訳、構造、ニュアンス、不自然表現への注意を、質問内容に応じて簡潔に示してください。`;
+      }
+      if (subject === "古文" || subject === "漢文") {
+        return `${subject}の質問として回答してください。
+通常の知識確認は300〜450字程度を目安に、読解・品詞分解・書き下しなど構造分析が必要な場合は600〜700字まで可とします。
+原文、現代語訳、文法、原典名を、質問内容に応じて簡潔に示してください。`;
+      }
+      return `高校生向けに、答えだけでなく考え方も説明してください。
+通常問題は300〜450字程度を目安に、必要な場合のみ600〜700字までにしてください。`;
     }
 
     function buildApiQuestion(question) {
@@ -708,11 +673,7 @@
 出力の深さ：${depth}
 
 # 回答方針
-答えだけを出さず、問題集の解説のように、考え方、使う公式・定理、途中式、なぜその方法を選ぶのかを説明してください。
-ただし最初の回答は長くしすぎず、通常問題は300〜450字程度、難問・数III・理科の発展問題は必要に応じて600〜700字までにしてください。
-数学・理科では、解説の後に答案としてそのまま書ける「模範解答」を簡潔に示してください。
-簡単な問題でも、学習者が同じ型の問題を自力で解けるようにしてください。
-${getSubjectMaterial()}
+${buildAnswerPolicy()}
 
 ${question}`;
     }
@@ -852,7 +813,7 @@ OCR誤読時は「明るい場所で紙を真上から撮ってください」�
             state.lastAnswer = "";
             elements.answerPasteText.value = "";
             elements.includePreviousAnswer.checked = false;
-            setOutput(`[${subject}]${getSubjectMaterialNotice(subject)}`, "科目選択");
+            setOutput(`[${subject}]`, "科目選択");
             pushStep("input");
           },
       })));

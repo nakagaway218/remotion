@@ -31,13 +31,9 @@ OpenAI API direct answering is a secondary future-ready option. It exists in the
 - Server file for future API mode: `C_Learner_Server.cjs`.
 - Normal usage should open the HTML directly with `C_Learner_Start.cmd`.
 - `01_START_LEARNER.cmd` is only for server/API mode.
-- The old reference-material feature that opened Excel / PowerPoint files directly was intentionally removed after it caused Windows file-opening problems.
+- The old reference-material feature was intentionally removed after it caused confusion and Windows file-opening problems.
 - Do not re-add direct Excel / PowerPoint opening from the HTML.
-- Basic reference materials may be used only as extracted, embedded prompt notes so the direct-open HTML workflow stays stable.
-- Current embedded basic materials:
-  - 数学: `三角比改訂版_改善版.pptx` -> `materials/math_trigonometry.md`
-  - 英語: `英語助動詞表現.xlsx` -> `materials/english_modals.md`
-  - 古文: `日本語助動詞一覧.xlsx` -> `materials/japanese_auxiliary_verbs.md`
+- Do not append basic reference materials such as trigonometry notes, English modal notes, or Japanese auxiliary verb notes to generated prompts unless the user explicitly asks to restore that behavior.
 - The user wants a simple, stable, high-completion interface more than broad file integration.
 
 ## Active Features
@@ -46,7 +42,6 @@ OpenAI API direct answering is a secondary future-ready option. It exists in the
 - Subject choices: 数学, 英語, 物理, 化学, 生物, 地学, 古文, 漢文.
 - Voice input through Chrome Web Speech API.
 - Automatic prompt creation with `出力の深さ：解答解説を教えてほしい`.
-- Subject-linked basic materials are appended to first-question prompts for 数学, 英語, and 古文.
 - Prompt wording asks the AI for problem-book style explanations, not just answers.
 - First answers should stay readable: usually 300-450 Japanese characters, with 600-700 characters allowed for difficult math, advanced science, English long-form tasks, or classical text structure analysis.
 - Math and science answers should include a concise `模範解答` section that reads like an answer sheet, separate from the explanatory section.
