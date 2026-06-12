@@ -1,0 +1,33 @@
+# ===== macOS =====
+.DS_Store
+
+# ===== Xcode / Swift =====
+# 生成物・ビルド成果物
+*.xcodeproj/         # XcodeGen で生成するため追跡しない（project.yml が正）
+DerivedData/
+build/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# 依存管理（使う場合）
+Pods/
+Carthage/Build/
+
+# ===== 秘密情報（絶対にコミットしない）=====
+.env
+.env.*
+*.p12
+*.mobileprovision
+*.cer
+secrets.*
+**/Secrets.swift

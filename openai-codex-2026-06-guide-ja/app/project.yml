@@ -1,0 +1,27 @@
+# XcodeGen 設定テンプレート
+# 使い方: app/ ディレクトリで `xcodegen generate` を実行すると .xcodeproj が生成されます。
+# {{APP_NAME}} / {{BUNDLE_ID}} は AGENTS.md STEP 3 で実際の値に置換してください。
+# 参考: https://github.com/yonaskolb/XcodeGen
+
+name: "{{APP_NAME}}"
+options:
+  bundleIdPrefix: "{{BUNDLE_ID}}"
+  deploymentTarget:
+    iOS: "17.0"   # 必要なら新しい iOS（例: 26.0）に引き上げ可。Liquid Glass を使うなら 26 系。
+  createIntermediateGroups: true
+
+targets:
+  "{{APP_NAME}}":
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: "{{BUNDLE_ID}}"
+        GENERATE_INFOPLIST_FILE: "YES"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"   # 1 = iPhone
+        INFOPLIST_KEY_UILaunchScreen_Generation: "YES"
