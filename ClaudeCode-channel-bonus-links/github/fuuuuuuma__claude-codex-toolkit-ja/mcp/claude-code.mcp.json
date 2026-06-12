@@ -1,0 +1,36 @@
+{
+  "//": "Claude Code 用 .mcp.json サンプル。プロジェクト直下に置くとチーム共有(VCS)になる。キーは必ず ${ENV} で渡し、実値は書かない。Claude Code は ${VAR} / ${VAR:-default} 展開に対応。",
+  "mcpServers": {
+    "context7": {
+      "//": "コーディング中に最新ドキュメントを動的注入（古いAPI事故を防ぐ）",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "filesystem": {
+      "//": "アクセス制御つきの安全なファイル操作。許可ディレクトリを引数で限定する",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${HOME}/work"]
+    },
+    "playwright": {
+      "//": "ブラウザ自動操作・E2E・スクショ",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "github": {
+      "//": "リモート(HTTP)。GITHUB_PAT は環境変数で。実トークンを書かない",
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_PAT}"
+      }
+    },
+    "notion": {
+      "//": "リモート(HTTP)。初回利用時にOAuthで認証される",
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
+    }
+  }
+}

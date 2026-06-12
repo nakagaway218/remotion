@@ -1,0 +1,35 @@
+{
+  "//": "Claude Code settings.json サンプル。~/.claude/settings.json(個人) か .claude/settings.json(プロジェクト共有) に置く。実値・キーは書かず、機密は .claude/settings.local.json(gitignore) か環境変数へ。",
+  "model": "claude-opus-4-8",
+  "env": {
+    "//": "全セッション・サブプロセス共通の環境変数。ここに実キーは置かない（シェルのexportやキーチェーンを使う）"
+  },
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Bash(npm run lint)",
+      "Bash(git status)",
+      "Bash(git diff:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Read(./.env*)",
+      "Read(./**/credentials*)"
+    ]
+  },
+  "enableAllProjectMcpServers": false,
+  "enabledMcpjsonServers": ["context7", "filesystem"],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": "echo edited >> .claude/edit.log", "timeout": 10 }
+        ]
+      }
+    ]
+  },
+  "cleanupPeriodDays": 30
+}

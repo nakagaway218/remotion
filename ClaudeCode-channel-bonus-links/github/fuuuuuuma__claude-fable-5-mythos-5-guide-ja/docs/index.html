@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Fable 5 / Mythos 5 徹底解説 — 新モデルの実像と、賢い使い方</title>
+<meta name="description" content="Anthropic の新モデル Claude Fable 5 / Mythos 5 を、公式発表・ベンチマーク・安全設計・料金・使い方・業界の反応まで横断してまとめた非公式の解説リサーチ資料（2026-06-10 時点）。">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1C3461; --navy-mid:#2A4A82; --blue:#5BBCD4;
+    --blue-bg:rgba(91,188,212,.10); --blue-mid:rgba(91,188,212,.25);
+    --white:#fff; --bg:#F7FAFC; --border:rgba(28,52,97,.12);
+    --text:#1C3461; --text-mid:#4A6080; --text-sub:#8098B4;
+    --ok:#1f9d6b; --warn:#c9851b; --risk:#c0506b;
+    --code-bg:#0f1d33;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Noto Sans JP',-apple-system,'Hiragino Sans','Yu Gothic',sans-serif;
+    color:var(--text);background:var(--bg);line-height:1.85;
+    font-size:16px;-webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--navy-mid);text-decoration:none;border-bottom:1px solid var(--blue-mid)}
+  a:hover{color:var(--blue);border-color:var(--blue)}
+
+  /* header */
+  .topbar{
+    position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);
+    backdrop-filter:saturate(140%) blur(8px);border-bottom:1px solid var(--border);
+  }
+  .topbar::before{content:'';display:block;height:4px;background:linear-gradient(90deg,var(--navy),var(--blue))}
+  .topbar-in{max-width:960px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
+  .topbar .logo svg{display:block}
+  .topbar .tt{font-weight:700;font-size:14px;color:var(--text-mid);letter-spacing:.02em}
+  .topbar .date{margin-left:auto;font-size:12px;color:var(--text-sub)}
+
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px 96px}
+
+  /* hero */
+  .hero{padding:64px 0 40px;border-bottom:1px solid var(--border)}
+  .hero .eyebrow{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.14em;
+    color:var(--blue);background:var(--blue-bg);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .hero h1{font-size:38px;line-height:1.3;font-weight:900;letter-spacing:-.01em}
+  .hero h1 .hl{color:var(--blue)}
+  .hero .lead{margin-top:20px;font-size:17px;color:var(--text-mid);max-width:760px}
+  .hero .meta{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+  .chip{font-size:12px;font-weight:600;color:var(--navy-mid);background:#fff;border:1px solid var(--border);
+    padding:6px 12px;border-radius:999px}
+
+  section{padding:48px 0;border-bottom:1px solid var(--border)}
+  section:last-of-type{border-bottom:none}
+  h2{font-size:26px;font-weight:900;letter-spacing:-.01em;margin-bottom:6px;scroll-margin-top:80px}
+  h2 .num{color:var(--blue);font-size:18px;margin-right:10px;font-weight:700}
+  h3{font-size:19px;font-weight:700;margin:30px 0 10px;color:var(--navy)}
+  .sub{color:var(--text-sub);font-size:14px;margin-bottom:20px}
+  p{margin:14px 0;color:#2c3f5e}
+  ul,ol{margin:14px 0 14px 4px;padding-left:22px}
+  li{margin:8px 0;color:#2c3f5e}
+  strong{color:var(--navy);font-weight:700}
+
+  /* confidence badges */
+  .badge{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:6px;
+    vertical-align:middle;margin-right:4px;white-space:nowrap}
+  .b-ok{color:#0b5a3a;background:rgba(31,157,107,.16)}
+  .b-mid{color:#7a4f0c;background:rgba(201,133,27,.18)}
+  .b-warn{color:#7a2238;background:rgba(192,80,107,.16)}
+
+  /* callouts */
+  .callout{border:1px solid var(--border);border-left:4px solid var(--blue);background:#fff;
+    border-radius:12px;padding:20px 22px;margin:22px 0}
+  .callout.warn{border-left-color:var(--warn);background:#fffdf6}
+  .callout .ct{font-weight:700;color:var(--navy);margin-bottom:6px;font-size:14px}
+  .legend{display:grid;gap:8px;margin-top:10px}
+  .legend div{font-size:14px;color:var(--text-mid)}
+
+  /* TL;DR */
+  .tldr{background:linear-gradient(135deg,#fff,#f3f9fc);border:1px solid var(--blue-mid);
+    border-radius:16px;padding:26px 28px;margin:28px 0}
+  .tldr .ct{font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--blue);margin-bottom:12px}
+  .tldr ul{list-style:none;padding:0;margin:0}
+  .tldr li{padding-left:30px;position:relative;font-size:16px;color:var(--navy);font-weight:500;margin:12px 0}
+  .tldr li::before{content:'✦';position:absolute;left:4px;color:var(--blue)}
+
+  /* TOC */
+  .toc{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px 28px;margin:8px 0}
+  .toc .ct{font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--text-sub);margin-bottom:14px}
+  .toc ol{columns:2;column-gap:36px;list-style:none;padding:0;margin:0}
+  .toc li{margin:9px 0;font-size:14.5px;break-inside:avoid}
+  .toc a{color:var(--navy-mid);border:none;font-weight:500}
+  .toc a:hover{color:var(--blue)}
+  .toc .n{display:inline-block;width:22px;color:var(--blue);font-weight:700}
+
+  /* figure */
+  figure{margin:26px 0;background:#fff;border:1px solid var(--border);border-radius:14px;
+    padding:14px;overflow:hidden}
+  figure img{display:block;width:100%;height:auto;border-radius:8px}
+  .ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    min-height:200px;border:2px dashed var(--blue-mid);border-radius:8px;background:var(--blue-bg);
+    color:var(--text-mid);font-size:14px;text-align:center;padding:30px}
+  .ph code{background:#fff;border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:12.5px}
+  figcaption{margin-top:12px;font-size:13px;color:var(--text-sub);text-align:center}
+
+  /* table */
+  .tablewrap{overflow-x:auto;margin:22px 0;border:1px solid var(--border);border-radius:14px;background:#fff}
+  table{border-collapse:collapse;width:100%;min-width:720px;font-size:13.5px}
+  th,td{padding:11px 12px;text-align:center;border-bottom:1px solid var(--border)}
+  thead th{background:var(--navy);color:#fff;font-weight:600;font-size:12.5px;position:sticky;top:0}
+  tbody th{text-align:left;font-weight:600;color:var(--navy);background:#fbfdfe;white-space:nowrap}
+  .bench-meta{font-size:11px;color:var(--text-sub);font-weight:400;display:block}
+  td.win{background:var(--blue-bg);font-weight:700;color:var(--navy)}
+  tbody tr:nth-child(even) td{background:#fafcfe}
+  tbody tr:nth-child(even) td.win{background:var(--blue-bg)}
+  .tnote{font-size:12.5px;color:var(--text-sub);margin-top:10px}
+
+  /* code */
+  .codecard{margin:24px 0;border-radius:14px;overflow:hidden;border:1px solid #1a2c47;background:var(--code-bg)}
+  .codebar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#13243f;color:#9db4d6;font-size:13px}
+  .codebar .fn{font-family:'JetBrains Mono',monospace}
+  .codebar .lang{margin-left:auto;font-size:11px;color:#bcd3f0;background:#1d3354;padding:3px 9px;border-radius:6px}
+  pre{margin:0;padding:18px 20px;overflow-x:auto}
+  code,pre{font-family:'JetBrains Mono',ui-monospace,Menlo,monospace;font-size:13px;line-height:1.7}
+  pre code{color:#cdd9ec;white-space:pre}
+  .c-kw{color:#7fb0ff}.c-str{color:#8fe0a8}.c-fn{color:#f0c674}.c-com{color:#6b86ad;font-style:italic}.c-prop{color:#c8a6ff}
+
+  /* how-to table */
+  .howto{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+  .howto th,.howto td{border:1px solid var(--border);padding:12px 14px;text-align:left;vertical-align:top}
+  .howto thead th{background:var(--blue-bg);color:var(--navy)}
+  .howto td:first-child{font-weight:600;color:var(--navy);width:40%}
+
+  /* tweet cards */
+  .tweet{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px 22px;margin:18px 0}
+  .tweet .head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .tweet .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));
+    color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .tweet .who b{display:block;color:var(--navy);font-size:15px}
+  .tweet .who span{color:var(--text-sub);font-size:13px}
+  .tweet .body{color:#2c3f5e;font-size:15px}
+  .tweet .pending{color:var(--text-sub);font-size:13.5px;background:var(--blue-bg);border-radius:8px;
+    padding:10px 14px;margin-top:8px;border:1px dashed var(--blue-mid)}
+  .replies{margin-top:14px;padding-left:16px;border-left:2px solid var(--blue-mid)}
+  .reply{margin:10px 0;font-size:14px;color:var(--text-mid)}
+  .reply b{color:var(--navy)}
+
+  /* sources */
+  .src li{font-size:14px;word-break:break-all}
+  .src .who{font-weight:700;color:var(--navy)}
+
+  footer{padding:48px 0 0;text-align:center;color:var(--text-sub);font-size:13px}
+  footer .logo{opacity:.8;margin-bottom:16px}
+
+  @media(max-width:680px){
+    .hero h1{font-size:28px}
+    .toc ol{columns:1}
+    h2{font-size:22px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Kawaru logo symbol -->
+<svg style="display:none">
+  <symbol id="kawaru-logo" viewBox="0 0 406 93">
+    <rect x="6.67572e-06" y="13.4815" width="7.93029" height="74.5447" fill="#112D54"/>
+    <path d="M18.2397 52.7235L24.2772 47.5817L57.8911 88.0582L48.3318 88.0582L18.2397 52.7235Z" fill="#72C1D2"/>
+    <path d="M34.8933 49.5514L40.9308 44.4096L77.2278 88.0366L67.4075 88.0262L34.8933 49.5514Z" fill="#72C1D2"/>
+    <rect x="57.1908" y="2.92276" width="7.93029" height="83.5485" transform="rotate(42.3764 57.1908 2.92276)" fill="#112D54"/>
+    <rect x="59.4772" width="7.93029" height="22.2048" fill="#112D54"/>
+    <rect x="44.4096" y="7.9303" width="7.93029" height="22.9978" transform="rotate(-90 44.4096 7.9303)" fill="#112D54"/>
+    <path d="M110.882 61.3999L110.204 47.3281L135.413 20.7649H148.958L126.233 45.2211L119.46 52.4451L110.882 61.3999ZM99.9703 73.4399V20.7649H112.086V73.4399H99.9703ZM136.015 73.4399L117.278 50.4886L125.254 41.8349L150.237 73.4399H136.015ZM181.053 73.4399V65.5386L180.301 63.8079V49.6609C180.301 47.1525 179.523 45.196 177.968 43.7914C176.463 42.3867 174.13 41.6844 170.97 41.6844C168.813 41.6844 166.681 42.0355 164.574 42.7379C162.517 43.39 160.761 44.293 159.306 45.4469L155.092 37.2446C157.299 35.6895 159.958 34.4855 163.069 33.6326C166.179 32.7798 169.339 32.3534 172.55 32.3534C178.721 32.3534 183.512 33.8082 186.923 36.7179C190.334 39.6275 192.04 44.1676 192.04 50.3381V73.4399H181.053ZM168.712 74.0419C165.552 74.0419 162.843 73.5151 160.585 72.4616C158.328 71.358 156.597 69.878 155.393 68.0219C154.189 66.1657 153.587 64.0838 153.587 61.7761C153.587 59.3681 154.164 57.2611 155.318 55.4551C156.522 53.6491 158.403 52.2445 160.962 51.2411C163.52 50.1876 166.856 49.6609 170.97 49.6609H181.731V56.5086H172.249C169.49 56.5086 167.584 56.9601 166.53 57.8631C165.527 58.7661 165.025 59.8949 165.025 61.2494C165.025 62.7544 165.602 63.9584 166.756 64.8614C167.96 65.7142 169.59 66.1406 171.647 66.1406C173.604 66.1406 175.359 65.6891 176.915 64.7861C178.47 63.833 179.599 62.4534 180.301 60.6474L182.107 66.0654C181.254 68.674 179.699 70.6556 177.441 72.0101C175.184 73.3646 172.274 74.0419 168.712 74.0419ZM213.443 73.4399L198.844 32.9554H209.906L222.021 67.7961H216.754L229.396 32.9554H239.329L251.594 67.7961H246.327L258.818 32.9554H269.203L254.529 73.4399H243.166L232.406 43.5656H235.867L224.73 73.4399H213.443ZM300.427 73.4399V65.5386L299.675 63.8079V49.6609C299.675 47.1525 298.897 45.196 297.342 43.7914C295.837 42.3867 293.504 41.6844 290.344 41.6844C288.187 41.6844 286.055 42.0355 283.948 42.7379C281.891 43.39 280.135 44.293 278.68 45.4469L274.466 37.2446C276.674 35.6895 279.332 34.4855 282.443 33.6326C285.553 32.7798 288.714 32.3534 291.924 32.3534C298.095 32.3534 302.886 33.8082 306.297 36.7179C309.708 39.6275 311.414 44.1676 311.414 50.3381V73.4399H300.427ZM288.086 74.0419C284.926 74.0419 282.217 73.5151 279.959 72.4616C277.702 71.358 275.971 69.878 274.767 68.0219C273.563 66.1657 272.961 64.0838 272.961 61.7761C272.961 59.3681 273.538 57.2611 274.692 55.4551C275.896 53.6491 277.777 52.2445 280.336 51.2411C282.894 50.1876 286.23 49.6609 290.344 49.6609H301.105V56.5086H291.623C288.864 56.5086 286.958 56.9601 285.904 57.8631C284.901 58.7661 284.399 59.8949 284.399 61.2494C284.399 62.7544 284.976 63.9584 286.13 64.8614C287.334 65.7142 288.964 66.1406 291.021 66.1406C292.978 66.1406 294.734 65.6891 296.289 64.7861C297.844 63.833 298.973 62.4534 299.675 60.6474L301.481 66.0654C300.628 68.674 299.073 70.6556 296.815 72.0101C294.558 73.3646 291.648 74.0419 288.086 74.0419ZM324.296 73.4399V32.9554H335.508V44.3934L333.928 41.0824C335.132 38.2229 337.063 36.0657 339.722 34.6109C342.381 33.1059 345.617 32.3534 349.429 32.3534V43.1894C348.928 43.1392 348.476 43.1141 348.075 43.1141C347.674 43.064 347.247 43.0389 346.796 43.0389C343.585 43.0389 340.976 43.967 338.97 45.8231C337.013 47.6291 336.035 50.4635 336.035 54.3264V73.4399H324.296ZM376.043 74.0419C372.681 74.0419 369.671 73.3897 367.013 72.0854C364.404 70.781 362.372 68.7995 360.917 66.1406C359.462 63.4316 358.735 59.9952 358.735 55.8314V32.9554H370.474V54.1006C370.474 57.4618 371.176 59.945 372.581 61.5504C374.036 63.1055 376.068 63.8831 378.676 63.8831C380.482 63.8831 382.088 63.5069 383.492 62.7544C384.897 61.9517 386.001 60.7477 386.803 59.1424C387.606 57.4869 388.007 55.43 388.007 52.9719V32.9554H399.746V73.4399H388.609V62.3029L390.641 65.5386C389.287 68.348 387.28 70.48 384.621 71.9349C382.012 73.3395 379.153 74.0419 376.043 74.0419Z" fill="#1B325A"/>
+  </symbol>
+</svg>
+
+<div class="topbar">
+  <div class="topbar-in">
+    <span class="logo"><svg width="116" height="27"><use href="#kawaru-logo"/></svg></span>
+    <span class="tt">Claude Fable 5 / Mythos 5 徹底解説</span>
+    <span class="date">2026-06-10 時点</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <span class="eyebrow">AI MODEL DEEP-DIVE</span>
+    <h1>Claude <span class="hl">Fable 5</span> / <span class="hl">Mythos 5</span> 徹底解説<br>— 新モデルの実像と、賢い使い方</h1>
+    <p class="lead">Anthropic が公開した新モデル「Claude Fable 5 / Mythos 5」を、公式発表・ベンチマーク・安全設計・料金・使い方、そして Cursor / GitHub / Notion / Lovable など業界の反応まで横断してまとめた、撮影前の手元リサーチ資料です。読者は初心者を含む前提で書いています。</p>
+    <div class="meta">
+      <span class="chip">📅 公開：2026-06-09（Fable 5）</span>
+      <span class="chip">🏷 価格：$10 / $50 per M tokens</span>
+      <span class="chip">🛡 高リスク質問は Opus 4.8 へ自動フォールバック</span>
+      <span class="chip">⚙ Claude Code CLI で選択可能</span>
+    </div>
+  </div>
+
+  <!-- 読み方 -->
+  <section id="how-to-read">
+    <h2><span class="num">⚠</span>この資料の読み方（確度について）</h2>
+    <p class="sub">数字・日付・固有名詞は出典が取れたものだけを断定し、それ以外は確度マークで分離しています。</p>
+    <div class="callout warn">
+      <div class="ct">確度マークの意味</div>
+      <div class="legend">
+        <div><span class="badge b-ok">✅ 公式確認済み</span> Anthropic 公式発表・公式ドキュメントで確認できた事実</div>
+        <div><span class="badge b-mid">🔶 一次情報あり・流動的</span> 公式図やCLI表示などが根拠だが、仕様・提供条件は変わりうる</div>
+        <div><span class="badge b-warn">⚠️ 未確認・要確認</span> 書き起こしや第三者情報で、最終確認は公式・システムカードが必要</div>
+      </div>
+      <p style="margin-bottom:0">本資料は非公式まとめであり、Anthropic 公式とは無関係です。最終確認は必ず公式情報で行ってください。</p>
+    </div>
+  </section>
+
+  <!-- TL;DR -->
+  <section id="tldr">
+    <h2><span class="num">★</span>TL;DR（3行）</h2>
+    <div class="tldr">
+      <div class="ct">3行まとめ</div>
+      <ul>
+        <li><strong>Fable 5 は「広く使える中で最も高性能」</strong>なモデル。コーディング・知識労働・ビジョン・長時間の自律作業が大幅に伸びた。<span class="badge b-ok">✅</span></li>
+        <li><strong>安全設計が新発想</strong>：サイバー・生物・モデル蒸留などの高リスク要求は“拒否”ではなく、次に高性能な <strong>Opus 4.8</strong> が代わりに応答する。Mythos 5 は安全策を一部解除した限定版。<span class="badge b-ok">✅</span></li>
+        <li><strong>使い方は「監督」から「方向づけ＋検証」へ</strong>。ゴールと背景を渡し、案を複数出させ、各工程を検証して任せ切るのがコツ。Claude Code CLI でも選べる。<span class="badge b-ok">✅</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 目次 -->
+  <section id="toc">
+    <h2><span class="num">≡</span>目次</h2>
+    <div class="toc">
+      <div class="ct">CONTENTS</div>
+      <ol>
+        <li><span class="n">1</span><a href="#what">Fable 5 / Mythos 5 とは</a></li>
+        <li><span class="n">2</span><a href="#new">何がすごいのか（5つの柱）</a></li>
+        <li><span class="n">3</span><a href="#bench">ベンチマーク徹底比較</a></li>
+        <li><span class="n">4</span><a href="#safety">安全設計：高リスクは Opus 4.8 へ</a></li>
+        <li><span class="n">5</span><a href="#price">料金と提供スケジュール</a></li>
+        <li><span class="n">6</span><a href="#multiagent">マルチエージェント新API</a></li>
+        <li><span class="n">7</span><a href="#howto">Claude 5 の使い方（初心者基準）</a></li>
+        <li><span class="n">8</span><a href="#advanced">もう一歩進んだ使い方</a></li>
+        <li><span class="n">9</span><a href="#cli">実際に使う：Claude Code CLI</a></li>
+        <li><span class="n">10</span><a href="#x">X・業界の反応まとめ</a></li>
+        <li><span class="n">＋</span><a href="#sources">出典</a> ／ <a href="#caveats">未確認・注意事項</a></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 1 -->
+  <section id="what">
+    <h2><span class="num">1</span>Fable 5 / Mythos 5 とは</h2>
+    <p class="sub">「同じ頭脳」を、安全策の有無で2つに分けたモデル。</p>
+    <p><strong>Claude Fable 5</strong> は、2026年6月9日に一般公開された「Mythos クラス」のモデルです。<span class="badge b-ok">✅</span> 名前の由来は、<strong>Fable＝ラテン語で「物語」</strong>（安全に整えた一般公開版）、<strong>Mythos＝ギリシャ語で「神話」</strong>（ガードレールを減らした高信頼版）と読み解かれており、「Mythos クラス」は Opus を上回る新しい能力階層を指します。<span class="badge b-mid" title="一次情報あり・流動的">🔶</span> Anthropic が広く提供してきた中で最も高性能、と位置づけられています。一方の <strong>Claude Mythos 5</strong> は、<strong>中身（基盤モデル）は Fable 5 と同一</strong>で、一部の安全策（セーフガード）を取り外したバージョン。当初は「Project Glasswing」を通じて、サイバーセキュリティの専門家やインフラ事業者など限られた相手にだけ提供されます。<span class="badge b-ok">✅</span></p>
+    <p>つまり両者の差は能力ではなく<strong>“安全策の効き方”</strong>だけ。一般ユーザーが触れるのは Fable 5 で、こちらには後述の「高リスクな要求を Opus 4.8 に回す」仕組みが入っています。Mythos 5 は、防御研究など正当な理由で安全策の制約を外す必要がある専門家向けの特別版、とイメージすると分かりやすいです。</p>
+    <p>系譜としては、Mythos 5 は <strong>Claude Mythos Preview の後継</strong>です。提供母体の <strong>Project Glasswing</strong> は2026年4月開始の米政府・サイバー防御者・重要インフラ事業者向け協業で、現在<strong>15か国超・約150組織</strong>に拡大中。<strong>一般ユーザーは利用できず</strong>、申し込めば使えるものではありません。なお生物分野には別枠で、サイバー策は残したまま生物・化学策だけ外した Fable を少数の研究者に提供する計画も示されています（Mythos 5 とは別系統）。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></p>
+
+    <h3>コア仕様（公式ドキュメント）</h3>
+    <div class="callout">
+      <div class="ct">数字でおさえる Fable 5 / Mythos 5</div>
+      <ul style="margin:6px 0 0">
+        <li><strong>コンテキスト窓：1Mトークン</strong>（既定）／<strong>最大出力：128kトークン</strong>（1リクエストあたり）。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+        <li><strong>料金：入力 $10 ／ 出力 $50（100万トークンあたり）</strong>。参考：Opus 4.8 は $5/$25、Sonnet 4.6 は $3/$15、Haiku 4.5 は $1/$5 で、現行最上位の価格帯。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+        <li><strong>トークナイザ</strong>は Claude Opus 4.7 導入のものを使用。<strong>4.7 以前と比べ、同じテキストでも約30%多くトークンを生成</strong>する点に注意（コスト・上限の見積もりに影響）。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+        <li><strong>思考</strong>は adaptive thinking が常時ON（<code>disabled</code> 不可・旧来の extended thinking 非対応）、深さは <strong>effort</strong> で制御。生の思考は返らず、必要なら要約済み thinking を取得。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+        <li><strong>知識カットオフ</strong>：公式のモデル概要・発表ページに Fable 5 / Mythos 5 の値が明記されておらず<strong>未確認</strong>（比較対象の Opus 4.8 は 2026年1月）。<span class="badge b-warn" title="未確認・要確認">⚠️ 未確認</span></li>
+      </ul>
+    </div>
+    <p><strong>モデルID</strong>は <code>claude-fable-5</code> / <code>claude-mythos-5</code>。AWS（Amazon Bedrock）では <code>anthropic.claude-fable-5</code>、Vertex AI では <code>claude-fable-5</code> を用います。Mythos 5 のクラウドID欄は現状「<strong>限定提供（Limited availability）</strong>」。提供面は <strong>Claude API・Claude Platform on AWS・Amazon Bedrock・Vertex AI・Microsoft Foundry</strong>。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></p>
+    <figure>
+      <img src="./assets/2026-06-10/06-app-modal.png" alt="図：Claudeアプリの Fable 5 告知モーダル" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像⑥（Claudeアプリの告知モーダル）<br><code>assets/2026-06-10/06-app-modal.png</code></div>
+      <figcaption>図：Claude アプリ内に表示された「Fable 5：これまでで最も高性能なモデル」告知（補助図）</figcaption>
+    </figure>
+  </section>
+
+  <!-- 2 -->
+  <section id="new">
+    <h2><span class="num">2</span>何がすごいのか（5つの柱）</h2>
+    <p class="sub">公式発表とローンチ時のデモで語られた代表的な伸びどころ。</p>
+
+    <h3>① ソフトウェア工学（コーディング）<span class="badge b-ok">✅</span></h3>
+    <p>コード関連タスクで突出。公式は、決済の Stripe 社で <strong>5,000万行の Ruby コードベースの移行を1日で完了</strong>した事例を挙げています。手作業ならチームで2か月以上かかる規模で、「数か月分のエンジニアリングを数日に圧縮した」と表現されています。Cognition の FrontierCode 評価では、<strong>medium（中）の effort でも</strong>フロンティアモデルの中で最高スコアとされています。</p>
+
+    <h3>② 知識労働・分析<span class="badge b-ok">✅</span></h3>
+    <p>Hebbia の Finance Benchmark（上級者レベルの推論）で<strong>最高スコア</strong>を獲得。文書ベースの推論、図表・グラフの解釈、問題解決で大きく前進した、とされています。</p>
+
+    <h3>③ ビジョン（画像理解）<span class="badge b-ok">✅</span></h3>
+    <p>視覚を伴うタスクで<strong>新しい最高水準（SOTA）</strong>に。科学図から正確な数値を抜き出す、<strong>スクリーンショットだけから Web アプリのソースコードを再構成する</strong>といった芸当が紹介されています。さらにデモ例として、<strong>ゲーム「Pokémon FireRed」を画面のピクセル情報だけでプレイ</strong>できた（多くの場合追加ツール不要）という報告もあります。<span class="badge b-mid" title="一次情報あり・流動的">🔶</span></p>
+
+    <h3>④ 長時間の自律作業<span class="badge b-ok">✅</span></h3>
+    <p>これまでの Claude より<strong>長く自律的に動ける</strong>のが特徴。ファイルベースの永続メモリを与えた状態でゲーム「Slay the Spire」をプレイさせると、<strong>Opus 4.8 の3倍</strong>の伸びを見せた、という例も挙げられています。長い工程でも<strong>自分で書いたノートを参照しながら出力を磨き続ける</strong>動きが報告されており、状態を保存しながら進め続ける力が強くなっています。<span class="badge b-mid" title="一次情報あり・流動的">🔶 後半はデモ報告</span></p>
+
+    <h3>⑤ 科学研究・生命科学<span class="badge b-mid" title="一次情報あり・流動的">🔶</span></h3>
+    <p>生命科学の領域（主に安全策を外した <strong>Mythos 5</strong> 側のデモ）では、<strong>タンパク質設計のワークフローを約10倍加速</strong>した、自律的にターゲットとツールを選び失敗を繰り返しながら<strong>新規の科学的仮説を生成し、その一部が別の研究論文で独立に検証された</strong>、といった事例が紹介されています。さらに、<strong>138種の生物データからゲノミクスモデルを自律設計・訓練</strong>し、近年の Science 誌掲載モデルを上回る性能を<strong>約100分の1のサイズ</strong>で達成した、という報告も。数値はいずれもローンチ時の紹介ベースで、再現条件などの詳細は今後の検証待ちです。</p>
+  </section>
+
+  <!-- 3 -->
+  <section id="bench">
+    <h2><span class="num">3</span>ベンチマーク徹底比較</h2>
+    <p class="sub">Mythos 5 / Fable 5 と、Mythos Preview・Opus 4.8・GPT 5.5・Gemini 3.1 Pro の比較。<span class="badge b-mid">🔶 公式比較図からの書き起こし</span> ＋ <span class="badge b-warn">⚠️ 競合（GPT 5.5 / Gemini 3.1 Pro）の名称・数値と*印スコアは一次未検証</span></p>
+    <figure>
+      <img src="./assets/2026-06-10/01-benchmark.png" alt="ベンチマーク比較表。SWE-Bench Pro で Fable 5系が80.3%と最高（Opus 4.8は69.2%、GPT 5.5は58.6%）。同じ数値は本文下の表に再掲。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像①（ベンチマーク比較表）をここに配置<br><code>assets/2026-06-10/01-benchmark.png</code></div>
+      <figcaption>図①：公式の比較表（出典：Anthropic）。以下に同じ数値を読みやすい表で再掲します。</figcaption>
+    </figure>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left">ベンチマーク</th>
+            <th>Mythos 5 / Fable 5</th>
+            <th>Mythos Preview</th>
+            <th>Opus 4.8</th>
+            <th>GPT 5.5</th>
+            <th>Gemini 3.1 Pro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><th>Agentic coding<span class="bench-meta">SWE-Bench Pro</span></th><td class="win">80.3%</td><td>77.8%</td><td>69.2%</td><td>58.6%</td><td>54.2%</td></tr>
+          <tr><th>Agentic coding<span class="bench-meta">FrontierCode (Diamond) · xhigh</span></th><td class="win">29.3%</td><td>—</td><td>13.4%</td><td>5.7%</td><td>—</td></tr>
+          <tr><th>Knowledge work<span class="bench-meta">GDPval-AA</span></th><td class="win">1932</td><td>—</td><td>1890</td><td>1769</td><td>1314</td></tr>
+          <tr><th>Knowledge work vision<span class="bench-meta">GDP.pdf · no tools</span></th><td class="win">29.8%</td><td>—</td><td>22.5%</td><td>24.9%</td><td>16.7%</td></tr>
+          <tr><th>Spatial reasoning<span class="bench-meta">Blueprint-Bench 2</span></th><td class="win">38.6%</td><td>—</td><td>14.5%</td><td>36.2%</td><td>26.5%</td></tr>
+          <tr><th>Tool use<span class="bench-meta">AutomationBench</span></th><td class="win">17.4%</td><td>—</td><td>15.5%</td><td>12.9%</td><td>9.6%</td></tr>
+          <tr><th>Computer use<span class="bench-meta">OSWorld-Verified</span></th><td>85.0%</td><td class="win">85.4%</td><td>83.4%</td><td>78.7%</td><td>76.2%</td></tr>
+          <tr><th>Legal<span class="bench-meta">Legal Agent Benchmark</span></th><td class="win">13.3%</td><td>—</td><td>10.4%</td><td>2.1%</td><td>0.0%</td></tr>
+          <tr><th>Multidisciplinary reasoning<span class="bench-meta">Humanity's Last Exam · no tools</span></th><td class="win">59.0%*</td><td>56.8%</td><td>49.8%</td><td>41.4%</td><td>44.4%</td></tr>
+          <tr><th>Multidisciplinary reasoning<span class="bench-meta">Humanity's Last Exam · with tools</span></th><td>64.5%*</td><td class="win">64.7%</td><td>57.9%</td><td>52.2%</td><td>51.4%</td></tr>
+          <tr><th>Biology<span class="bench-meta">BioMysteryBench · hard</span></th><td class="win">46.1%*</td><td>29.6%</td><td>40.0%</td><td>—</td><td>—</td></tr>
+          <tr><th>Biology<span class="bench-meta">BioMysteryBench · human solved</span></th><td class="win">83.9%*</td><td>82.6%</td><td>80.4%</td><td>—</td><td>—</td></tr>
+          <tr><th>Agentic coding<span class="bench-meta">Terminal-Bench 2.1</span></th><td class="win">88.0%*</td><td>—</td><td>82.7%</td><td>83.4%<span class="bench-meta">Codex CLI</span></td><td>70.7%<span class="bench-meta">Gemini CLI</span></td></tr>
+          <tr><th>Cybersecurity<span class="bench-meta">ExploitBench (Cap%)</span></th><td class="win">78.0%*</td><td>69.0%</td><td>40.0%</td><td>34.0%</td><td>—</td></tr>
+          <tr><th>Health<span class="bench-meta">HealthBench Professional</span></th><td class="win">66.0%*</td><td>64.7%</td><td>56.9%</td><td>51.8%</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tnote"><strong>方法論（公式注記の要約）：</strong>Mythos 5 と Fable 5 のスコア差は通常1〜3ポイント以内で、本表は両者のうち高い方を掲載。<strong>*印</strong>は差が大きいベンチで、サイバー・生物関連の質問に対する遮断（ブロッキング）safeguard の影響。これらでは Fable 5 はフォールバックにより Opus 4.8 に近い挙動になります。詳細はシステムカード参照。<span class="badge b-mid">🔶</span></p>
+    <p class="tnote">第三者の独立評価（参考）：<strong>Cursor の CursorBench 3.1</strong> では Fable 5 Max が <strong>72.9%</strong> でトップ（2位は Opus 4.7 Max の 64.8%）。構成別は Extra High 72.0% / High 70.6% / Medium 69.8% / Low 64.2%（出典：<a href="https://cursor.com/evals">cursor.com/evals</a>）。<span class="badge b-ok" title="Cursor公開値">✅ Cursor 公開値</span></p>
+  </section>
+
+  <!-- 4 -->
+  <section id="safety">
+    <h2><span class="num">4</span>安全設計：高リスクは Opus 4.8 へ</h2>
+    <p class="sub">「拒否」ではなく「格下げして回答」する、という発想。</p>
+    <figure>
+      <img src="./assets/2026-06-10/03-safety-design.jpg" alt="Fable 5 の安全設計の概念図。高リスク（サイバー・生物化学・蒸留）と判定された要求を Opus 4.8 へ切り替える流れを示す。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像③（Fable 5 の安全設計インフォグラフィック）<br><code>assets/2026-06-10/03-safety-design.png</code></div>
+      <figcaption>図③：Fable 5 の安全設計のイメージ（高リスクと判定 → Opus 4.8 へ）</figcaption>
+    </figure>
+    <p>Fable 5 の中心的な安全策は<strong>自動分類によるルーティング</strong>です。<span class="badge b-ok">✅</span> モデルが<strong>サイバーセキュリティ／生物・化学／モデル蒸留</strong>に関わる要求を検知すると、その質問にはぴしゃりと拒否を返すのではなく、<strong>次に高性能なモデルである Claude Opus 4.8 が代わりに応答</strong>します。これにより「正当な利用者はちゃんと助けを得つつ、高リスクな悪用は防ぐ」という両立を狙っています。</p>
+    <p>このフォールバック（Opus 4.8 への切り替え）が起きるのは<strong>平均で全セッションの5%未満</strong>で、発生時はユーザーに通知されます。<span class="badge b-ok">✅</span>（公式原文：<em>“Users are informed whenever a fallback occurs—on average in less than 5% of sessions.”</em>）分類器は<strong>意図的に保守的（安全側に倒す）設定</strong>で出発しており、Anthropic はローンチ後に<strong>誤検知（false positive）</strong>を減らすために安全策を改善し続けるとしています。前述のベンチで*印が付いた項目は、この遮断・フォールバックの影響で Fable 5 のスコアが Opus 4.8 寄りになっている領域です。</p>
+    <p>そして <strong>Mythos 5</strong> は、こうした安全策を一部の領域で解除したバージョン。<span class="badge b-ok">✅</span> 現状は「少数のサイバー防御者・重要インフラ事業者（Glasswing パートナー）」に限定提供で、将来は防御的サイバー研究や生物医学研究向けに、信頼できるアクセスプログラムを通じて拡大する意向が示されています。</p>
+    <p>堅牢性については、外部バグバウンティ＋外部レッドチームが<strong>1,000時間超のテストで「普遍的なジェイルブレイク」を発見できなかった</strong>とされます。一方で、過去のAIモデルが繰り返し破られてきた経緯から、<strong>持続性には懐疑的</strong>な声もあります（中立に両論併記）。<span class="badge b-mid" title="一次情報あり・流動的">🔶 一次＋報道</span></p>
+
+    <div class="callout">
+      <div class="ct">フォールバックされると何が変わる？</div>
+      <p style="margin:6px 0 0">高リスク判定が出ると回答は <strong>Opus 4.8</strong> になり、ベンチ上 Fable 5 より低い項目（前掲の*印）が出ます。フォールバック時は<strong>ユーザーに通知</strong>されます（平均5%未満）。公式も「<strong>正当なセキュリティ作業・有益な生命科学の作業でも分類器が作動しうる</strong>」と明記しており、その場合の標準の救済手段が下記の<strong>別モデルへの自動フォールバック</strong>です。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></p>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct">⚠️ 共通の前提：Fable / Mythos は「データ保持」が必須</div>
+      <p style="margin:6px 0 0">Fable 5・Mythos 5 は<strong>安全分類器を動かすため、全トラフィックに最大30日のデータ保持が必須</strong>です（公式上は <strong>Covered Models 指定で30日保持・ゼロデータ保持(ZDR)不可</strong>）。保持データは新モデルの学習や安全以外の目的には使わず、ほぼ全ケースで約30日後に削除されると説明されています。GitHub Copilot の告知（原文）：<em>“Claude Fable 5 requires data retention … retains prompts and outputs for up to 30 days to operate safety classifiers … This distinguishes it from other Claude models … which operate under Zero Data Retention.”</em><span class="badge b-ok" title="公式確認済み">✅ 公式</span></p>
+    </div>
+
+    <h3>開発者向け：拒否（refusal）とフォールバックのAPI仕様<span class="badge b-ok" title="公式確認済み">✅ 公式</span></h3>
+    <p>Fable 5 がリクエストを拒否すると、Messages API は<strong>エラーではなく HTTP 200 の成功応答として <code>stop_reason: "refusal"</code></strong> を返します。あわせて <code>stop_details</code> に「どのカテゴリの分類器が反応したか」が入ります（マッピングできない場合は <code>null</code>）。</p>
+    <div class="tablewrap">
+      <table style="min-width:560px">
+        <thead><tr><th style="text-align:left">category</th><th style="text-align:left">意味</th></tr></thead>
+        <tbody>
+          <tr><th><code>"cyber"</code></th><td style="text-align:left">マルウェア・エクスプロイト開発などサイバー被害につながりうる要求。<strong>正当なセキュリティ作業でも作動しうる</strong></td></tr>
+          <tr><th><code>"bio"</code></th><td style="text-align:left">危険な実験手法など生物学的被害につながりうる要求。<strong>有益な生命科学の作業でも作動しうる</strong></td></tr>
+          <tr><th><code>"reasoning_extraction"</code></th><td style="text-align:left">モデルの内部推論を応答テキストとして再現させる要求（→ §8 参照。構造化 thinking で代替）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>拒否されたときの自動リトライは2系統あります。<strong>サーバー側フォールバック</strong>は、リクエストに <code>fallbacks: [{ model: "claude-opus-4-8" }]</code>（最大3モデル）とベータヘッダ <code>server-side-fallback-2026-06-01</code> を付けるだけで、API が1往復の中で次のモデルに引き継ぎます（Claude API / Claude Platform on AWS のベータ。Bedrock / Vertex / Foundry や Batches では不可）。発動するのは<strong>安全分類器の拒否のみ</strong>で、レート制限やサーバーエラーでは発動しません。応答には「どこでモデルが切り替わったか」を示す <code>fallback</code> コンテンツブロックと、試行ごとの記録 <code>usage.iterations</code> が入ります。</p>
+    <p><strong>クライアント側（SDKミドルウェア）</strong>は、TypeScript / Python / Go / Java / C# の各SDKに用意されており、クライアントに1回設定すれば <code>client.beta.messages</code> 経由の呼び出しが自動でリトライされます（図⑦のコード。Ruby / PHP は手動リトライ）。</p>
+    <figure>
+      <img src="./assets/2026-06-10/07-fallbacks-sdk.jpg" alt="Fallbacks — Refusal middleware in every SDK。PythonでBetaRefusalFallbackMiddlewareにclaude-opus-4-8を渡し、BetaFallbackStateと共にclient.beta.messages.streamをmodel=claude-fable-5で呼ぶコード例。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像⑦（Fallbacks — SDKミドルウェアのコード）<br><code>assets/2026-06-10/07-fallbacks-sdk.png</code></div>
+      <figcaption>図⑦：全SDKに入った refusal ミドルウェア（公式スライド）。以下に同じコードを再掲します。</figcaption>
+    </figure>
+    <div class="codecard">
+      <div class="codebar"><span class="fn">fallback.py</span><span class="lang">Python</span></div>
+<pre><code><span class="c-kw">from</span> anthropic <span class="c-kw">import</span> Anthropic, BetaFallbackState, BetaRefusalFallbackMiddleware
+
+<span class="c-com"># 拒否されたら指定モデルへ自動リトライ。fallback-credit ヘッダも自動付与</span>
+client = <span class="c-fn">Anthropic</span>(
+    <span class="c-prop">middleware</span>=[<span class="c-fn">BetaRefusalFallbackMiddleware</span>([{<span class="c-str">"model"</span>: <span class="c-str">"claude-opus-4-8"</span>}])],
+)
+state = <span class="c-fn">BetaFallbackState</span>()  <span class="c-com"># 会話の続きを「受理したモデル」に固定する</span>
+<span class="c-kw">with</span> state, client.beta.messages.<span class="c-fn">stream</span>(
+    <span class="c-prop">max_tokens</span>=<span class="c-str">1024</span>,
+    <span class="c-prop">model</span>=<span class="c-str">"claude-fable-5"</span>,
+    <span class="c-prop">messages</span>=messages,
+) <span class="c-kw">as</span> stream:
+    <span class="c-com"># ...</span></code></pre>
+    </div>
+    <div class="callout">
+      <div class="ct">課金・運用の要点（公式）</div>
+      <ul style="margin:6px 0 0">
+        <li><strong>出力前に拒否されたリクエストは課金されず、レート制限も消費しない</strong>。ストリーム途中の拒否は、流れた分だけ通常レートで課金（部分出力は破棄して扱う）。</li>
+        <li>支払いは<strong>実際に応答したモデルのレート</strong>で。手動リトライ時は <strong>fallback credit</strong> でプロンプトキャッシュ再構築コストの二重払いを回避。</li>
+        <li><strong>sticky routing</strong>：一度フォールバックした会話は、以後の <code>fallbacks</code> 付きリクエストが約1時間そのフォールバックモデルに直接ルーティングされる（毎ターン無駄な拒否を払わない仕組み）。</li>
+        <li>監視の注意：refusal は HTTP 200 なので<strong>エラーレート監視には映らない</strong>。refusal 発生とフォールバック応答（<code>usage.iterations</code> の <code>fallback_message</code>）をそれぞれイベント化して差分を見張る。サブエージェント内のモデル呼び出しには <code>fallbacks</code> が<strong>伝播しない</strong>ので個別に設定。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section id="price">
+    <h2><span class="num">5</span>料金と提供スケジュール</h2>
+    <p class="sub">API 価格と、サブスクでの開放タイミング。</p>
+    <ul>
+      <li><strong>API 価格</strong>：入力 <strong>$10 / 100万トークン</strong>、出力 <strong>$50 / 100万トークン</strong>。これは「Mythos Preview の半額未満」とされています。<span class="badge b-ok">✅</span></li>
+      <li><strong>即日</strong>：Claude API と従量課金（consumption-based）の Enterprise プランで利用可能。<span class="badge b-ok">✅</span></li>
+      <li><strong>〜2026年6月22日</strong>：Pro / Max / Team / シート制 Enterprise プランの<strong>上限内で追加費用なし</strong>で利用可。<span class="badge b-ok">✅</span></li>
+      <li><strong>6月23日以降</strong>：継続には <strong>usage credits（使用クレジット）</strong>が必要。<span class="badge b-ok">✅</span>（公式原文：<em>“Included in your plan limits until Jun 22, then switch to usage credits to continue.”</em>）</li>
+      <li><strong>将来</strong>：容量が許せば、Fable 5 を「サブスクの標準」に戻す予定。<span class="badge b-mid">🔶</span></li>
+      <li><strong>ローンチ時の措置</strong>：「Fable 5 を楽しんで」と、<strong>全ユーザーの5時間制限・週次レート制限がリセット</strong>されました（@ClaudeDevs 発表。一時的な措置）。<span class="badge b-mid">🔶</span></li>
+    </ul>
+    <div class="callout">
+      <div class="ct">CLI の表示とも一致</div>
+      <p style="margin:0">Claude Code の起動画面にも「<em>Included in your plan limits until Jun 22, then switch to usage credits to continue.</em>（6月22日まではプラン上限内、その後は使用クレジットに切替）」と表示され、上記スケジュールを裏づけています（図⑤）。<span class="badge b-mid">🔶</span></p>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section id="multiagent">
+    <h2><span class="num">6</span>マルチエージェント新API</h2>
+    <p class="sub">「司令塔（coordinator）」が専門エージェントに仕事を振り分ける書き方。</p>
+    <p>開発者向けには、<strong>1つのコーディネーター・エージェントが複数の専門エージェントに委譲する</strong>マルチエージェント構成が、API で素直に書けるようになりました。下は @ClaudeDevs が示したコード例（図②）の再掲です。「Engineering Lead」がコードレビューを reviewer に、テスト作成を test ライターに振る、という構造です。</p>
+    <figure>
+      <img src="./assets/2026-06-10/02-multiagent-code.jpg" alt="multiagent.ts のコード例。client.beta.agents.create で claude-fable-5 のコーディネーターを作成し、reviewerAgent と testWriterAgent に委譲する構成。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像②（multiagent.ts コード）<br><code>assets/2026-06-10/02-multiagent-code.png</code></div>
+      <figcaption>図②：@ClaudeDevs が公開した multiagent.ts のコード例</figcaption>
+    </figure>
+    <div class="codecard">
+      <div class="codebar"><span class="fn">multiagent.ts</span><span class="lang">TypeScript</span></div>
+<pre><code><span class="c-kw">const</span> coordinator = <span class="c-kw">await</span> client.beta.agents.<span class="c-fn">create</span>({
+  <span class="c-prop">name</span>: <span class="c-str">"Engineering Lead"</span>,
+  <span class="c-prop">model</span>: <span class="c-str">"claude-fable-5"</span>,
+  <span class="c-prop">system</span>: <span class="c-str">`
+    You coordinate engineering work. Delegate code review to the reviewer agent
+    and test writing to the test agent.
+  `</span>,
+  <span class="c-prop">tools</span>: [{ <span class="c-prop">type</span>: <span class="c-str">"agent_toolset_20260401"</span> }],
+  <span class="c-prop">multiagent</span>: {
+    <span class="c-prop">type</span>: <span class="c-str">"coordinator"</span>,
+    <span class="c-prop">agents</span>: [
+      { <span class="c-prop">type</span>: <span class="c-str">"agent"</span>, <span class="c-prop">id</span>: reviewerAgent.id },
+      { <span class="c-prop">type</span>: <span class="c-str">"agent"</span>, <span class="c-prop">id</span>: testWriterAgent.id },
+    ],
+  },
+});</code></pre>
+    </div>
+    <p class="tnote">※ コードは公開画像からの書き起こしです。実際の API 仕様・パラメータ名は公式ドキュメントで確認してください。<span class="badge b-warn">⚠️</span></p>
+  </section>
+
+  <!-- 7 -->
+  <section id="howto">
+    <h2><span class="num">7</span>Claude 5 の使い方（初心者基準）</h2>
+    <p class="sub">ひとことで言うと「監督して逐一チェック」から「方向づけして検証しながら任せる」へ。</p>
+    <figure>
+      <img src="./assets/2026-06-10/04-howto.jpg" alt="Claude 5 の使い方の図解。監督より方向づけと検証へ。相棒・目標/検証・挑戦の3スタンスと8つのコツ。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像④（Claude 5 の使い方インフォグラフィック）<br><code>assets/2026-06-10/04-howto.png</code></div>
+      <figcaption>図④：Claude 5 の使い方（相棒・目標/検証・挑戦の3スタンス＋8つのコツ）</figcaption>
+    </figure>
+    <p>新しいモデルは賢く・自律的になったぶん、こちらの頼み方が結果を大きく左右します。難しい用語は後回しにして、まずは「こんな悩み → こう頼むだけ」で掴んでください。<span class="badge b-ok">✅ 公式の prompting ガイドに準拠</span></p>
+
+    <table class="howto">
+      <thead><tr><th>こんな悩み</th><th>こう頼むだけ</th></tr></thead>
+      <tbody>
+        <tr><td>そっけない・物足りない</td><td>「<em>想定ユースケースで実用になる範囲まで、しっかり作り込んで</em>」と“どこまでやるか”を具体的に示す（※「全部盛り」を煽ると過剰実装になりがち→§8参照）</td></tr>
+        <tr><td>意図とズレる</td><td>制約だけでなく<strong>背景・理由</strong>も渡す（例：「これは読み上げ用だから記号を使わないで」）</td></tr>
+        <tr><td>形式が安定しない</td><td><strong>お手本（例）を2〜3個</strong>見せる。「こういう形で」と完成像を示す</td></tr>
+        <tr><td>抜け漏れが怖い</td><td>「<em>不明点があれば先に質問して</em>」と、着手前に確認させる</td></tr>
+        <tr><td>方向性を決めかねる</td><td>「<em>案を3つ出して、モックで違いを見せて</em>」と複数案を比較させる</td></tr>
+        <tr><td>長い作業を任せたい</td><td><strong>ゴール（成功基準）を決めて</strong>「完了まで進めて」と任せ切る</td></tr>
+        <tr><td>品質を担保したい</td><td>「<em>各工程をテストで検証しながら進めて</em>」と検証を組み込む</td></tr>
+        <tr><td>難しすぎて無理かも</td><td>まず任せてみる。賢くなったぶん“突破力”が上がっている</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <div class="ct">そのまま試せる短いプロンプト例</div>
+      <p style="margin:0"><em>「このテーマで分析ダッシュボードを作って。想定ユースケースで実用になる範囲までしっかり作り込んで。着手前に不明点があれば質問して。完成したら各機能を簡単に検証して報告して。」</em></p>
+    </div>
+    <p>コツは「あなたは監督」という比喩から、「あなたは<strong>方向づけと検証をする立場</strong>」へ意識を移すこと。細かく口出しするより、ゴール・背景・お手本を最初に渡し、要所で検証する方が良い結果になります。</p>
+  </section>
+
+  <!-- 8 -->
+  <section id="advanced">
+    <h2><span class="num">8</span>もう一歩進んだ使い方（開発者向け）</h2>
+    <p class="sub">本筋は軽く。ここは深掘りしたい人向けの小箱です。<span class="badge b-ok">✅ 公式 prompting ガイド</span></p>
+    <ul>
+      <li><strong>XML タグで構造化</strong>：指示・文脈・例・入力を <code>&lt;instructions&gt;</code> <code>&lt;context&gt;</code> 等で分けると誤読が減る。</li>
+      <li><strong>長文は“上”に、問いは“末尾”に</strong>：長文入力は冒頭に置き、質問は最後へ置くと精度が上がる傾向（公式 prompting ガイド）。さらに「関連箇所を先に引用させてから答えさせる」とノイズに強くなる。</li>
+      <li><strong>effort の使い分け（公式指針）</strong>：最新世代は adaptive thinking が基本で、深さは <code>budget_tokens</code> ではなく <strong>effort</strong> で制御。4段階 <code>high / xhigh / medium / low</code> のうち<strong>多くは high を標準</strong>、最重要タスクに xhigh、ルーチンは medium / low。<strong>Fable 5 は低 effort でも旧モデルの xhigh を上回ることがある</strong>とされ、完了はするが時間がかかりすぎる／もっと対話的にしたい時は effort を下げる。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+      <li><strong>サブエージェントの自律編成</strong>：明示しなくても適切に委譲する。むしろ使いすぎる傾向があるので、不要な場面では「単純な作業は直接やって」と抑える。</li>
+      <li><strong>メモリ＋コンテキスト認識</strong>：memory tool と context awareness を併用し、状態をファイル（<code>tests.json</code>／<code>progress.txt</code>）や git に保存して、コンテキストをまたいで長時間タスクを継続させる。</li>
+      <li><strong>prefill は廃止 → Structured Outputs へ</strong>：4.6 世代以降、最終アシスタントターンの prefill は非対応（400 エラー）。出力形式の固定は Structured Outputs やツール呼び出しで行う。</li>
+      <li><strong>過剰実装・テスト過適合を抑える</strong>：「依頼された範囲だけ・余計な抽象化や防御コードを足さない」「テストを通すためのハードコードをしない、一般解を書く」と明示すると暴走を防げる。</li>
+      <li><strong>ハルシネーション抑制</strong>：「<em>開いていないコードについて推測しない／参照ファイルは必ず読んでから答える</em>」と指示する。</li>
+      <li><strong>「思考をそのまま書き出させる」指示は避ける</strong>：スキルやシステムプロンプトで<strong>内部推論を逐語で出力／転写／説明させる</strong>と、<code>reasoning_extraction</code> 拒否カテゴリが作動し Opus 4.8 へのフォールバックが増えます。可視化が必要なら adaptive thinking の<strong>構造化 thinking ブロック</strong>を読む、進捗表示は <strong>send-to-user ツール</strong>を使う、で代替。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+      <li><strong>進捗報告のウソを防ぐ</strong>：長時間の自律ランでは「<em>進捗を報告する前に、各主張をこのセッションのツール結果に照らして監査して。証拠を示せる作業だけ報告し、未検証なら『未検証』と明示して。テストが落ちたら出力ごと正直に伝えて</em>」と指示すると、捏造ステータスがほぼ消えると公式テストで確認されています。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+      <li><strong>途中で止まったら／長すぎるセッション</strong>：まれに「やります」と言ってツールを呼ばず終える場合があり「<strong>continue</strong>／最後までやり切って」で再開可。<strong>コンテキスト残量カウントダウン表示</strong>が引き金で勝手に要約・新セッション提案・作業の切り詰めをすることがあるため、表示時は「<em>コンテキストは十分残っている。残量を理由に停止・要約・新セッション提案をせず作業を続けて</em>」と添える。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+      <li><strong>学びを書き残す場所を用意する</strong>：Fable 5 は<strong>前回ランの教訓を記録して参照できると特に強い</strong>。Markdown 1枚で十分（1ファイル1教訓・冒頭に1行サマリ・既存ノート更新優先・誤りと判明したノートは削除）。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></li>
+    </ul>
+  </section>
+
+  <!-- 9 -->
+  <section id="cli">
+    <h2><span class="num">9</span>実際に使う：Claude Code CLI で Fable 5</h2>
+    <p class="sub">ターミナルからでも、新モデルがすぐ選べる。</p>
+    <figure>
+      <img src="./assets/2026-06-10/05-cli.png" alt="Claude Code CLI（v2.1.170）の /model で Fable 5 を既定モデルに選択した画面。" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.querySelector('.ph').style.display='flex';">
+      <div class="ph" style="display:none">画像⑤（Claude Code CLI で Fable 5 を選択した画面）<br><code>assets/2026-06-10/05-cli.png</code></div>
+      <figcaption>図⑤：Claude Code（v2.1.170）で <code>/model</code> から Fable 5 を選択し、既定モデルに設定した画面</figcaption>
+    </figure>
+    <p>Claude Code の CLI でも、<code>/model</code> から <strong>Fable 5</strong> を選んでデフォルトに設定できます。<span class="badge b-mid">🔶 スクショより</span> 画面には「<em>Fable 5 is here! Our newest model for complex, long-running work</em>（複雑で長時間の作業向けの最新モデル）」と表示され、ヘッダーには「<em>Fable 5 with xhigh effort</em>」と出ています（effort は <code>/effort</code> で切替可能）。前章までの「長時間の自律作業に強い」という特性が、そのまま日常のコーディング環境で使える、というわけです。</p>
+
+    <h3>アクセス方法まとめ（公式案内）<span class="badge b-ok" title="公式確認済み">✅</span></h3>
+    <ul>
+      <li><strong>チャット（claude.ai 等）</strong>：<code>/model claude-fable-5</code> を実行。<strong>1Mコンテキスト版は <code>/model claude-fable-5[1m]</code></strong>。</li>
+      <li><strong>Claude Code CLI</strong>：<strong>v2.1.170 以降</strong>へアップデート（それ以前のバージョンにはモデルが出ない）。</li>
+      <li><strong>デスクトップアプリ</strong>：最新版へ更新（起動時に Fable 5 の案内モーダルが表示される）。</li>
+    </ul>
+    <div class="callout">
+      <div class="ct">トークン消費が激しいと感じたら：/usage で内訳を見る</div>
+      <p style="margin:6px 0 0">Claude Code 担当の Boris Cherny 氏による実用 Tips：ターミナルで <code>/usage</code> を実行して少し下にスクロールすると、<strong>どの skill / MCP / プラグインがトークンを消費しているかの詳細内訳</strong>が見られます。「たいていは出来の悪いプラグインが原因」とのこと。Fable 5 はトークナイザの仕様上、消費が増えやすい（§1）ので、移行直後のチェックにおすすめです。<span class="badge b-mid" title="一次情報あり・流動的">🔶</span></p>
+    </div>
+    <div class="callout">
+      <div class="ct">移行時の注意：1回の応答が長くなる</div>
+      <p style="margin:6px 0 0">高 effort では<strong>個別リクエストでも数分</strong>、自律ランは<strong>数時間</strong>に及ぶことがあります（公式は「チームが遭遇する最大級の変化」と表現）。固まったわけではないので、ツールやハーネス側の <strong>timeout・ストリーミング・進捗インジケータ</strong>を移行前に見直し、ブロッキングではなくスケジュールジョブ等で非同期に確認する設計が無難です。<span class="badge b-ok" title="公式確認済み">✅ 公式</span></p>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section id="x">
+    <h2><span class="num">10</span>X・業界の反応まとめ</h2>
+    <p class="sub">公式アカウントの投稿＋リプ欄、そして各社（ツール・プラットフォーム）の反応。<span class="badge b-mid">🔶 取得中／一部は手動で補完</span></p>
+    <div class="callout">
+      <div class="ct">この章の取得方法</div>
+      <p style="margin:0">各カードの本文・返信は <strong>Grok（X検索）で取得</strong>したものです。@claudeai スレッドは返信が1,600件超あり、ここでは<strong>エンゲージメント上位からの抜粋</strong>です（全件網羅ではありません）。完全なリプ全文が必要な場合は手動コピペで補完できます。<br>※ 引用リプ内の競合モデル名（GPT-5.5 等）は<strong>ユーザーの発言</strong>であり、その実在は一次未確認です。</p>
+    </div>
+
+    <h3>Anthropic 公式</h3>
+    <div class="tweet">
+      <div class="head"><div class="av">C</div><div class="who"><b>Claude</b><span>@claudeai</span></div></div>
+      <div class="body"><strong>投稿本文（原文）：</strong><br>
+        “Introducing Claude Fable 5: a Mythos-class model that we’ve made safe for general use. Its capabilities exceed those of any model we’ve ever made generally available. Fable 5 is state-of-the-art on nearly all tested benchmarks, with exceptional performance in software engineering, knowledge work, scientific research, and vision. The longer and more complex the task, the larger Fable 5’s lead over our other models.<br><br>
+        Releasing a model this capable comes with risks. Without safeguards, Fable 5’s capabilities in areas like cybersecurity could be misused to cause serious damage. Queries on a narrow range of topics will instead receive a response from our next-most-capable model, Opus 4.8. Fable 5’s safeguards detect requests related to cybersecurity, biology and chemistry, and distillation. Users are informed whenever a fallback occurs—on average in less than 5% of sessions. We’ll keep refining the safeguards to reduce false positives.<br><br>
+        For a small group of cyber defenders and critical infrastructure providers, we are also launching Claude Mythos 5. Mythos 5 shares the same underlying model as Fable 5, but with the safeguards lifted in some areas. … Claude Fable 5 is available everywhere today. Claude Mythos 5 is restricted to Glasswing partners until we expand our trusted access program.”
+      </div>
+      <p class="tnote" style="margin:10px 0 0">📝 要約：Fable 5 は一般公開向けの Mythos クラス。ほぼ全ベンチで SOTA、長く複雑なタスクほど差が開く。サイバー／生物・化学／蒸留の質問は Opus 4.8 へフォールバック（通知あり・平均5%未満）。同時に安全策を一部解除した Mythos 5 を Glasswing パートナー限定で提供。</p>
+      <div class="replies">
+        <div class="reply"><b>@danshipper</b>：“A BEAST of a model. here's our vibe check from a week of testing:” — 「化け物級のモデル」。1週間試した所感を引用投稿。</div>
+        <div class="reply"><b>@alexalbert__</b>：“Very excited for folks to try this one out!” — みんなが試せるのが楽しみ（Anthropic 寄りの反応）。</div>
+        <div class="reply"><b>@ryxncodes</b>：“Keep in mind, us peasants only get it for a couple weeks as a fun little trial” — 一般ユーザーは数週間のお試しだけ、という皮肉。</div>
+        <div class="reply"><b>@TimJayas</b>：“Codex GPT-5.5 is hiding in a corner now 💀” — 競合 GPT-5.5 が隅で縮こまっている、という誇張ジョーク。</div>
+        <div class="reply"><b>@rozzabuilds</b>：“RIP usage limits” — 使用上限が一瞬で溶ける、という皮肉。</div>
+        <div class="reply"><b>@vlelyavin</b>：“…such a careful sentence ngl, feels like every word in it is a lawyer” — 発表文の慎重な言い回しを「一語一語が弁護士みたい」と指摘。</div>
+        <div class="reply"><b>@sfffghhjkh</b>：“introducing a model just to remove it a week later… even the $200 a month can't even get some usage?” — 1週間で外す提供形態と使用量への不満。</div>
+        <div class="reply"><b>@iASHeeesh</b>：“Using Mythos/Fable to center the div.” — 最高峰のモデルで div を中央寄せ、という定番ジョーク。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0">※ エンゲージメント上位から抜粋。本スレッドは1,600件超の返信があり全件網羅ではありません。 <a href="https://x.com/claudeai/status/2064394146916229443">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">CD</div><div class="who"><b>Claude Developers</b><span>@ClaudeDevs</span></div></div>
+      <div class="body"><strong>投稿本文（原文）：</strong><br>
+        “Claude Fable 5 is here. New model generation, new way of working. Here's how to get started in Claude Code and on the Claude Platform: 🧵”<br>
+        <span style="color:var(--text-sub);font-size:14px">（@claudeai の告知を引用したスレッド開始ポスト。マルチエージェント API の <code>multiagent.ts</code> コード例＝図②はこのスレッド内で公開）</span>
+      </div>
+      <div class="replies">
+        <div class="reply"><b>@antonpme</b>：“Fable is the most capable model and takes 2× the usage of Opus 😂… you took Opus 5, renamed it Fable 5, and doubled the price…” — 価格・命名・消費量2倍への強い皮肉。</div>
+        <div class="reply"><b>@arihantbansal</b>：“why can't I use it to improve security of my own codebase?” — 安全ルーティングで自分のコードのセキュリティ改善に使えないのか、という疑問。</div>
+        <div class="reply"><b>@arckollect</b>：“why only until june 22nd tho?” — なぜ6月22日までだけ無償なのか。</div>
+        <div class="reply"><b>@sai_krishpoluri</b>：“I am on Max Plan… why is it saying included until June 22 only…” — Max プラン契約と6/22期限の不一致への不満。</div>
+        <div class="reply"><b>@aabyzov</b>：“There is still no Fable 5 model available in terminal!!! 🚨 Current version: 2.1.169” — ターミナルにまだ来ていない、との報告（※図⑤の v2.1.170 では選択可能に）。</div>
+        <div class="reply"><b>@Madhav_2077</b>：“‘safe for general use’ doing a lot of heavy lifting in AI marketing these days” — 「一般利用向けに安全」という表現への皮肉。</div>
+        <div class="reply"><b>@TheOrbitingAI</b>：“A powerful model with managed access… is permission dressed as safety.” — 管理アクセスは「安全を装った許可制」だ、という批判。</div>
+        <div class="reply"><b>@Sebalg_tech</b>：“The model looks really promising. I’ll definitely be giving it a try this week…” — 期待を寄せ今週試す予定、という肯定的反応。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0">※ エンゲージメント上位から抜粋（全件網羅ではありません）。 <a href="https://x.com/ClaudeDevs/status/2064394919549210774">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">BC</div><div class="who"><b>Boris Cherny</b><span>@bcherny（Anthropic / Claude Code 担当）</span></div></div>
+      <div class="body">Fable 5 を<strong>「昨年11月の Opus 4.5 以来、最大の能力ジャンプ」</strong>と評価。Claude が「コーディングエージェント」から、<strong>判断力・センス・奥行き（dimensionality）を持つ思考・設計のパートナー</strong>へ進化したと表現。特筆例として、デバッグを頼んだ際に<strong>計測→ログ追加→修正が効いたか検証→それから完了宣言</strong>という方法論的な進め方を「プロンプトで指示していないのに」自発的に行った点を挙げ、「<em>big model smell</em>（大きいモデル特有の風格）がある」と述べています。</div>
+      <div class="replies">
+        <div class="reply">続報ポストでは、トークン消費が激しいという報告に対し <code>/usage</code> での skill / MCP / プラグイン別内訳の確認方法を案内（→ §9 に収録）。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/bcherny/status/2064431111154053187">該当ポスト</a> ／ <a href="https://x.com/bcherny/status/2064476283850133590">/usage Tips</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">CD</div><div class="who"><b>Claude Developers</b><span>@ClaudeDevs（追加ポスト）</span></div></div>
+      <div class="body">
+        <strong>① フォールバック解説</strong>：Fable 5 は二重用途領域（サイバー・生物など）でより厳格な安全分類器を備えるが、<strong>拒否で行き止まりにせず、同じAPI往復の中で Opus 4.8 に自動リトライ</strong>する仕組みと、各SDK（Python / TypeScript / Go / Java / C#）のミドルウェアを案内（約15秒の解説アニメ付き。詳細は §4）。<br>
+        <strong>② アクセス案内</strong>：チャットは <code>/model claude-fable-5</code>（1M版は <code>claude-fable-5[1m]</code>）、CLI は v2.1.170 へ、デスクトップは最新版へ——というトラブルシュート投稿。ロールアウト直後はアクセス不可やレート制限への不満リプも多数。<br>
+        <strong>③ レート制限リセット</strong>：“We've reset 5-hour and weekly rate limits for all users. Enjoy Fable 5!”
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/ClaudeDevs/status/2064428347678220691">①fallback</a> ／ <a href="https://x.com/ClaudeDevs/status/2064414264807616883">②アクセス</a> ／ <a href="https://x.com/ClaudeDevs/status/2064464557951852643">③リセット</a></p>
+    </div>
+
+    <h3>業界・エコシステムの反応</h3>
+    <p>ローンチ当日、主要な開発ツール／プラットフォームが一斉に Fable 5 対応を発表しました。<strong>「長時間・自律のコーディング／知識作業」という打ち出しが各社で共通</strong>し、また <strong>GitHub・Notion はそろって「安全分類器を動かすためデータ保持が必要」</strong>と明記しているのが特徴です。<span class="badge b-mid">🔶 各社X投稿より</span></p>
+
+    <div class="tweet">
+      <div class="head"><div class="av">CU</div><div class="who"><b>Cursor</b><span>@cursor_ai</span></div></div>
+      <div class="body">“Claude Fable 5 is now available in Cursor. It sets a new state of the art on <strong>CursorBench at 72.9%</strong>, 8 points above the previous best.”（ベンチ比較チャート＋ <a href="https://cursor.com/evals">cursor.com/evals</a> へのリンク付き）</div>
+      <div class="replies">
+        <div class="reply"><b>@den_spirin</b>：“shouldn't the default be ‘medium,’ judging by the graph? …given the bang for the buck.” — コスパ的にデフォルトは medium が妥当では、という指摘。</div>
+        <div class="reply"><b>@huge_icons</b>：“composer 2.5 holding on like legacy code in prod” — 自社モデル Composer 2.5 が本番のレガシーコードのように健闘、というジョーク。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/cursor_ai/status/2064394824313376787">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">GH</div><div class="who"><b>GitHub</b><span>@github</span></div></div>
+      <div class="body">“📣 Claude Fable 5, the first in @AnthropicAI's Mythos model class, is now generally available and rolling out in <strong>GitHub Copilot</strong>. It is designed for long-horizon, autonomous coding and knowledge-work tasks.”<br>
+        <span style="color:var(--text-sub);font-size:14px">フォローアップ：“Unlike other Claude models in GitHub Copilot, Claude Fable 5 <strong>requires data retention</strong> to operate Anthropic's safety classifiers.”（安全分類器のためデータ保持が必須）</span></div>
+      <div class="replies">
+        <div class="reply"><b>@shankar_mahesh</b>：長期文脈の維持と複雑な目標への貢献が、知識作業のやり方を大きく変えうる、と期待。</div>
+        <div class="reply"><b>@LoopedAround</b>：“is this a game-changer for long-horizon coding tasks or just more of the same?” — 本当にゲームチェンジャーか、という冷静な問い。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://github.blog/changelog/2026-06-09-claude-fable-5-is-generally-available-for-github-copilot/">Copilot changelog</a> ／ <a href="https://x.com/github/status/2064402372961484864">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">N</div><div class="who"><b>Notion</b><span>@NotionHQ</span></div></div>
+      <div class="body">“Claude Fable 5 is now in Notion. It's the model we'd put behind your most complex custom agents and workers… <strong>Available on Biz and Ent plans</strong>.”<br>
+        <span style="color:var(--text-sub);font-size:14px">フォローアップ：通常 Notion はデータを保持しない LLM を使うが、Fable 5 は Anthropic がデータを保持するため <strong>opt-in</strong>（管理者が Settings → Notion AI で有効化）。</span></div>
+      <div class="replies">
+        <div class="reply"><b>@elementdsj</b>：“first time i've read a data retention policy and understood exactly why.” — データ保持ポリシーを読んで初めて理由が腑に落ちた、と好意的。</div>
+        <div class="reply"><b>@beepbeepbop50</b>：“Aw man I don't want to give Anthropic all my pages :(” — 全ページのデータを渡したくない、というプライバシー懸念。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/NotionHQ/status/2064397568696819984">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">L</div><div class="who"><b>Lovable</b><span>@Lovable</span></div></div>
+      <div class="body">“Lovable now supports Claude Fable 5.”（モデルセレクター等のスクショ付き。AI でアプリ／サイトを作るプラットフォームとして即日統合）</div>
+      <div class="replies">
+        <div class="reply"><b>@TheKryptoWiz</b>：“Sustained repo work is where frontier models separate.” — 短いデモより、持続的なリポジトリ作業でこそ差が出る、という的確な指摘。</div>
+        <div class="reply"><b>@rakeshgohel01</b>：“Lovable's speed + Fable 5's depth = fewer iterations to ship something real.” — 速さ×深さで出荷までの反復が減る、と期待。</div>
+      </div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/Lovable/status/2064395808913383556">該当ポスト</a></p>
+    </div>
+
+    <div class="tweet">
+      <div class="head"><div class="av">CL</div><div class="who"><b>Claude Code Log</b><span>@ClaudeCodeLog</span></div></div>
+      <div class="body">“Claude Code <strong>2.1.170</strong> was just released. Highlights: Claude Fable 5 — a new ‘Mythos-class’ model cleared for general use（更新で既定/改善オプションに）. Bug fix: VS Code 統合ターミナル等から起動したセッションが transcript 保存・<code>--resume</code> に出るように修正。”<br>
+        <span style="color:var(--text-sub);font-size:14px">続報：新環境変数 <code>ANTHROPIC_DEFAULT_FABLE_MODEL</code> ほか、モデル識別子 <code>claude-fable-5</code> / <code>claude-mythos-5</code> が追加。</span></div>
+      <p class="tnote" style="margin:10px 0 0"><a href="https://x.com/ClaudeCodeLog/status/2064402301742207152">該当ポスト</a></p>
+    </div>
+  </section>
+
+  <!-- sources -->
+  <section id="sources">
+    <h2><span class="num">＋</span>出典</h2>
+    <ul class="src">
+      <li><span class="who">Anthropic 公式発表：</span><a href="https://www.anthropic.com/news/claude-fable-5-mythos-5">Introducing Claude Fable 5 and Claude Mythos 5</a></li>
+      <li><span class="who">公式ドキュメント（プロンプト一般）：</span><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices">Prompting best practices</a></li>
+      <li><span class="who">公式ドキュメント（Fable 5 専用）：</span><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-fable-5">Prompting Claude Fable 5</a>（使い方・effort・サブエージェント・メモリ・refusal の一次ソース）</li>
+      <li><span class="who">公式ドキュメント（モデル仕様）：</span><a href="https://platform.claude.com/docs/en/about-claude/models/introducing-claude-fable-5-and-claude-mythos-5">Introducing Claude Fable 5 and Claude Mythos 5</a> ／ <a href="https://platform.claude.com/docs/en/about-claude/models/overview">Models overview</a></li>
+      <li><span class="who">公式ドキュメント（refusal / fallback）：</span><a href="https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback">Refusals and fallback</a>（stop_details・fallbacks・SDKミドルウェア・sticky routing の一次ソース）</li>
+      <li><span class="who">X（@bcherny）：</span><a href="https://x.com/bcherny/status/2064431111154053187">ポスト1</a> ／ <a href="https://x.com/bcherny/status/2064476283850133590">ポスト2</a></li>
+      <li><span class="who">X（@ClaudeDevs 追加分）：</span><a href="https://x.com/ClaudeDevs/status/2064414264807616883">ポスト1</a> ／ <a href="https://x.com/ClaudeDevs/status/2064428347678220691">ポスト2</a> ／ <a href="https://x.com/ClaudeDevs/status/2064464557951852643">ポスト3</a></li>
+      <li><span class="who">GitHub Copilot：</span><a href="https://github.blog/changelog/2026-06-09-claude-fable-5-is-generally-available-for-github-copilot/">Fable 5 GA changelog</a> ／ Cursor: <a href="https://cursor.com/evals">cursor.com/evals</a></li>
+      <li><span class="who">X（@claudeai）：</span><a href="https://x.com/claudeai/status/2064394146916229443">告知ポスト</a></li>
+      <li><span class="who">X（@ClaudeDevs）：</span><a href="https://x.com/ClaudeDevs/status/2064394919549210774">開発者向けポスト</a></li>
+      <li><span class="who">X（@ClaudeCodeLog）：</span><a href="https://x.com/ClaudeCodeLog/status/2064402301742207152">ポスト</a></li>
+      <li><span class="who">X（@cursor_ai）：</span><a href="https://x.com/cursor_ai/status/2064394824313376787">ポスト</a></li>
+      <li><span class="who">X（@github）：</span><a href="https://x.com/github/status/2064402372961484864">ポスト</a></li>
+      <li><span class="who">X（@NotionHQ）：</span><a href="https://x.com/NotionHQ/status/2064397568696819984">ポスト</a></li>
+      <li><span class="who">X（@Lovable）：</span><a href="https://x.com/Lovable/status/2064395808913383556">ポスト</a></li>
+      <li><span class="who">補助：</span>lilys.ai ダイジェスト（2件・JS生成のため本文未取得）</li>
+    </ul>
+  </section>
+
+  <!-- caveats -->
+  <section id="caveats">
+    <h2><span class="num">⚠</span>未確認・注意事項</h2>
+    <ul>
+      <li><span class="badge b-mid">🔶</span> ベンチマークの各数値は、Anthropic 公式の比較図からの<strong>書き起こし</strong>です。最終的な正確値はシステムカード／公式図でご確認ください。</li>
+      <li><span class="badge b-warn">⚠️</span> multiagent.ts のコード（パラメータ名・<code>agent_toolset_20260401</code> 等）は公開画像からの書き起こしで、API の正式仕様は未確認です。</li>
+      <li><span class="badge b-mid">🔶</span> X の投稿本文・リプライは Grok 経由のベストエフォート取得＋手動補完です。リプ欄の「全件」網羅は保証されません。</li>
+      <li><span class="badge b-warn">⚠️</span> lilys.ai の2件のダイジェストは JavaScript 生成のため自動取得できず、本資料には未反映です。</li>
+      <li><span class="badge b-warn">⚠️</span> Fable 5 / Mythos 5 の<strong>知識カットオフ</strong>は、参照した公式モデルページに明記がなく未確認です（Opus 4.8 は 2026年1月）。</li>
+      <li><span class="badge b-mid">🔶</span> §2⑤の生命科学の数値（タンパク質設計の約10倍加速・138種データのゲノミクスモデル・約100分の1サイズ等）は<strong>ローンチ時の紹介・デモ報告ベース</strong>で、独立検証や再現条件の詳細は未確認です。命名の由来（Fable＝物語／Mythos＝神話）も解説ベースです。</li>
+      <li><span class="badge b-warn">⚠️</span> 比較表の<strong>競合モデル名（GPT 5.5 / Gemini 3.1 Pro）と数値・*印スコア</strong>、および引用リプ内の競合モデル名は一次検証が取れていません。</li>
+      <li><span class="badge b-mid">🔶</span> <code>agent_toolset_20260401</code> 等のエージェントAPIは、参照した公式2ページ（モデル概要・発表）には記載がなく未確認。公式が明記する起動時サポート機能は <strong>Effort / Task budgets / memory tool / context editing / Compaction / Vision</strong> です。</li>
+      <li><span class="badge b-mid">🔶</span> 提供スケジュール・価格・Mythos 5 の提供条件（Project Glasswing）は流動的です。</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="logo"><svg width="120" height="28"><use href="#kawaru-logo"/></svg></div>
+    <p>非公式まとめ／撮影用リサーチ資料 ・ 2026-06-10 時点 ・ 最終確認は公式情報で</p>
+  </footer>
+
+</div>
+</body>
+</html>

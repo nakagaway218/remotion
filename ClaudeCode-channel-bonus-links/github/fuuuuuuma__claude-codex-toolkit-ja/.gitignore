@@ -1,0 +1,13 @@
+# 機密は絶対にコミットしない
+.env
+.env.*
+*credentials*
+*.key
+*.pem
+.mcp.local.json
+
+# OS / エディタ
+.DS_Store
+node_modules/
+__pycache__/
+*.log

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code でスライド資料を HTML で作る方法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@400;600;800&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --c1:    #42A4AF;
+  --c2:    #55B9B1;
+  --c3:    #5DCDC4;
+  --text:  #333333;
+  --muted: #6b7c80;
+  --pale:  rgba(93,205,196,.08);
+  --light: rgba(93,205,196,.15);
+  --border:#d4ecea;
+  --red:   #c0392b;
+  --redbg: #fdecea;
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: #a8cece;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1.5vh;
+}
+
+.stage {
+  width: min(95vw, 95vh * 16/9);
+  aspect-ratio: 16/9;
+  position: relative;
+  border-radius: .5vw;
+  box-shadow: 0 1vw 3vw rgba(0,0,0,.3);
+  overflow: hidden;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  display: none;
+  flex-direction: column;
+}
+.slide.active { display: flex; }
+
+/* ── アクセントバー ── */
+.topbar {
+  height: .7%;
+  background: linear-gradient(90deg, var(--c1), var(--c3));
+  flex-shrink: 0;
+}
+.header {
+  background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 60%, var(--c3) 100%);
+  flex-shrink: 0;
+  padding: 0 5%;
+  height: 9%;
+  display: flex;
+  align-items: center;
+  gap: 2%;
+}
+.header .pill {
+  background: rgba(255,255,255,.22);
+  color: #fff;
+  font-size: 1vw;
+  font-weight: 700;
+  padding: .3% 1.3%;
+  border-radius: 10vw;
+  letter-spacing: .06em;
+  flex-shrink: 0;
+}
+.header .ttl {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 1.25vw;
+  font-weight: 600;
+  color: rgba(255,255,255,.9);
+}
+
+/* ── ボディ ── */
+.body {
+  flex: 1;
+  padding: 4% 6%;
+  display: flex;
+  flex-direction: column;
+  gap: 3%;
+  overflow: hidden;
+}
+
+/* ── タイポ ── */
+.sec-title {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 2vw;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.4;
+  border-left: .4vw solid var(--c2);
+  padding-left: 1.5%;
+}
+.lead {
+  font-size: 1.25vw;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.lead strong { color: var(--text); }
+.big {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 2.6vw;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.55;
+}
+.big em { color: var(--c1); font-style: normal; }
+
+/* ── グリッド ── */
+.cols { display: grid; flex: 1; gap: 2.5%; align-content: stretch; align-items: stretch; }
+.c2 { grid-template-columns: 1fr 1fr; }
+.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.c4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+/* ── カード ── */
+.card {
+  background: var(--pale);
+  border-radius: .7vw;
+  padding: 4% 5%;
+  display: flex;
+  flex-direction: column;
+  gap: 5%;
+}
+.card.top  { border-top: .3vw solid var(--c1); }
+.card.left { border-left: .35vw solid var(--c2); border-radius: 0 .7vw .7vw 0; }
+.card.red  { background: var(--redbg); }
+.card h3 {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 1.25vw;
+  font-weight: 800;
+  color: var(--c1);
+  line-height: 1.4;
+}
+.card h3.r { color: var(--red); }
+.card p { font-size: 1.1vw; color: var(--text); line-height: 1.7; }
+.card .num {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 2.4vw;
+  font-weight: 800;
+  color: var(--c1);
+  opacity: .18;
+  line-height: 1;
+}
+
+/* ── リスト ── */
+.lst { list-style: none; display: flex; flex-direction: column; gap: 3.5%; }
+.lst li {
+  display: flex; align-items: flex-start; gap: 2.5%;
+  font-size: 1.15vw; color: var(--text); line-height: 1.6;
+}
+.lst li .i { font-size: 1.15vw; flex-shrink: 0; margin-top: .1vw; }
+.lst li.ok .i { color: var(--c2); }
+.lst li.ng .i { color: var(--red); }
+.lst li.ng    { color: #999; }
+
+/* ── バッジ ── */
+.bdg {
+  display: inline-block; font-size: 1.05vw; font-weight: 700;
+  padding: .25% 1.1%; border-radius: 10vw;
+}
+.bdg.ok { background: var(--light); color: var(--c1); }
+.bdg.ng { background: var(--redbg); color: var(--red); }
+.bdg.gr { background: #f0f0f0; color: #888; }
+
+/* ── 表 ── */
+.tbl { width:100%; border-collapse:collapse; font-size:1.15vw; }
+.tbl th { background:var(--c1); color:#fff; padding:1.5% 2.5%; text-align:left; font-weight:700; }
+.tbl td { padding:1.4% 2.5%; border-bottom:.1vw solid var(--border); color:var(--text); vertical-align:middle; }
+.tbl tr:nth-child(even) td { background: var(--pale); }
+
+/* ── プロンプト ── */
+.prompt {
+  background: #f4fafa;
+  border-left: .4vw solid var(--c1);
+  border-radius: 0 .5vw .5vw 0;
+  padding: 1.5% 2.5%;
+  font-family: 'Courier New', monospace;
+  font-size: 1.15vw;
+  color: var(--text);
+  line-height: 1.7;
+}
+.prompt .hi { color: var(--c1); font-weight: 700; }
+
+/* ── 強調ボックス ── */
+.hlbox {
+  background: var(--light);
+  border-radius: .7vw;
+  padding: 3% 5%;
+  text-align: center;
+}
+.hlbox .t {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 1.6vw;
+  font-weight: 800;
+  color: var(--c1);
+  line-height: 1.5;
+}
+
+/* ── ステップバッジ ── */
+.step-num {
+  background: var(--c1);
+  color: #fff;
+  border-radius: 50%;
+  width: 2.2vw; height: 2.2vw;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.1vw;
+  flex-shrink: 0;
+}
+
+/* ════════
+  タイトルスライド
+════════ */
+#s1 {
+  background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 55%, var(--c3) 100%);
+  justify-content: center;
+  align-items: flex-start;
+  padding: 7% 9%;
+  gap: 2.5%;
+}
+#s1 .ey { font-size: 1.1vw; color: rgba(255,255,255,.75); letter-spacing: .18em; }
+#s1 h1 {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 4.5vw;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.25;
+}
+#s1 .sub { font-size: 1.3vw; color: rgba(255,255,255,.78); line-height: 1.6; }
+#s1 .deco {
+  position: absolute; right: 6%; top: 50%; transform: translateY(-50%);
+  font-size: 17vw; font-weight: 900; color: rgba(255,255,255,.07);
+  font-family: 'Courier New', monospace; pointer-events: none; line-height: 1;
+}
+
+/* ════════
+  パート見出しスライド
+════════ */
+.part-slide {
+  justify-content: center;
+  align-items: flex-start;
+  padding: 7% 9%;
+  gap: 2%;
+}
+.part-slide::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: .7%;
+  background: linear-gradient(90deg, var(--c1), var(--c3));
+}
+.part-slide .pl {
+  font-size: 1.1vw; font-weight: 700; color: var(--c2); letter-spacing: .15em; text-transform: uppercase;
+}
+.part-slide h2 {
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 3.8vw; font-weight: 800; color: var(--text); line-height: 1.3;
+}
+.part-slide h2 em { color: var(--c1); font-style: normal; }
+.part-slide .desc { font-size: 1.25vw; color: var(--muted); line-height: 1.7; max-width: 65%; }
+.part-slide .pdeco {
+  position: absolute; right: 6%; bottom: 4%;
+  font-family: 'Shippori Mincho B1', serif;
+  font-size: 11vw; font-weight: 800; color: var(--c3); opacity: .09; line-height: 1; pointer-events: none;
+}
+
+/* ── ナビ ── */
+.nav {
+  display: flex; align-items: center; gap: 1.5vw;
+}
+.nav button {
+  background: var(--c1); border: none; color: #fff;
+  font-size: 1.1vw; padding: .5vw 1.6vw; border-radius: .4vw;
+  cursor: pointer; transition: opacity .15s; font-family: 'Noto Sans JP', sans-serif;
+}
+.nav button:hover { opacity: .75; }
+.nav button:disabled { opacity: .2; cursor: default; }
+.nav .ct { font-size: 1vw; color: #fff; min-width: 5vw; text-align: center; opacity: .8; }
+.dots { display: flex; gap: .45vw; align-items: center; flex-wrap: wrap; justify-content: center; max-width: 45vw; }
+.dot {
+  width: .55vw; height: .55vw; border-radius: 50%;
+  background: rgba(255,255,255,.4); cursor: pointer;
+  transition: background .2s, transform .2s; flex-shrink: 0;
+}
+.dot.active { background: #fff; transform: scale(1.5); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+
+<!-- ══ 1. タイトル ══ -->
+<div class="slide" id="s1">
+  <div class="ey">Claude Code × HTML Slides 2026</div>
+  <h1>Claude Code 完結で<br>スライド資料を<br>HTML で作る方法</h1>
+  <div class="sub">Keynote・PowerPoint はもう不要——AI が得意な形式で作れば速くて美しい</div>
+  <div class="deco">&lt;/&gt;</div>
+</div>
+
+<!-- ══ 2. 導入：話題の記事 ══ -->
+<div class="slide" id="s2">
+  <div class="topbar"></div>
+  <div class="body" style="justify-content:center; gap:4%;">
+    <div class="big">
+      海外で<em>「HTML で資料を作れ」</em>という<br>
+      記事が話題になっています
+    </div>
+    <div class="cols c2" style="flex:none; gap:2.5%;">
+      <div class="card top">
+        <h3>話題の記事①</h3>
+        <p style="font-size:1vw;color:var(--muted);">Anthropic スタッフによる投稿</p>
+        <p>「<strong>The Unreasonable Effectiveness of HTML</strong>」<br>——Markdown をやめて HTML で出力するようになった理由と、その圧倒的な効果を解説</p>
+      </div>
+      <div class="card top">
+        <h3>共通するメッセージ</h3>
+        <ul class="lst" style="margin-top:2%;">
+          <li class="ok"><span class="i">→</span> AI 時代は出力形式を変えるべき</li>
+          <li class="ok"><span class="i">→</span> HTML の方が読まれる・伝わる・共有できる</li>
+          <li class="ok"><span class="i">→</span> スライドも HTML で作れる時代が来た</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hlbox">
+      <div class="t">今回はこの考え方を「スライド資料づくり」に応用する方法を解説します</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 3. 記事の主張（軽く紹介） ══ -->
+<div class="slide" id="s3">
+  <div class="topbar"></div>
+  <div class="body">
+    <div class="sec-title">記事が言っていること</div>
+    <div class="cols c3" style="flex:1;">
+      <div class="card top">
+        <div class="num">01</div>
+        <h3>Markdown には限界がある</h3>
+        <p>100行を超えると読む気がなくなる。色も図もないテキストは情報が伝わりにくい。</p>
+      </div>
+      <div class="card top">
+        <div class="num">02</div>
+        <h3>HTML は情報密度が段違い</h3>
+        <p>色・表・SVG・アニメーション・インタラクションをフルに使える。Markdown では不可能な表現が実現できる。</p>
+      </div>
+      <div class="card top">
+        <div class="num">03</div>
+        <h3>一言追加するだけ</h3>
+        <p>「HTML で出して」とプロンプトに加えるだけ。特別なスキルも設定も一切不要。</p>
+      </div>
+    </div>
+    <div class="lead" style="text-align:center;">
+      なぜこれが正しいのか——<strong>まず Markdown と HTML の違いから整理します</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 4. Part 1 見出し ══ -->
+<div class="slide part-slide" id="s4">
+  <div class="pl">Part 1</div>
+  <h2>Markdown と HTML、<br><em>何が違うのか</em></h2>
+  <div class="desc">「どちらも文書フォーマット」——でも、できることはまったく別物です</div>
+  <div class="pdeco">01</div>
+</div>
+
+<!-- ══ 5. Markdown とは ══ -->
+<div class="slide" id="s5">
+  <div class="header"><div class="pill">Part 1</div><div class="ttl">Markdown と HTML、何が違うのか</div></div>
+  <div class="body">
+    <div class="sec-title">Markdown とは何か</div>
+    <div class="cols c2" style="flex:1;">
+      <div class="card top">
+        <div class="num">定義</div>
+        <h3>テキストで書ける軽量フォーマット</h3>
+        <p>記号だけで文書を構造化できる形式。メモ・仕様書・README など幅広く使われている。</p>
+        <div style="background:#f5f5f5;border-radius:.5vw;padding:4%;font-family:'Courier New',monospace;font-size:1.1vw;color:#555;margin-top:auto;line-height:1.7;">
+          # スライド資料の作り方<br>
+          ## 手順<br>
+          - Step1：プロンプトを書く<br>
+          - Step2：HTML で出力する<br>
+          **ポイント**：一言追加するだけ
+        </div>
+      </div>
+      <div class="card top">
+        <div class="num">強み</div>
+        <h3>人間が直接読み書きできる</h3>
+        <ul class="lst" style="margin-top:2%;">
+          <li class="ok"><span class="i">✓</span> テキストエディタさえあれば誰でも編集できる</li>
+          <li class="ok"><span class="i">✓</span> シンプルで覚えやすい</li>
+          <li class="ok"><span class="i">✓</span> GitHub・Notion などと相性がいい</li>
+          <li class="ok"><span class="i">✓</span> バージョン管理がしやすい</li>
+        </ul>
+        <div style="margin-top:auto;padding:3%;background:var(--redbg);border-radius:.5vw;font-size:1.05vw;color:var(--red);">
+          ただし、これらは「<strong>人間が編集する</strong>」前提のメリット
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 6. HTML とは ══ -->
+<div class="slide" id="s6">
+  <div class="header"><div class="pill">Part 1</div><div class="ttl">Markdown と HTML、何が違うのか</div></div>
+  <div class="body">
+    <div class="sec-title">HTML とは何か</div>
+    <div class="lead">一言で言うと：<strong>ブラウザ（Chrome・Safari）で開けるファイル形式</strong>。ウェブサイトはすべてこれで作られている。</div>
+    <div class="cols c4" style="flex:1;">
+      <div class="card top" style="align-items:center;text-align:center;">
+        <div style="font-size:2.8vw;">🎨</div>
+        <h3>色・デザイン</h3>
+        <p style="font-size:1vw;">CSS でブランドカラーを自在に表現</p>
+      </div>
+      <div class="card top" style="align-items:center;text-align:center;">
+        <div style="font-size:2.8vw;">📊</div>
+        <h3>表・グラフ</h3>
+        <p style="font-size:1vw;">リッチな表・SVG グラフで可視化</p>
+      </div>
+      <div class="card top" style="align-items:center;text-align:center;">
+        <div style="font-size:2.8vw;">✏️</div>
+        <h3>図・イラスト</h3>
+        <p style="font-size:1vw;">SVG でフローチャートや構造図</p>
+      </div>
+      <div class="card top" style="align-items:center;text-align:center;">
+        <div style="font-size:2.8vw;">🖱️</div>
+        <h3>インタラクション</h3>
+        <p style="font-size:1vw;">ボタン・スライダー・アニメーション</p>
+      </div>
+    </div>
+    <div class="hlbox">
+      <div class="t">自分で HTML を書く必要はゼロ——Claude Code に「HTML で出して」と頼むだけ</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 7. Markdown vs HTML 比較 ══ -->
+<div class="slide" id="s7">
+  <div class="header"><div class="pill">Part 1</div><div class="ttl">Markdown と HTML、何が違うのか</div></div>
+  <div class="body">
+    <div class="sec-title">並べて比べる</div>
+    <table class="tbl" style="flex:1;">
+      <thead>
+        <tr><th>比較項目</th><th>Markdown</th><th>HTML</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>色・デザイン</td><td><span class="bdg ng">✗ できない</span></td><td><span class="bdg ok">✓ CSS で自由に</span></td></tr>
+        <tr><td>表・グラフ・図</td><td><span class="bdg gr">△ 基本的な表のみ</span></td><td><span class="bdg ok">✓ SVG・リッチな表</span></td></tr>
+        <tr><td>インタラクション</td><td><span class="bdg ng">✗ なし</span></td><td><span class="bdg ok">✓ ボタン・スライダー</span></td></tr>
+        <tr><td>ブラウザで共有</td><td><span class="bdg ng">✗ 添付ファイルが必要</span></td><td><span class="bdg ok">✓ URL ひとつで完結</span></td></tr>
+        <tr><td>スライド資料として使う</td><td><span class="bdg ng">✗ 向いていない</span></td><td><span class="bdg ok">✓ 16:9 に設定すればそのままスライドに</span></td></tr>
+        <tr><td>生成速度</td><td><span class="bdg ok">✓ 速い</span></td><td><span class="bdg gr">△ 少し時間がかかる</span></td></tr>
+      </tbody>
+    </table>
+    <div class="lead" style="font-size:1.05vw; text-align:center;">生成に時間はかかるが、<strong>読まれる・伝わる・共有できる</strong>点でトータルの効率は圧倒的に向上する</div>
+  </div>
+</div>
+
+<!-- ══ 8. Part 2 見出し ══ -->
+<div class="slide part-slide" id="s8">
+  <div class="pl">Part 2</div>
+  <h2>なぜ Markdown だと<br><em>AI に微妙</em>なのか</h2>
+  <div class="desc">AI の登場で「人間が編集する」前提が崩れた——Markdown の優位性が消えた理由</div>
+  <div class="pdeco">02</div>
+</div>
+
+<!-- ══ 9. AI が変えた前提 ══ -->
+<div class="slide" id="s9">
+  <div class="header"><div class="pill">Part 2</div><div class="ttl">なぜ Markdown だと AI に微妙なのか</div></div>
+  <div class="body">
+    <div class="sec-title">「誰が作るか」が変わった</div>
+    <div class="cols c2" style="flex:1;">
+      <div class="card red">
+        <h3 class="r">AI 登場前</h3>
+        <div style="display:flex;flex-direction:column;gap:3%;margin-top:2%;">
+          <div style="background:#fff;border-radius:.5vw;padding:3%;font-size:1.1vw;">👤 人間が書く</div>
+          <div style="text-align:center;color:#ccc;font-size:1.2vw;">↓</div>
+          <div style="background:#fff;border-radius:.5vw;padding:3%;font-size:1.1vw;">✏️ 人間が編集する</div>
+          <div style="text-align:center;color:#ccc;font-size:1.2vw;">↓</div>
+          <div style="background:#fff;border-radius:.5vw;padding:3%;font-size:1.1vw;">👁 人間が読む</div>
+        </div>
+        <p style="margin-top:auto;font-size:1vw;color:var(--red);">人間が直接触れる → Markdown が最適</p>
+      </div>
+      <div class="card top">
+        <h3>AI 登場後（今）</h3>
+        <div style="display:flex;flex-direction:column;gap:3%;margin-top:2%;">
+          <div style="background:var(--light);border-radius:.5vw;padding:3%;font-size:1.1vw;">🤖 <strong>AI が書く</strong></div>
+          <div style="text-align:center;color:#ccc;font-size:1.2vw;">↓</div>
+          <div style="background:var(--light);border-radius:.5vw;padding:3%;font-size:1.1vw;">🤖 <strong>AI が編集する</strong></div>
+          <div style="text-align:center;color:#ccc;font-size:1.2vw;">↓</div>
+          <div style="background:#fff;border-radius:.5vw;padding:3%;font-size:1.1vw;">👁 人間が読む</div>
+        </div>
+        <p style="margin-top:auto;font-size:1vw;color:var(--c1);">「人間が編集しやすい」メリットが消えた</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 10. Markdown の限界 ══ -->
+<div class="slide" id="s10">
+  <div class="header"><div class="pill">Part 2</div><div class="ttl">なぜ Markdown だと AI に微妙なのか</div></div>
+  <div class="body">
+    <div class="sec-title">AI 時代に Markdown が「微妙」になる理由</div>
+    <div class="cols c2" style="flex:1;">
+      <div style="display:flex;flex-direction:column;gap:2.5%;">
+        <div class="card top">
+          <h3>AI のアウトプットは量・複雑さが爆発している</h3>
+          <ul class="lst" style="margin-top:2%;">
+            <li class="ng"><span class="i">→</span> 仕様書が数百行になる</li>
+            <li class="ng"><span class="i">→</span> 分析レポートに図・表が必要になる</li>
+            <li class="ng"><span class="i">→</span> 登壇・提案で使えるクオリティが求められる</li>
+          </ul>
+        </div>
+        <div class="card red">
+          <h3 class="r">Markdown では対応できない</h3>
+          <p>色も図もない長いテキストは誰も最後まで読まない。共有しても「開かない」まま埋もれる。</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;">
+        <div style="background:var(--pale);border-radius:1vw;padding:8%;text-align:center;width:100%;display:flex;flex-direction:column;gap:4%;">
+          <div style="font-family:'Shippori Mincho B1',serif;font-size:1.3vw;color:var(--muted);">まとめると</div>
+          <div style="font-family:'Shippori Mincho B1',serif;font-size:1.9vw;font-weight:800;color:var(--text);line-height:1.6;">Markdown の強みは<br>「人間が直接触れること」<br>——AI 時代にその前提が崩れた</div>
+          <div style="font-size:1.1vw;color:var(--c1);font-weight:700;">だから HTML に変えるべき</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 11. Part 3 見出し ══ -->
+<div class="slide part-slide" id="s11">
+  <div class="pl">Part 3</div>
+  <h2>なぜ<em> HTML </em>が<br>スライドに最適なのか</h2>
+  <div class="desc">AI が得意な形式 × ブラウザの表示力——この掛け合わせが最強</div>
+  <div class="pdeco">03</div>
+</div>
+
+<!-- ══ 12. HTML がいい理由 ══ -->
+<div class="slide" id="s12">
+  <div class="header"><div class="pill">Part 3</div><div class="ttl">なぜ HTML がスライドに最適なのか</div></div>
+  <div class="body">
+    <div class="sec-title">HTML × AI が最強な理由</div>
+    <div class="cols c3" style="flex:1;">
+      <div class="card top">
+        <div class="num">理由①</div>
+        <h3>AI はコーディングが最も得意</h3>
+        <p>プロンプトで曖昧に伝えるより、コードを書かせる方が精度が圧倒的に高い。HTML はその最たる例。</p>
+      </div>
+      <div class="card top">
+        <div class="num">理由②</div>
+        <h3>ブラウザは最高の表示エンジン</h3>
+        <p>30年かけて磨き込まれたレンダリングエンジン。色・レイアウト・アニメーションを完璧に処理できる。</p>
+      </div>
+      <div class="card top">
+        <div class="num">理由③</div>
+        <h3>スライドそのものになる</h3>
+        <p>16:9 のセクションを画面送りするだけで、Keynote と同等クオリティのスライドが完成する。</p>
+      </div>
+    </div>
+    <div class="hlbox">
+      <div class="t">PowerPoint・Keynote の「フォーマットの壁」を HTML が突破する</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 13. 既存 AI スライドとの比較 ══ -->
+<div class="slide" id="s13">
+  <div class="header"><div class="pill">Part 3</div><div class="ttl">なぜ HTML がスライドに最適なのか</div></div>
+  <div class="body">
+    <div class="sec-title">既存の AI スライドツールとの違い</div>
+    <div class="cols c2" style="flex:1;">
+      <div class="card red">
+        <h3 class="r">従来の AI スライドツール</h3>
+        <ul class="lst" style="margin-top:2%;">
+          <li class="ng"><span class="i">✗</span> Gamma・Marp など：社内打合せ用途までが限界</li>
+          <li class="ng"><span class="i">✗</span> PowerPoint 自動生成：変換時に崩れる</li>
+          <li class="ng"><span class="i">✗</span> Copilot / AI in PowerPoint：独自形式の壁</li>
+          <li class="ng"><span class="i">✗</span> 登壇・社外提案で使えるクオリティが出ない</li>
+        </ul>
+        <p style="margin-top:auto;font-size:1vw;color:var(--red);">共通の問題：AI の能力が「フォーマットの壁」に阻まれる</p>
+      </div>
+      <div class="card top">
+        <h3>Claude Code × HTML</h3>
+        <ul class="lst" style="margin-top:2%;">
+          <li class="ok"><span class="i">✓</span> フォーマットの壁がない（HTML はブラウザが読む）</li>
+          <li class="ok"><span class="i">✓</span> AI の能力をフルに発揮できる</li>
+          <li class="ok"><span class="i">✓</span> 登壇・社外提案で使えるクオリティ</li>
+          <li class="ok"><span class="i">✓</span> 自社デザインの再現も可能</li>
+        </ul>
+        <p style="margin-top:auto;font-size:1vw;color:var(--c1);">Keynote と同等のクオリティを AI 完結で実現</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 14. Part 4 見出し（実演） ══ -->
+<div class="slide part-slide" id="s14">
+  <div class="pl">Part 4</div>
+  <h2>実際に<em>やってみる</em></h2>
+  <div class="desc">プロンプトに一言追加するだけ——画面で確認してみましょう</div>
+  <div class="pdeco">04</div>
+</div>
+
+<!-- ══ 15. やり方 ══ -->
+<div class="slide" id="s15">
+  <div class="header"><div class="pill">Part 4</div><div class="ttl">実際にやってみる</div></div>
+  <div class="body" style="gap:3.5%;">
+    <div class="sec-title">スライドを HTML で作る手順</div>
+    <div class="cols c2" style="flex:1;">
+      <div style="display:flex;flex-direction:column;gap:2.5%;">
+        <div class="card red">
+          <h3 class="r">今まで（Markdown）</h3>
+          <div class="prompt" style="margin-top:3%;background:#fff;">来月の提案資料を作って</div>
+          <p style="margin-top:3%;font-size:1vw;">→ 長いテキストが出力される。読みにくい。共有しにくい。</p>
+        </div>
+        <div class="card top">
+          <h3>これから（HTML）</h3>
+          <div class="prompt" style="margin-top:3%;">来月の提案資料を作って。<span class="hi">16:9のスライド形式でHTMLファイルとして出力して。</span></div>
+          <p style="margin-top:3%;font-size:1vw;color:var(--c1);">→ そのままプレゼンで使えるスライドが出力される。</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:2.5%;">
+        <div class="card top" style="flex:1;">
+          <h3>ブラウザで開く方法</h3>
+          <div style="display:flex;flex-direction:column;gap:4%;margin-top:3%;">
+            <div style="display:flex;align-items:center;gap:3%;font-size:1.1vw;">
+              <div class="step-num">1</div>
+              Claude Code が .html ファイルを生成する
+            </div>
+            <div style="display:flex;align-items:center;gap:3%;font-size:1.1vw;">
+              <div class="step-num">2</div>
+              ファイルを Chrome にドラッグ＆ドロップ
+            </div>
+            <div style="display:flex;align-items:center;gap:3%;font-size:1.1vw;">
+              <div class="step-num" style="background:var(--c2);">3</div>
+              スライドとして表示される
+            </div>
+            <div style="display:flex;align-items:center;gap:3%;font-size:1.1vw;">
+              <div class="step-num" style="background:var(--c3);">4</div>
+              共有は URL を送るだけ（S3 等にアップ）
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 16. まとめ ══ -->
+<div class="slide" id="s16">
+  <div class="topbar"></div>
+  <div class="body" style="justify-content:center; gap:4%; align-items:center; text-align:center;">
+    <div class="big" style="border-left:none; padding-left:0;">
+      フォーマットを変えると、<br>
+      アウトプットの<em>価値が変わる</em>
+    </div>
+    <div class="cols c3" style="flex:none; width:100%;">
+      <div class="card top" style="text-align:left;">
+        <div style="font-size:1.8vw;">📝</div>
+        <h3>Markdown を疑う</h3>
+        <p style="font-size:1.05vw;">「人間が編集する」前提で生まれた形式。AI が作る今、その前提は崩れた。</p>
+      </div>
+      <div class="card top" style="text-align:left;">
+        <div style="font-size:1.8vw;">🌐</div>
+        <h3>HTML を選ぶ</h3>
+        <p style="font-size:1.05vw;">AI はコードが得意、ブラウザは完璧に表示する。スライドも HTML で作れる時代。</p>
+      </div>
+      <div class="card top" style="text-align:left;">
+        <div style="font-size:1.8vw;">✍️</div>
+        <h3>一言追加する</h3>
+        <p style="font-size:1.05vw;">「16:9 のスライド形式で HTML ファイルとして出力して」——それだけ。</p>
+      </div>
+    </div>
+    <div class="hlbox" style="width:100%;">
+      <div class="t">まずは今日の資料づくりで一つ試してみてください</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<div class="nav">
+  <button id="prev" onclick="go(-1)" disabled>◀</button>
+  <div class="dots" id="dots"></div>
+  <button id="next" onclick="go(1)">▶</button>
+  <div class="ct" id="ct"></div>
+</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+let cur = 0;
+const dotsEl = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.onclick = () => jump(i);
+  dotsEl.appendChild(d);
+});
+function update() {
+  slides.forEach((s, i) => s.classList.toggle('active', i === cur));
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === cur));
+  document.getElementById('prev').disabled = cur === 0;
+  document.getElementById('next').disabled = cur === total - 1;
+  document.getElementById('ct').textContent = (cur + 1) + ' / ' + total;
+}
+function go(d) { jump(cur + d); }
+function jump(n) { cur = Math.max(0, Math.min(total - 1, n)); update(); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(-1);
+});
+update();
+</script>
+</body>
+</html>

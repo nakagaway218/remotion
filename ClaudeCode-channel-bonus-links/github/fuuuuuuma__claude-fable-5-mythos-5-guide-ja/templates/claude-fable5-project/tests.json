@@ -1,0 +1,11 @@
+{
+  "_comment": "長時間タスクの状態管理の雛形。テストや作業項目をAIに増減させて使う。テストの削除・改変は原則禁止と伝えること",
+  "tests": [
+    { "id": 1, "name": "example_feature_a", "status": "not_started" },
+    { "id": 2, "name": "example_feature_b", "status": "not_started" }
+  ],
+  "total": 2,
+  "passing": 0,
+  "failing": 0,
+  "not_started": 2
+}

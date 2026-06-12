@@ -1,0 +1,4 @@
+No.,特典名,内容,リンク,備考
+1,AIマネージャー導入ガイド（マークダウン版）,営業マネージャー＋マーケティングマネージャーを対話式でセットアップする1枚マニュアル。Claude Code がこのファイルを読んで質問しながら実装まで進めてくれる。,https://drive.google.com/file/d/1PjmEo7JR484_D75jgWpxhfTU-R2qO8IJ/view,.md をダウンロード → Claude Code のプロジェクトに置く → 「このファイルを読んで進めて」と指示。所要 90〜120 分。Claude Code で実装する人はこちら推奨。
+2,AIマネージャー導入ガイド（Googleドキュメント版）,上記マークダウン版と同じ内容を Google Docs 形式で閲覧できるバージョン。ブラウザで読みたい人向け。,https://docs.google.com/document/d/1umI5P_pyG-Zpcb-J7REI46F6XOKASLXZMJnQrs5zeDg/edit,Claude Code に渡す前に内容をブラウザで確認したい人向け。実装には マークダウン版をダウンロードして使う。
+3,オウンドメディア完全自動化,オウンドメディア（WordPress等）の新着記事を検出 → YouTube/TikTok/Instagram の動画台本を毎朝自動生成 → Google Drive に保存する完全自動化セット。,https://drive.google.com/file/d/15VlUtq6wuwQSYYTQ0xAfV5b5TfwRB4Kt/view,以前の動画「全SNSを完全自動化させる」で配布したものと同じ内容。Claude Code への指示書として読ませる。

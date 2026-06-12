@@ -1,0 +1,35 @@
+# Codex 用 MCP サーバー設定サンプル（~/.codex/config.toml の [mcp_servers] 部分）
+# Claude Code の .mcp.json と同じサーバーを Codex 形式(TOML)で書いた対応例。
+# キーは実値を書かず、環境変数経由（bearer_token_env_var / env）で渡すこと。
+
+# --- ローカル(stdio)型 ---
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+# startup_timeout_sec = 10   # 起動タイムアウト（既定10秒）
+# tool_timeout_sec = 60      # ツール実行タイムアウト（既定60秒）
+
+[mcp_servers.filesystem]
+command = "npx"
+args = ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/work"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
+
+# --- リモート(Streamable HTTP)型 ---
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/"
+# 環境変数 GITHUB_PAT の値を Bearer トークンとして使う
+bearer_token_env_var = "GITHUB_PAT"
+
+[mcp_servers.notion]
+url = "https://mcp.notion.com/mcp"
+# OAuth 対応サーバーは初回接続時に認証フローが走る
+
+# CLI で足す場合の同等コマンド（参考）:
+#   codex mcp add context7 -- npx -y @upstash/context7-mcp
+#   codex mcp add filesystem -- npx -y @modelcontextprotocol/server-filesystem /Users/you/work
+#   codex mcp --help    # 一覧・オプション

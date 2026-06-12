@@ -1,0 +1,37 @@
+# OpenAI Codex ~/.codex/config.toml サンプル（全体）
+# 実キーは書かず、機密は環境変数で渡す。値・既定はバージョンで変わるので公式リファレンスで確認:
+#   https://developers.openai.com/codex/config-reference
+
+# --- 基本 ---
+model = "gpt-5.5"                 # 使うモデル名（最新の選択肢は公式で確認）
+approval_policy = "on-request"    # untrusted / on-request / never
+sandbox_mode = "workspace-write"  # read-only / workspace-write / danger-full-access
+
+# --- 機能トグル ---
+[features]
+web_search = true
+hooks = true
+multi_agent = false
+
+# --- AGENTS.md の読み込み制御 ---
+# project_doc_max_bytes = 32768                    # 連結上限（既定 32 KiB）
+# project_doc_fallback_filenames = ["CLAUDE.md"]   # CLAUDE.md をフォールバックに（二次情報・要動作確認）
+
+# --- MCP サーバー（詳細は ../mcp/codex-config.toml）---
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.notion]
+url = "https://mcp.notion.com/mcp"
+
+# --- 並列サブエージェント（明示依頼時のみ起動）---
+[agents]
+# max_threads = 6          # 同時起動上限（既定6・要確認）
+# max_depth = 1            # ネスト深さ（既定1・要確認）
+
+# --- フック（command型が確実。それ以外は要確認）---
+# [hooks]
+#   ... ライフサイクルイベントにコマンドを紐付け（PreToolUse / PostToolUse / SessionStart 等）
+
+# プロファイルで設定を重ねる場合: codex --profile work （~/.codex/work.config.toml を上乗せ）
