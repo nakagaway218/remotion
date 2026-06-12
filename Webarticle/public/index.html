@@ -118,12 +118,13 @@
                 <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
               </label>
               <button data-prompt="sourceDiscovery">情報ソース候補プロンプト</button>
-              <button class="primary" data-prompt="knowledge">NotebookLM用プロンプト</button>
+              <button class="primary" data-prompt="codexResearch">Codex調査用プロンプト</button>
+              <button data-prompt="knowledge">NotebookLM用プロンプト</button>
               <button id="buildResearchSet">リサーチセット作成</button>
             </div>
           </div>
           <p class="inline-note">
-            専門性が高い記事では、先に信頼できる情報ソース候補を整理し、NotebookLMに読み込ませてから基礎知識メモを作ります。通常の記事では空欄でも次へ進めます。
+            専門性が高い記事では、Codex調査で信頼できる情報ソースと基礎知識を整理します。NotebookLMは追加で文献を読み込ませたい場合の任意工程として使えます。
           </p>
           <label>
             重要情報ソースリスト
@@ -131,6 +132,14 @@
               id="trustedSources"
               rows="10"
               placeholder="公的機関、専門団体、一次情報、信頼できる解説記事など、NotebookLMに読み込ませたいソース候補を貼り付けます。URL、資料名、信頼できる理由、記事で使う観点を書いてください。"
+            ></textarea>
+          </label>
+          <label>
+            Codex調査メモ
+            <textarea
+              id="codexResearchMemo"
+              rows="12"
+              placeholder="Codex調査の結果を貼り付けます。信頼できるソース、基礎知識、注意点、記事に使う観点をまとめて入れてください。標準ではこの欄を後続工程に反映します。"
             ></textarea>
           </label>
           <label>

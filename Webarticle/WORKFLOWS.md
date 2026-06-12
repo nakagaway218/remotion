@@ -3,12 +3,13 @@
 ## Article Creation
 
 1. Fill in keyword, target length, body allocation, article purpose, and tone.
-2. If the topic is specialized, use `情報ソース候補プロンプト`.
+2. If the topic is specialized, use `Codex調査用プロンプト`.
 3. Paste trusted source candidates into `重要情報ソースリスト`.
-4. Use `リサーチセット作成` or `NotebookLM用プロンプト` to decide what NotebookLM should read.
-5. Paste NotebookLM notes into `NotebookLMで作成した基礎知識メモ`.
-6. Import or paste source materials into `インポートした文献・資料`.
-7. Create and paste prompts step by step:
+4. Paste Codex research output into `Codex調査メモ`.
+5. Optionally use `リサーチセット作成` or `NotebookLM用プロンプト` when NotebookLM should read source documents.
+6. Paste NotebookLM notes into `NotebookLMで作成した基礎知識メモ` when used.
+7. Import or paste source materials into `インポートした文献・資料`.
+8. Create and paste prompts step by step:
    - 検索意図
    - 構成
    - あらすじ
@@ -17,10 +18,10 @@
    - リード文
    - 本文
    - まとめ
-8. Review the synopsis and click `このあらすじを採用`.
-9. Build body sections by pasting the target h2/h3 block into `出力したい見出し`.
-10. Copy or save the final Markdown from the preview.
-11. Click `プロジェクト保存` to write structured intermediate artifacts into `article-projects/`.
+9. Review the synopsis and click `このあらすじを採用`.
+10. Build body sections by pasting the target h2/h3 block into `出力したい見出し`.
+11. Copy or save the final Markdown from the preview.
+12. Click `プロジェクト保存` to write structured intermediate artifacts into `article-projects/`.
 
 ## Trusted Source Workflow
 
@@ -28,9 +29,9 @@
 2. Paste the prompt into ChatGPT.
 3. Paste the returned list into `重要情報ソースリスト`.
 4. Add URLs, source names, reliability reasons, and article-use notes where possible.
-5. Click `リサーチセット作成`.
-6. Load the listed high-priority sources into NotebookLM.
-7. Paste NotebookLM's source-grounded memo into `NotebookLMで作成した基礎知識メモ`.
+5. Click `Codex調査用プロンプト` and paste it into Codex.
+6. Paste the returned research memo into `Codex調査メモ`.
+7. Use `リサーチセット作成` and NotebookLM only when extra source-document reading is needed.
 
 ## Rakko CSV Workflow
 
@@ -75,7 +76,7 @@ For prompt checks:
 
 1. Start the server with a temporary `PORT`.
 2. Send sample data to `/api/prompt`.
-3. Confirm `NotebookLMで作成した基礎知識メモ` and `インポートした文献・資料` appear in affected downstream prompts.
+3. Confirm `Codex調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected downstream prompts.
 
 ## Project Save Workflow
 
@@ -85,6 +86,7 @@ The tool writes:
 
 - `request.json`
 - `trusted-sources.md`
+- `codex-research.md`
 - `knowledge.md`
 - `sources.md`
 - `rakko-gpts.md`

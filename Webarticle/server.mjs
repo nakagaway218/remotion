@@ -25,6 +25,7 @@ const contentTypes = {
 
 const stepLabels = {
   sourceDiscovery: "情報ソース候補",
+  codexResearch: "Codex調査",
   knowledge: "基礎知識",
   rakkoGpts: "ラッコGPTs連携",
   intent: "検索意図",
@@ -40,6 +41,7 @@ const stepLabels = {
 
 const stepTokenLimits = {
   sourceDiscovery: 1200,
+  codexResearch: 1600,
   knowledge: 1200,
   rakkoGpts: 1200,
   intent: 1000,
@@ -108,6 +110,9 @@ const articleSettings = (fields) => {
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
 
+# Codex調査メモ
+${fields.codexResearchMemo || "なし"}
+
 # NotebookLMで作成した基礎知識メモ
 ${fields.knowledgeMemo || "なし"}
 
@@ -155,6 +160,55 @@ const usageSummary = (usage) => ({
 });
 
 const promptBuilders = {
+  codexResearch: ({keyword, ...fields}) => ({
+    target: "Codex",
+    instructions:
+      "あなたはWeb記事作成前の調査担当です。必要に応じてWeb検索や手元資料を確認し、信頼できる根拠と記事に使える基礎知識を日本語で整理してください。",
+    input: `「${keyword}」の記事を書く前に、Codex上で基礎調査をしてください。
+
+${articleSettings(fields)}
+
+# 既にある重要情報ソースリスト
+${fields.trustedSources || "なし"}
+
+# インポートした文献・資料
+${fields.sourceMaterials || "なし"}
+
+# 検索上位記事の構成・URL
+${fields.competitorOutlines || "なし"}
+
+# 調査方針
+- 公的機関、専門団体、学会、法律・制度の一次情報、メーカー公式、専門家監修ページなどを優先する
+- 医療、美容、法律、金融、育児、教育など高い正確性が必要な分野では、古い情報や出典不明のまとめ記事を避ける
+- SEO上位記事は読者ニーズの参考にしてよいが、事実確認の根拠としては一次情報や専門性の高い資料を優先する
+- 記事に関係の薄い商品一覧、口コミだけのページ、他記事紹介、広告目的の薄いページは材料から除外する
+- 不確かな情報は断定せず、「要確認」「出典が弱い」と明記する
+
+# 出力形式
+重要情報ソースリスト
+- ソース名：
+  URL：
+  種別：公的機関 / 専門団体 / 一次情報 / 専門家解説 / その他
+  信頼できる理由：
+  記事で使う観点：
+  優先度：高 / 中 / 低
+
+基礎知識メモ
+- 重要事実：
+- 読者が理解しておくべき前提：
+- 専門用語：
+- 誤解されやすい点：
+- 本文で断定を避ける点：
+
+記事へ反映する観点
+- 構成に入れるべき論点：
+- あらすじで固定する中心メッセージ：
+- 本文で必ず回収する読者の疑問：
+
+除外・注意した材料
+- 材料名または種類：
+  理由：`,
+  }),
   sourceDiscovery: ({keyword, ...fields}) => ({
     instructions:
       "あなたはWeb記事のリサーチ設計者です。NotebookLMに読み込ませるための、重要で信頼性の高い情報ソース候補を日本語で整理してください。",
@@ -626,6 +680,7 @@ ${prompt.input}`;
 };
 
 const requiredFields = {
+  codexResearch: ["keyword"],
   sourceDiscovery: ["keyword"],
   knowledge: ["keyword"],
   rakkoGpts: ["keyword"],
@@ -827,6 +882,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       2,
     ),
     "trusted-sources.md": `# 重要情報ソースリスト\n\n${compact(fields.trustedSources) || "なし"}\n`,
+    "codex-research.md": `# Codex調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
     "knowledge.md": `# NotebookLMで作成した基礎知識メモ\n\n${compact(fields.knowledgeMemo) || "なし"}\n\n# NotebookLM用リサーチセット\n\n${compact(fields.notebookResearchSet) || "なし"}\n`,
     "sources.md": `# インポートした文献・資料\n\n${compact(fields.sourceMaterials) || "なし"}\n`,
     "rakko-gpts.md": `# ラッコGPTs結果\n\n${compact(fields.rakkoGptsResult) || "なし"}\n`,
@@ -846,7 +902,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- codex-research.md: Codex調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
   };
 
   await mkdir(projectDir, {recursive: true});

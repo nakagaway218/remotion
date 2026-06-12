@@ -22,6 +22,7 @@ const contentTypes = {
 
 const stepLabels = {
   sourceDiscovery: "情報ソース候補",
+  codexResearch: "Codex調査",
   knowledge: "基礎知識",
   rakkoGpts: "ラッコGPTs連携",
   intent: "検索意図",
@@ -41,6 +42,7 @@ const stepLabels = {
 
 const stepTokenLimits = {
   sourceDiscovery: 1200,
+  codexResearch: 1800,
   knowledge: 1200,
   rakkoGpts: 1200,
   intent: 1000,
@@ -167,6 +169,9 @@ ${compact(fields.spreadsheetColumnExamples) || "指定なし"}`;
 
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
+
+# Codex調査メモ
+${fields.codexResearchMemo || "なし"}
 
 # NotebookLMで作成した基礎知識メモ
 ${fields.knowledgeMemo || "なし"}
@@ -317,6 +322,72 @@ const usageSummary = (usage) => ({
 });
 
 const promptBuilders = {
+  codexResearch: ({videoTitle, ...fields}) => ({
+    target: "Codex",
+    instructions:
+      "あなたはYouTube台本作成前の調査担当です。必要に応じてWeb検索や手元資料を確認し、信頼できる根拠、視聴者ニーズ、台本に使える話題候補を日本語で整理してください。",
+    input: `「${videoTitle}」というYouTube台本を作る前に、Codex上で基礎調査をしてください。
+
+${scriptSettings(fields)}
+
+${characterSettings(fields)}
+
+# 既にある重要情報ソースリスト
+${fields.trustedSources || "なし"}
+
+# 参考動画
+${fields.referenceVideos || "なし"}
+
+# 参考台本
+${fields.referenceScripts || "なし"}
+
+# 参考プロット
+${fields.referencePlots || "なし"}
+
+# インポートした文献・資料
+${fields.sourceMaterials || "なし"}
+
+# 検索上位記事の目次構成・URL
+${fields.competitorOutlines || "なし"}
+
+# 調査方針
+- 公的機関、専門団体、学会、法律・制度の一次情報、メーカー公式、専門家監修ページなどを優先する
+- 医療、美容、法律、金融、育児、教育など高い正確性が必要な分野では、古い情報や出典不明のまとめ記事を避ける
+- ラッコ見出しや検索上位記事は、視聴者ニーズと話題候補の材料として扱う
+- 参考動画や参考台本は表現や構成の参考にしてよいが、事実確認の根拠としては一次情報や専門性の高い資料を優先する
+- 広告ページ、商品一覧、口コミだけのページ、他記事紹介、出典不明記事は材料から除外する
+- 不確かな情報は断定せず、「要確認」「出典が弱い」と明記する
+
+# 出力形式
+重要情報ソースリスト
+- ソース名：
+  URL：
+  種別：公的機関 / 専門団体 / 一次情報 / 専門家解説 / 参考動画 / 参考台本 / その他
+  信頼できる理由：
+  台本で使う観点：
+  用途：事実確認 / 基礎知識 / 構成参考 / 話し方参考 / 対話化参考
+  優先度：高 / 中 / 低
+
+台本用基礎知識メモ
+- 重要事実：
+- 視聴者が理解しておくべき前提：
+- 専門用語：
+- 誤解されやすい点：
+- 断定を避ける点：
+
+視聴者ニーズと話題候補
+- 視聴者が知りたいこと：
+- 冒頭で使える問題提起：
+- 中盤で深掘りする話題：
+- 終盤で回収する話題：
+- 一人語りに使う観点：
+- 対話形式に使う質問・反応：
+- 一人語りから対話形式への変換で使う観点：
+
+除外・注意した材料
+- 材料名または種類：
+  理由：`,
+  }),
   sourceDiscovery: ({videoTitle, ...fields}) => ({
     instructions:
       "あなたはYouTube台本のリサーチ設計者です。NotebookLMに読み込ませるための、重要で信頼性の高い情報ソース候補を日本語で整理してください。",
@@ -1097,6 +1168,7 @@ ${rewriteExtraRules || "なし"}
 };
 
 const requiredFields = {
+  codexResearch: ["videoTitle"],
   sourceDiscovery: ["videoTitle"],
   knowledge: ["videoTitle"],
   rakkoGpts: ["videoTitle"],
@@ -1269,6 +1341,7 @@ const saveScriptProject = async (fields, draftMarkdown) => {
     "request.json": JSON.stringify(scriptPlan, null, 2),
     "characters.json": JSON.stringify(characterPlan, null, 2),
     "trusted-sources.md": `# 重要情報ソースリスト\n\n${compact(fields.trustedSources) || "なし"}\n`,
+    "codex-research.md": `# Codex調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
     "knowledge.md": `# NotebookLMで作成した基礎知識メモ\n\n${compact(fields.knowledgeMemo) || "なし"}\n\n# 参考動画\n\n${compact(fields.referenceVideos) || "なし"}\n\n# 参考台本\n\n${compact(fields.referenceScripts) || "なし"}\n\n# 参考プロット\n\n${compact(fields.referencePlots) || "なし"}\n\n# NotebookLM用リサーチセット\n\n${compact(fields.notebookResearchSet) || "なし"}\n`,
     "sources.md": `# インポートした文献・資料\n\n${compact(fields.sourceMaterials) || "なし"}\n`,
     "rakko-gpts.md": `# ラッコGPTs結果\n\n${compact(fields.rakkoGptsResult) || "なし"}\n\n# 扱い方\n\nこの見出しは台本の目次そのものではなく、視聴者ニーズと話題候補の材料として扱います。\n`,
@@ -1293,7 +1366,7 @@ const saveScriptProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.videoTitle) || "script"}\n\nこのフォルダーは Scenariowriting から保存した台本プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- characters.json: キャラクター設定\n- trusted-sources.md: 重要情報ソースリスト\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図と視聴者理解\n- serp-analysis.md: 検索上位記事の目次構成\n- outline.md: 台本目次\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 台本前チェック\n- intro-ending.md: 冒頭・エンディング\n- body.md: 本文\n- transcript.md: 書き起こし整形\n- rewrite-analysis.md: 対話化設計\n- rewrite-synopsis.md: 採用リライトあらすじ\n- dialogue-rewrite.md: 対話リライト\n- draft.md: 台本下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.videoTitle) || "script"}\n\nこのフォルダーは Scenariowriting から保存した台本プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- characters.json: キャラクター設定\n- trusted-sources.md: 重要情報ソースリスト\n- codex-research.md: Codex調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図と視聴者理解\n- serp-analysis.md: 検索上位記事の目次構成\n- outline.md: 台本目次\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 台本前チェック\n- intro-ending.md: 冒頭・エンディング\n- body.md: 本文\n- transcript.md: 書き起こし整形\n- rewrite-analysis.md: 対話化設計\n- rewrite-synopsis.md: 採用リライトあらすじ\n- dialogue-rewrite.md: 対話リライト\n- draft.md: 台本下書き\n- review.json: レビュー結果の保存先\n`,
   };
 
   await mkdir(projectDir, {recursive: true});

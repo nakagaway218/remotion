@@ -31,6 +31,7 @@ const ids = [
   "model",
   "chatgptPrompt",
   "trustedSources",
+  "codexResearchMemo",
   "knowledgeMemo",
   "referenceVideos",
   "referenceScripts",
@@ -178,6 +179,7 @@ const fields = () => ({
   spreadsheetColumns: elements.spreadsheetColumns.value,
   spreadsheetColumnExamples: elements.spreadsheetColumnExamples.value,
   trustedSources: elements.trustedSources.value,
+  codexResearchMemo: elements.codexResearchMemo.value,
   knowledgeMemo: elements.knowledgeMemo.value,
   referenceVideos: elements.referenceVideos.value,
   referenceScripts: elements.referenceScripts.value,
@@ -221,6 +223,7 @@ const fields = () => ({
 
 const outputTarget = {
   sourceDiscovery: elements.trustedSources,
+  codexResearch: elements.codexResearchMemo,
   knowledge: elements.knowledgeMemo,
   intent: elements.intentOutput,
   audienceInsight: elements.audienceInsightOutput,
@@ -730,6 +733,7 @@ const buildNotebookResearchSet = () => {
   const sourceUrls = uniqueUrls([
     ...outlineSourcePages.map((page) => page.url),
     ...urlsFromText(elements.trustedSources.value),
+    ...urlsFromText(elements.codexResearchMemo.value),
     ...urlsFromText(elements.referenceVideos.value),
     ...urlsFromText(elements.referenceScripts.value),
     ...urlsFromText(elements.referencePlots.value),

@@ -230,12 +230,13 @@
                 <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
               </label>
               <button data-prompt="sourceDiscovery">情報ソース候補プロンプト</button>
-              <button class="primary" data-prompt="knowledge">NotebookLM用プロンプト</button>
+              <button class="primary" data-prompt="codexResearch">Codex調査用プロンプト</button>
+              <button data-prompt="knowledge">NotebookLM用プロンプト</button>
               <button id="buildResearchSet">リサーチセット作成</button>
             </div>
           </div>
           <p class="inline-note">
-            専門性が高い台本では、先に信頼できる情報ソース候補を整理し、NotebookLMに読み込ませてから基礎知識メモを作ります。一人語り、対談系、一人語りから対話形式への変換のすべてに使われます。
+            専門性が高い台本では、Codex調査で信頼できる情報ソース、基礎知識、視聴者ニーズを整理します。NotebookLMは追加で文献を読み込ませたい場合の任意工程として使えます。
           </p>
           <label>
             重要情報ソースリスト
@@ -243,6 +244,14 @@
               id="trustedSources"
               rows="10"
               placeholder="公的機関、専門団体、一次情報、信頼できる解説、参考動画、参考台本など、NotebookLMに読み込ませたいソース候補を貼り付けます。URL、資料名、信頼できる理由、台本で使う観点を書いてください。"
+            ></textarea>
+          </label>
+          <label>
+            Codex調査メモ
+            <textarea
+              id="codexResearchMemo"
+              rows="12"
+              placeholder="Codex調査の結果を貼り付けます。信頼できるソース、基礎知識、視聴者ニーズ、話題候補、台本に使う観点をまとめて入れてください。標準ではこの欄を後続工程に反映します。"
             ></textarea>
           </label>
           <label>

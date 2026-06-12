@@ -7,6 +7,7 @@ const ids = [
   "articleTone",
   "chatgptPrompt",
   "trustedSources",
+  "codexResearchMemo",
   "knowledgeMemo",
   "sourceMaterials",
   "notebookResearchSet",
@@ -102,6 +103,7 @@ const fields = () => ({
   articlePurpose: elements.articlePurpose.value,
   articleTone: elements.articleTone.value,
   trustedSources: elements.trustedSources.value,
+  codexResearchMemo: elements.codexResearchMemo.value,
   knowledgeMemo: elements.knowledgeMemo.value,
   sourceMaterials: elements.sourceMaterials.value,
   intent: elements.intentOutput.value,
@@ -122,6 +124,7 @@ const fields = () => ({
 
 const outputTarget = {
   sourceDiscovery: elements.trustedSources,
+  codexResearch: elements.codexResearchMemo,
   knowledge: elements.knowledgeMemo,
   intent: elements.intentOutput,
   outline: elements.outlineOutput,
@@ -666,6 +669,7 @@ const buildNotebookResearchSet = () => {
   const sourceUrls = uniqueUrls([
     ...rakkoSourcePages.map((page) => page.url),
     ...urlsFromText(elements.trustedSources.value),
+    ...urlsFromText(elements.codexResearchMemo.value),
     ...urlsFromText(elements.sourceMaterials.value),
     ...urlsFromText(elements.competitorOutlines.value),
   ]).slice(0, 20);
