@@ -56,6 +56,7 @@ OpenAI API direct answering is a secondary future-ready option. It exists in the
 - `[解説を詳しく説明してほしい]` asks the user which part needs more detail.
 - Optional checkbox: include previous answer in follow-up prompt for later resumed chats.
 - Back and forward navigation.
+- The right-side history persists in browser `localStorage` so recent prompts survive page reloads or accidental browser closing.
 - Finish state shows only: `お疲れ様でした。ご利用ありがとうございます。画面を閉じてください。`
 
 ## GPTs Prompt Decisions

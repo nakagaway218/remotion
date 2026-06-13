@@ -283,11 +283,14 @@
       {label: "Gemini", url: "https://gemini.google.com/"},
     ];
 
+    const storageKey = "learning-tool-template-state-v1";
+    const savedState = loadSavedState();
+
     const state = {
-      step: "provider",
-      provider: "",
-      providerUrl: "",
-      mode: "",
+      step: savedState.step || "provider",
+      provider: savedState.provider || "",
+      providerUrl: savedState.providerUrl || "",
+      mode: savedState.mode || "",
     };
 
     const elements = {
@@ -304,8 +307,35 @@
       resetButton: document.getElementById("resetButton"),
     };
 
+    elements.questionText.value = savedState.questionText || "";
+    elements.copyTarget.textContent = savedState.output || "まず使用するAIを選んでください。";
+
+    function loadSavedState() {
+      try {
+        return JSON.parse(localStorage.getItem(storageKey) || "{}");
+      } catch {
+        return {};
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(storageKey, JSON.stringify({
+          step: state.step,
+          provider: state.provider,
+          providerUrl: state.providerUrl,
+          mode: state.mode,
+          questionText: elements.questionText.value,
+          output: elements.copyTarget.textContent,
+        }));
+      } catch {
+        // 保存に失敗しても、通常操作は止めない。
+      }
+    }
+
     function setOutput(text) {
       elements.copyTarget.textContent = text;
+      saveState();
     }
 
     function updateStatus() {
@@ -390,6 +420,7 @@ ${input}
       if (state.step === "provider") renderProviderStep();
       if (state.step === "mode") renderModeStep();
       if (state.step === "input") renderInputStep();
+      saveState();
     }
 
     elements.makePromptButton.addEventListener("click", () => {
@@ -400,6 +431,8 @@ ${input}
       }
       setOutput(buildPrompt(input));
     });
+
+    elements.questionText.addEventListener("input", saveState);
 
     elements.copyButton.addEventListener("click", async () => {
       try {
@@ -429,6 +462,7 @@ ${input}
       state.mode = "";
       elements.questionText.value = "";
       setOutput("まず使用するAIを選んでください。");
+      localStorage.removeItem(storageKey);
       render();
     });
 

@@ -474,6 +474,8 @@
         url: "https://gemini.google.com/",
       },
     ];
+    const historyStorageKey = "rikei-kokkoritsu-learner-history-v1";
+
     const state = {
       step: "provider",
       provider: "",
@@ -483,7 +485,7 @@
       depth: "",
       lastAnswer: "",
       pendingFollowupLabel: "",
-      history: [],
+      history: loadHistory(),
       stack: [],
       forwardStack: [],
       outputLabel: "",
@@ -529,12 +531,35 @@
       history: document.getElementById("history"),
     };
 
+    function loadHistory() {
+      try {
+        const saved = localStorage.getItem(historyStorageKey);
+        if (!saved) return [];
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return [];
+        return parsed
+          .filter((item) => item && typeof item.label === "string" && typeof item.text === "string")
+          .slice(0, 20);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory() {
+      try {
+        localStorage.setItem(historyStorageKey, JSON.stringify(state.history.slice(0, 20)));
+      } catch {
+        // 履歴保存に失敗しても、通常操作は止めない。
+      }
+    }
+
     function setOutput(text, label = "操作文") {
       state.outputLabel = label;
       elements.copyTarget.textContent = text;
       if (text && text !== "まず科目を選んでください。" && text !== "まず使用するAIを選んでください。") {
-        state.history.unshift({ label, text, time: new Date().toLocaleTimeString("ja-JP") });
-        state.history = state.history.slice(0, 10);
+        state.history.unshift({ label, text, time: new Date().toLocaleString("ja-JP") });
+        state.history = state.history.slice(0, 20);
+        saveHistory();
       }
       renderOutputActions();
       renderHistory();
@@ -1293,3 +1318,4 @@ OCR誤読時は「明るい場所で紙を真上から撮ってください」�
   </script>
 </body>
 </html>
+
