@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning Tool Template</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --panel: #ffffff;
+      --ink: #1d2433;
+      --muted: #687386;
+      --line: #dfe4ee;
+      --brand: #2457c5;
+      --brand-strong: #163f9c;
+      --accent: #0f8b6f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+
+    button,
+    textarea,
+    input {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(240px, 320px) 1fr;
+    }
+
+    .sidebar {
+      background: #172033;
+      color: #fff;
+      padding: 28px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    .brand-description {
+      margin: 8px 0 0;
+      color: #cdd6e7;
+      font-size: 14px;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .status-item {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .status-label {
+      display: block;
+      color: #aebbd2;
+      font-size: 12px;
+    }
+
+    .status-value {
+      display: block;
+      margin-top: 2px;
+      font-weight: 700;
+    }
+
+    .main {
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .step-title {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(320px, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .panel h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .guide,
+    .hint {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .button-grid,
+    .question-area,
+    .output-box {
+      display: grid;
+      gap: 10px;
+    }
+
+    .choice-button,
+    .secondary-button {
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .choice-button {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+    }
+
+    .choice-button.primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .choice-button:hover,
+    .secondary-button:hover {
+      border-color: var(--brand);
+      background: #eef4ff;
+    }
+
+    .choice-button.primary:hover {
+      background: var(--brand-strong);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .secondary-button {
+      padding: 8px 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .copy-target {
+      min-height: 210px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #f9fafc;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .app,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .main,
+      .sidebar {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <h1 class="brand-title">Learning Tool Template</h1>
+        <p class="brand-description">新しい学習ツールの雛形です。</p>
+      </div>
+
+      <ul class="status-list">
+        <li class="status-item">
+          <span class="status-label">使用AI</span>
+          <span class="status-value" id="statusProvider">未選択</span>
+        </li>
+        <li class="status-item">
+          <span class="status-label">モード</span>
+          <span class="status-value" id="statusMode">未選択</span>
+        </li>
+      </ul>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <h2 class="step-title" id="stepTitle">Step0 AI選択</h2>
+        <div class="toolbar-actions">
+          <button class="secondary-button" type="button" id="resetButton">最初から</button>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <h2>操作ボタン</h2>
+          <p class="guide" id="stepGuide">次の操作を選んでください</p>
+          <div class="button-grid" id="buttonGrid"></div>
+
+          <div class="question-area hidden" id="questionArea">
+            <label for="questionText"><strong>入力</strong></label>
+            <textarea id="questionText" placeholder="ここに学習内容や質問を入力します"></textarea>
+            <button class="choice-button primary" type="button" id="makePromptButton">文面を作成</button>
+          </div>
+        </section>
+
+        <section class="panel output-box">
+          <h2>AIに送る文面</h2>
+          <div class="copy-target" id="copyTarget">まず使用するAIを選んでください。</div>
+          <div class="toolbar-actions">
+            <button class="secondary-button" type="button" id="copyButton">コピー</button>
+            <button class="secondary-button" type="button" id="openChatButton">コピーしてAIを開く</button>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const providers = [
+      {label: "ChatGPT", url: "https://chatgpt.com/"},
+      {label: "Claude", url: "https://claude.ai/"},
+      {label: "Gemini", url: "https://gemini.google.com/"},
+    ];
+
+    const state = {
+      step: "provider",
+      provider: "",
+      providerUrl: "",
+      mode: "",
+    };
+
+    const elements = {
+      statusProvider: document.getElementById("statusProvider"),
+      statusMode: document.getElementById("statusMode"),
+      stepTitle: document.getElementById("stepTitle"),
+      buttonGrid: document.getElementById("buttonGrid"),
+      questionArea: document.getElementById("questionArea"),
+      questionText: document.getElementById("questionText"),
+      makePromptButton: document.getElementById("makePromptButton"),
+      copyTarget: document.getElementById("copyTarget"),
+      copyButton: document.getElementById("copyButton"),
+      openChatButton: document.getElementById("openChatButton"),
+      resetButton: document.getElementById("resetButton"),
+    };
+
+    function setOutput(text) {
+      elements.copyTarget.textContent = text;
+    }
+
+    function updateStatus() {
+      elements.statusProvider.textContent = state.provider || "未選択";
+      elements.statusMode.textContent = state.mode || "未選択";
+      elements.openChatButton.textContent = state.provider ? `コピーして${state.provider}を開く` : "コピーしてAIを開く";
+    }
+
+    function makeButton(label, onClick, primary = false) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = primary ? "choice-button primary" : "choice-button";
+      button.textContent = `[${label}]`;
+      button.addEventListener("click", onClick);
+      return button;
+    }
+
+    function renderButtons(items) {
+      elements.buttonGrid.innerHTML = "";
+      items.forEach((item) => elements.buttonGrid.appendChild(makeButton(item.label, item.onClick, item.primary)));
+    }
+
+    function renderProviderStep() {
+      elements.stepTitle.textContent = "Step0 AI選択";
+      elements.questionArea.classList.add("hidden");
+      renderButtons(providers.map((provider) => ({
+        label: provider.label,
+        primary: provider.label === "ChatGPT",
+        onClick: () => {
+          state.provider = provider.label;
+          state.providerUrl = provider.url;
+          state.step = "mode";
+          render();
+        },
+      })));
+    }
+
+    function renderModeStep() {
+      elements.stepTitle.textContent = "Step1 モード選択";
+      elements.questionArea.classList.add("hidden");
+      renderButtons([
+        {
+          label: "通常入力",
+          primary: true,
+          onClick: () => {
+            state.mode = "通常入力";
+            state.step = "input";
+            render();
+          },
+        },
+        {
+          label: "あとで追加",
+          onClick: () => {
+            state.mode = "あとで追加";
+            state.step = "input";
+            render();
+          },
+        },
+      ]);
+    }
+
+    function renderInputStep() {
+      elements.stepTitle.textContent = "入力";
+      elements.buttonGrid.innerHTML = "";
+      elements.questionArea.classList.remove("hidden");
+    }
+
+    function buildPrompt(input) {
+      return `# 学習依頼
+ツール名：Learning Tool Template
+モード：${state.mode || "未選択"}
+
+# 依頼内容
+${input}
+
+# 回答方針
+高校生にもわかるように、要点、説明、例、次にすることを簡潔に示してください。`;
+    }
+
+    function render() {
+      updateStatus();
+      if (state.step === "provider") renderProviderStep();
+      if (state.step === "mode") renderModeStep();
+      if (state.step === "input") renderInputStep();
+    }
+
+    elements.makePromptButton.addEventListener("click", () => {
+      const input = elements.questionText.value.trim();
+      if (!input) {
+        setOutput("入力してください。");
+        return;
+      }
+      setOutput(buildPrompt(input));
+    });
+
+    elements.copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(elements.copyTarget.textContent);
+        elements.copyButton.textContent = "コピー済み";
+        setTimeout(() => {
+          elements.copyButton.textContent = "コピー";
+        }, 1200);
+      } catch {
+        alert("コピーできませんでした。文面を選択してコピーしてください。");
+      }
+    });
+
+    elements.openChatButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(elements.copyTarget.textContent);
+      } catch {
+        alert("自動コピーできませんでした。先にコピーしてください。");
+      }
+      window.open(state.providerUrl || "https://chatgpt.com/", "_blank", "noopener");
+    });
+
+    elements.resetButton.addEventListener("click", () => {
+      state.step = "provider";
+      state.provider = "";
+      state.providerUrl = "";
+      state.mode = "";
+      elements.questionText.value = "";
+      setOutput("まず使用するAIを選んでください。");
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>
