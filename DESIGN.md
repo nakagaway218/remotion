@@ -9,6 +9,7 @@ Myownproject/
   CLAUDE.md
   DESIGN.md
   SKILL.md
+  AIWorkforceTemplate/
   Mytool/
   packages/
 ```
@@ -31,6 +32,8 @@ Mytool/
   *.bat
   *.py
 ```
+
+Reusable AI employee or sub-agent workflow templates should live in `AIWorkforceTemplate/`. Keep the template files, role definitions, command templates, and reusable process notes in Git. Keep project-specific generated artifacts, private source material, and copied customer data out of the template unless the user explicitly asks to publish them.
 
 For generated applications or outputs:
 
