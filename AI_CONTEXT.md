@@ -48,3 +48,19 @@ Mytool/
 ```
 
 It contains `.bat` launchers, Python scripts, and a README. Generated `.exe` files are intentionally ignored by Git.
+
+## Career AI Project Context
+
+Career and education-AI strategy context is stored in:
+
+```text
+CareerAIProject/
+```
+
+This folder records the user's long-term context for becoming an education AI strategist:
+
+- career and strengths context in `CareerAIProject/CONTEXT.md`
+- AI employee design for career and education-AI work in `CareerAIProject/AI_WORKFORCE.md`
+- source conversation notes in `CareerAIProject/chat_logs/`
+
+When the user asks about AI career strategy, education AI consulting, AI tool adoption, teaching-material business design, or sub-agent/AI-employee application in this domain, read `CareerAIProject/CONTEXT.md` first.

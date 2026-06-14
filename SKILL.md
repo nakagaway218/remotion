@@ -48,6 +48,16 @@ Mytool/merge_state.txt
 
 If an `.exe` can be recreated from a `.bat` or source script, document the build steps instead of committing the `.exe`.
 
+## Working On Career AI Strategy
+
+Use `CareerAIProject/` when the task is about education AI strategy, AI consulting, AI tool adoption, teaching-material business design, or the user's long-term career context.
+
+1. Read `CareerAIProject/CONTEXT.md` first.
+2. If the work involves AI employee or sub-agent design, also read `CareerAIProject/AI_WORKFORCE.md`.
+3. Keep public strategy, sanitized examples, prompts, and reusable plans in Git.
+4. Do not commit real student names, school names, customer names, private records, or unpublished client information.
+5. Prefer concrete outputs such as `SERVICE_MENU.md`, `ROADMAP_2026.md`, `PROMPTS.md`, or `CASE_STUDIES.md` over vague notes.
+
 ## Documenting exe Build Steps
 
 In the tool README, record:

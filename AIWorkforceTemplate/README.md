@@ -87,6 +87,7 @@ claude
 - `Mytool`: ツール要件、実装手順、README、テスト観点
 - `MyConversion`: 変換手順、再現手順、成果物チェック
 - `.agents/skills` や `.claude/skills`: 既存のスキル型タスクを AI 社員カードに変換
+- `CareerAIProject`: 教育AIストラテジストとしてのキャリア戦略、サービス設計、実績記録、プロンプト蓄積
 
 ## 大きな変更の保全ルール
 
