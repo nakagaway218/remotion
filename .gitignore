@@ -41,3 +41,6 @@ Mytool/*.exe
 Mytool/*_output.pdf
 Mytool/~temp_*.pdf
 Mytool/merge_state.txt
+
+Webarticle/server*.log
+*.lnk
