@@ -8,6 +8,7 @@ Instagram 専用ではなく、記事作成、YouTube 台本、教材作成、�
 
 - 1人の AI に全部頼む状態を避ける
 - 調査、構成、作成、レビュー、整形、記録を分ける
+- 大きな構成変更でも、既存フォルダや成果物を取りこぼさない
 - 中間成果物を残して、後から再開しやすくする
 - Myownproject の `REQUIREMENTS_DEFINITION.md` に沿って、作業前に目的と保存設計を確認する
 
@@ -16,14 +17,14 @@ Instagram 専用ではなく、記事作成、YouTube 台本、教材作成、�
 | ファイル | 用途 |
 | --- | --- |
 | `WORKFORCE_SPEC.md` | AI 社員を使う前の小さな要件定義 |
-| `00_AI社員/README.md` | 7人の役割一覧 |
+| `00_AI社員/README.md` | 8人の役割一覧 |
 | `01_会社情報/作業方針.md` | このテンプレを使うプロジェクトの目的、対象、NG |
 | `01_会社情報/品質基準.md` | 成果物のレビュー基準 |
 | `.claude/agents/*.md` | Claude Code が読むサブエージェント定義 |
 | `.claude/commands/*.md` | Claude Code で使うコマンド雛形 |
 | `03_既存タスクAI社員化/README.md` | 既存スキルやサブエージェントを AI 社員化する対応表 |
 
-## 7人の汎用 AI 社員
+## 8人の汎用 AI 社員
 
 | # | 役割 | 呼び出し名 | 得意なこと |
 | --- | --- | --- | --- |
@@ -34,15 +35,18 @@ Instagram 専用ではなく、記事作成、YouTube 台本、教材作成、�
 | 5 | レビュー担当 | `@reviewer` | 抜け、矛盾、品質、リスクを確認する |
 | 6 | 整形担当 | `@formatter` | Markdown、表、ファイル構成、納品形式に整える |
 | 7 | 記録担当 | `@archivist` | 成果物、未解決事項、次回引き継ぎを残す |
+| 8 | 構造保全担当 | `@repository-guardian` | ブランチ、必須フォルダ、移動・削除リスクを確認する |
 
 ## 標準フロー
 
 ```text
 @requirements-architect
+  -> @repository-guardian
   -> @researcher
   -> @planner
   -> @creator
   -> @reviewer
+  -> @repository-guardian
   -> @formatter
   -> @archivist
 ```
@@ -68,8 +72,10 @@ claude
 
 ```text
 /ai要件定義 作りたいものや進めたい作業
+/ai構造保全チェック
 /aiタスク分解
 /ai成果物レビュー
+/ai構造保全チェック
 /ai引き継ぎ
 ```
 
@@ -81,6 +87,20 @@ claude
 - `Mytool`: ツール要件、実装手順、README、テスト観点
 - `MyConversion`: 変換手順、再現手順、成果物チェック
 - `.agents/skills` や `.claude/skills`: 既存のスキル型タスクを AI 社員カードに変換
+
+## 大きな変更の保全ルール
+
+サブエージェント化、テンプレート反映、フォルダ再編、ブランチ切り替えを含む作業では、作業前後に `@repository-guardian` を使います。
+
+確認すること:
+
+- 現在のブランチ名と `git status`
+- 作業前に存在していた主要フォルダ
+- 別ブランチにだけ存在するフォルダ
+- 削除、移動、リネームされたファイル
+- 未追跡ファイルを誤って置き去りにしていないか
+
+特に `Studymaterials`、`Learner`、`Rikei_Kokkoritsu_Juken_Learner`、`Webarticle`、`Scenariowriting`、`Mytool`、`teaching materials` のようなユーザー所有フォルダは、構成変更の前後で所在を確認します。
 
 ## 注意
 

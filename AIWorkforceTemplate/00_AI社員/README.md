@@ -13,6 +13,7 @@ Claude Code が実際に読む技術定義は `.claude/agents/` にあります�
 | 5 | レビュー担当 | `@reviewer` | 指摘リスト、修正提案、品質判定 |
 | 6 | 整形担当 | `@formatter` | 納品形式、表、Markdown整形、ファイル整理 |
 | 7 | 記録担当 | `@archivist` | 引き継ぎ、未解決事項、履歴 |
+| 8 | 構造保全担当 | `@repository-guardian` | ブランチ確認、必須フォルダ棚卸し、消失防止チェック |
 
 ## 使い分け
 
@@ -23,3 +24,4 @@ Claude Code が実際に読む技術定義は `.claude/agents/` にあります�
 - 失敗や抜けを減らしたいなら `@reviewer`
 - 納品形式を整えたいなら `@formatter`
 - 後で再開したいなら `@archivist`
+- フォルダ再編、ブランチ切り替え、サブエージェント化などで既存資産を守りたいなら `@repository-guardian`
