@@ -35,9 +35,9 @@ tags: [home, hub]
 
 - Obsidianを活用した第二の脳づくり
 - Codexが読めるMarkdown文脈の整備
+- [[reports/2026-06-15-運用メモ-Codex活用アップデート|Codex活用アップデート]] の運用反映
 
 ## 未解決の問い
 
 - 実際のObsidian VaultをこのGit管理フォルダで運用するか、`Documents` 配下の個人Vaultに分けるか。
 - Webクリップの取り込みを手動Markdownで運用するか、Defuddleなどの自動抽出も使うか。
-

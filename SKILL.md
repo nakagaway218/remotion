@@ -81,6 +81,15 @@ Use `ObsidianSecondBrain/` when the user asks about Obsidian, second-brain notes
 5. Put important answers, decisions, and research results in `ObsidianSecondBrain/reports/`.
 6. Use Obsidian-friendly Markdown: frontmatter, `[[wikilink]]`, and concise MOC pages.
 
+## Planning Larger Codex Tasks
+
+For multi-step implementation, UI repair, research-to-artifact work, or migration work, treat the request like a goal even when the user does not explicitly use `/goal`.
+
+1. State or infer the background, target scope, completion criteria, constraints, verification method, and expected artifact.
+2. For UI and frontend work, use the in-app Browser or `@Browser` when practical, then report the checked URL, viewport, and remaining issues.
+3. For Windows-first work, prefer Browser verification and screenshots before Appshots-specific guidance.
+4. Keep plugin sharing and Analytics guidance as team or Business/Enterprise topics unless the user asks for organizational rollout.
+
 ## Documenting exe Build Steps
 
 In the tool README, record:
