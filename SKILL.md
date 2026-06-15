@@ -70,6 +70,17 @@ Use `CareerAIProject/` when the task is about education AI strategy, AI consulti
 4. Do not commit real student names, school names, customer names, private records, or unpublished client information.
 5. Prefer concrete outputs such as `SERVICE_MENU.md`, `ROADMAP_2026.md`, `PROMPTS.md`, or `CASE_STUDIES.md` over vague notes.
 
+## Working With Obsidian Second Brain
+
+Use `ObsidianSecondBrain/` when the user asks about Obsidian, second-brain notes, AI memory, or turning messy notes into reusable Markdown context.
+
+1. Read `ObsidianSecondBrain/README.md` first.
+2. Then read `ObsidianSecondBrain/Memory.md`, `ObsidianSecondBrain/rules/corrections.md`, and `ObsidianSecondBrain/wiki/index.md`.
+3. Put unprocessed source material in `ObsidianSecondBrain/raw/` and do not delete or rename it without approval.
+4. Put structured knowledge in `ObsidianSecondBrain/wiki/` and update `ObsidianSecondBrain/wiki/index.md`.
+5. Put important answers, decisions, and research results in `ObsidianSecondBrain/reports/`.
+6. Use Obsidian-friendly Markdown: frontmatter, `[[wikilink]]`, and concise MOC pages.
+
 ## Documenting exe Build Steps
 
 In the tool README, record:

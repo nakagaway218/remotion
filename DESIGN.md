@@ -11,6 +11,7 @@ Myownproject/
   SKILL.md
   AIWorkforceTemplate/
   CareerAIProject/
+  ObsidianSecondBrain/
   Mytool/
   packages/
 ```
@@ -37,6 +38,8 @@ Mytool/
 Reusable AI employee or sub-agent workflow templates should live in `AIWorkforceTemplate/`. Keep the template files, role definitions, command templates, and reusable process notes in Git. Keep project-specific generated artifacts, private source material, and copied customer data out of the template unless the user explicitly asks to publish them.
 
 Career, education-AI strategy, and AI consulting context should live in `CareerAIProject/`. This folder may contain reusable profile context, service design notes, roadmap files, prompt collections, and sanitized conversation logs. Do not store real student names, school names, customer names, private records, or unpublished client information in GitHub-tracked files.
+
+Obsidian and second-brain working context can start in `ObsidianSecondBrain/`. This folder is an Obsidian-openable Markdown vault and a Codex-readable seed based on `fuuuuuuma/ai-second-brain-kit`. Use it for durable, shareable, non-private context. Keep private thinking notes, raw personal records, and sensitive client/student information outside GitHub unless the user explicitly approves sanitizing and committing them.
 
 For generated applications or outputs:
 

@@ -75,3 +75,15 @@ Default destinations:
 - AI workforce, sub-agent, multi-agent, and workflow judgment context: `AIWorkforceTemplate/05_チャット文脈保存/`
 - Career or education-AI strategy context: `CareerAIProject/chat_logs/`
 - Project-specific work history: the relevant project folder, using `handoff.md`, `log.md`, or `chat_logs/`
+
+## Obsidian Second Brain Context
+
+Obsidian活用のための初期Vault雛形は次に保存している:
+
+```text
+ObsidianSecondBrain/
+```
+
+This folder adapts `fuuuuuuma/ai-second-brain-kit` for the user's `Myownproject` workflow. It keeps a Codex-readable second-brain structure with `Memory.md`, `Home.md`, `raw/`, `wiki/`, `reports/`, `daily/`, `outputs/`, `rules/`, and `templates/`.
+
+When the user asks about Obsidian, second-brain notes, personal knowledge management, or making AI remember project context, read `ObsidianSecondBrain/README.md`, `ObsidianSecondBrain/Memory.md`, and `ObsidianSecondBrain/rules/corrections.md` first.
