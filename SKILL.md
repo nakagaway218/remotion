@@ -21,6 +21,18 @@ git status --short --branch
 
 3. Do not revert user changes unless the user explicitly asks.
 
+## Preserving Chat Context
+
+When a chat produces commit-level decisions, durable workflow rules, or changes that future Codex sessions should understand, ask whether the conversation should be saved as context.
+
+If the user asks to save it:
+
+1. Write a concise Markdown summary instead of a raw transcript.
+2. Include the consultation background, decisions, changed files, future operating rule, and unresolved items.
+3. Save AI-workforce or sub-agent judgment context under `AIWorkforceTemplate/05_チャット文脈保存/`.
+4. Save career or education-AI strategy context under `CareerAIProject/chat_logs/`.
+5. Save project-specific history in that project's own folder.
+
 ## Adding A User Tool
 
 1. Create or use a dedicated folder such as `Mytool/`.

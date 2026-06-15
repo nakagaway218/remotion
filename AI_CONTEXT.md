@@ -28,6 +28,7 @@ The local folder name is `Myownproject`, but the GitHub repository is still name
 - `AI_CONTEXT.md` records background and decisions from the conversation.
 - `DESIGN.md` records structure and file-management policy.
 - `SKILL.md` records repeatable workflows for this repository.
+- For substantial chats that produce commit-level decisions or workflow changes, save a concise context note in the relevant project folder before the context is lost.
 - Files outside `Myownproject/` are not automatically reflected on GitHub.
 - Files that should be reflected on GitHub should be moved or copied into `Myownproject/`.
 - Files that should not be reflected on GitHub should be ignored with `.gitignore`.
@@ -64,3 +65,13 @@ This folder records the user's long-term context for becoming an education AI st
 - source conversation notes in `CareerAIProject/chat_logs/`
 
 When the user asks about AI career strategy, education AI consulting, AI tool adoption, teaching-material business design, or sub-agent/AI-employee application in this domain, read `CareerAIProject/CONTEXT.md` first.
+
+## Chat Context Preservation
+
+When a chat contains enough decisions or file changes that a commit may be needed, ask whether the conversation should be saved as future context. If the user asks to save it, write a concise Markdown summary rather than a raw transcript.
+
+Default destinations:
+
+- AI workforce, sub-agent, multi-agent, and workflow judgment context: `AIWorkforceTemplate/05_チャット文脈保存/`
+- Career or education-AI strategy context: `CareerAIProject/chat_logs/`
+- Project-specific work history: the relevant project folder, using `handoff.md`, `log.md`, or `chat_logs/`

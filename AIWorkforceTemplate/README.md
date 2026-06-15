@@ -23,6 +23,8 @@ Instagram 専用ではなく、記事作成、YouTube 台本、教材作成、�
 | `.claude/agents/*.md` | Claude Code が読むサブエージェント定義 |
 | `.claude/commands/*.md` | Claude Code で使うコマンド雛形 |
 | `03_既存タスクAI社員化/README.md` | 既存スキルやサブエージェントを AI 社員化する対応表 |
+| `04_判断ガイド/README.md` | サブエージェント化、AI社員化、マルチエージェント、スキル化の使い分け |
+| `05_チャット文脈保存/README.md` | コミット相当のやり取りを次回用コンテキストとして残すルール |
 
 ## 8人の汎用 AI 社員
 
