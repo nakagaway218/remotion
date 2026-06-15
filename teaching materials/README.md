@@ -12,6 +12,33 @@ teaching materials/
   [subject-or-project-name]/
 ```
 
+## 置き場所の判断ルール
+
+新しい学習ツールや教材を作るときは、まず `teaching materials/` の下にテーマ別フォルダを作るか確認します。
+
+- 理系・国公立大学受験向け: `Rikei_Kokkouritu_Juken/`
+- 小論文対策向け: `Shoronbun_Taisaku/` などの別フォルダ
+- 英検対策向け: `Eiken_Taisaku/` などの別フォルダ
+- 中学英語、定期テスト、私立大学対策、汎用学習支援ツール: それぞれ別フォルダ
+
+依頼内容と現在のフォルダが合わない場合は、作業を始める前にユーザーへ確認します。明らかに新規テーマの場合は、`teaching materials/[project-name]/` を保存先候補として提案します。既存ファイルを移動する場合は、ユーザー確認を優先します。
+
+## 元資料の置き場所
+
+画像、PDF、スクリーンショット、スキャン資料などの元資料は、対象プロジェクト内の `source-materials/` に置きます。
+
+```text
+teaching materials/
+  [project-name]/
+    source-materials/
+      images/
+      documents/
+    work/
+    outputs/
+```
+
+公開範囲が不明な資料、生徒情報、有料教材、転載不可資料は GitHub に入れません。その場合はローカル保管にして、GitHub には出典メモ、要約、自作した教材だけを残します。
+
 ## GitHub に含めるもの
 
 - 教材の作成手順

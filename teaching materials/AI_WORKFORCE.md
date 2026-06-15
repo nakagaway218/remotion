@@ -11,6 +11,15 @@
 - 生徒情報や転載不可資料を GitHub に入れない判断を残す
 - 後から同じ形式で問題を増やせるようにする
 
+## 最初に確認すること
+
+新しい学習ツールや教材を作る前に、テーマ別フォルダを確認します。
+
+- 既存テーマに合う場合は、そのフォルダで進める
+- 既存テーマに合わない場合は、`teaching materials/[project-name]/` の新規作成を提案する
+- `Rikei_Kokkouritu_Juken/` など別テーマのフォルダで作業を始めそうな場合は、ユーザーへ注意して保存先を確認する
+- 画像、PDF、スクリーンショットなどの元資料がある場合は、対象プロジェクト内の `source-materials/` に置くか、GitHub に入れずローカル保管にするか確認する
+
 ## Teaching Materials の AI 社員
 
 | 順番 | AI 社員 | 元の汎用役割 | 担当 |
@@ -65,6 +74,11 @@
 ```text
 teaching materials/
   [project-name]/
+    source-materials/
+      images/
+      documents/
+    work/
+    outputs/
     requirements.md
     scope.md
     curriculum.md
@@ -79,6 +93,8 @@ teaching materials/
 
 ## 人間に確認するポイント
 
+- この教材テーマを既存フォルダに入れてよいか、新しいフォルダに分けるか
+- 元画像、PDF、スクリーンショットを GitHub に含めてよいか
 - 対象学年、科目、難易度
 - 受験対策か学校補習か
 - 問題数と制限時間
