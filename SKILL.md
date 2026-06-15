@@ -90,6 +90,17 @@ For multi-step implementation, UI repair, research-to-artifact work, or migratio
 3. For Windows-first work, prefer Browser verification and screenshots before Appshots-specific guidance.
 4. Keep plugin sharing and Analytics guidance as team or Business/Enterprise topics unless the user asks for organizational rollout.
 
+## Evaluating External Skills
+
+When the user provides a Claude Skill, Codex Skill, plugin, agent, or installer repository, do not bulk-install it by default.
+
+1. Read the repository README, agent instructions, catalog, profiles, install guide, and the specific `SKILL.md` files that seem relevant.
+2. Ask or infer the user's main work type, repeated task, risk level, audience, and whether the workflow should be personal, project-local, or shareable.
+3. Present only 3 to 5 candidate skills or workflow ideas, with official/unofficial status and safety notes.
+4. Before installing or copying any external skill, verify source existence, current folder names, `SKILL.md` frontmatter, license, and dangerous operations such as deletion, Git mutation, external upload, credentials, or paid APIs.
+5. For Codex, prefer adapting the useful procedure into `AGENTS.md`, `SKILL.md`, `ObsidianSecondBrain/reports/`, a local Codex skill, or a plugin depending on scope.
+6. Start with one skill or one workflow note, then expand only after it proves useful.
+
 ## Documenting exe Build Steps
 
 In the tool README, record:
