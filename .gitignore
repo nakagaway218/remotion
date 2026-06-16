@@ -46,3 +46,11 @@ Webarticle/server*.log
 *.lnk
 
 ObsidianSecondBrain/.obsidian/
+
+# Local secrets and API credentials
+secrets/
+secret/
+credentials.json
+token.json
+google-oauth-token.json
+client_secret_*.json

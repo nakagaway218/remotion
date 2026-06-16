@@ -22,6 +22,7 @@ AI、教育、教材、コンテンツ制作、個人ツールをつなぐため
 
 - `../index.md`
 - `../../Memory.md`
+- [[wiki/moc/AIエージェント参考YouTube|AIエージェント参考YouTube]]
 - `../../reports/2026-06-15-導入-ai-second-brain-kit反映.md`
 - `../../reports/2026-06-15-運用メモ-Codex活用アップデート.md`
 - `../../reports/2026-06-15-運用メモ-Skills導入判断.md`
