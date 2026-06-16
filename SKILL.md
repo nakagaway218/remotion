@@ -143,3 +143,18 @@ git push origin main
 ## Explanation Style
 
 Explain results to the user in Japanese. When using terms such as repository, commit, push, or `.gitignore`, include a short plain-language explanation when helpful.
+
+## Google Drive / Sheets Source Sync
+
+Use `ObsidianSecondBrain/` and the global Codex skill `source-index-sync` when setting up external source lists backed by Google Drive or Google Sheets.
+
+Key operating rules:
+
+1. Keep OAuth client JSON, refresh tokens, `.env`, and other secrets under the Git-root `secrets/` folder, which must stay ignored by Git.
+2. For OAuth app-name or access errors, check these in order: the OAuth JSON `project_id`, whether Google Sheets API and Google Drive API are enabled in that same project, whether the user's Gmail is added as a test user, and whether the stored refresh token belongs to the latest OAuth client.
+3. If the OAuth consent app name is wrong and cannot be edited cleanly, create a new Google Cloud project with the desired app name instead of repeatedly recreating only the OAuth client.
+4. Use `ObsidianSecondBrain/scripts/get-google-refresh-token.ps1` to obtain a refresh token and `ObsidianSecondBrain/scripts/sync-youtube-sheet-index.ps1 -DryRun` to verify API connectivity before writing index files.
+5. The source sync script should auto-detect Google Sheets inside the configured Drive folder, skip empty sheets, and avoid duplicate index notes for URLs already present in `raw/webclip-index/`.
+6. Keep long raw materials in Google Drive; keep only lightweight indexes, wiki notes, and reports in Git.
+
+Detailed lessons are stored in `ObsidianSecondBrain/reports/2026-06-16-google-api-oauth-lessons.md`.

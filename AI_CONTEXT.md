@@ -87,3 +87,14 @@ ObsidianSecondBrain/
 This folder adapts `fuuuuuuma/ai-second-brain-kit` for the user's `Myownproject` workflow. It keeps a Codex-readable second-brain structure with `Memory.md`, `Home.md`, `raw/`, `wiki/`, `reports/`, `daily/`, `outputs/`, `rules/`, and `templates/`.
 
 When the user asks about Obsidian, second-brain notes, personal knowledge management, or making AI remember project context, read `ObsidianSecondBrain/README.md`, `ObsidianSecondBrain/Memory.md`, and `ObsidianSecondBrain/rules/corrections.md` first.
+
+## Google Drive / Sheets Source Sync
+
+ObsidianSecondBrain now includes a source-index workflow for external materials:
+
+- Google Drive stores heavy raw materials and source spreadsheets.
+- `ObsidianSecondBrain/raw/webclip-index/` stores lightweight Markdown indexes.
+- `ObsidianSecondBrain/scripts/sync-youtube-sheet-index.ps1` detects Google Sheets inside the configured Drive folder and creates index notes while avoiding duplicate URLs.
+- OAuth credentials and tokens live under the Git-root `secrets/` folder and are ignored by Git.
+- The OAuth app was rebuilt as `ObsidianSecondBrain Sync`; future OAuth failures should first check project mismatch, disabled APIs, missing test users, and stale refresh tokens.
+- The detailed recovery log is `ObsidianSecondBrain/reports/2026-06-16-google-api-oauth-lessons.md`.
