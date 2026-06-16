@@ -64,8 +64,7 @@ $authQuery = ($authParams.GetEnumerator() | ForEach-Object {
 }) -join "&"
 $authUrl = "https://accounts.google.com/o/oauth2/v2/auth?$authQuery"
 
-$listener = [System.Net.HttpListener]::new()
-$listener.Prefixes.Add($redirectUri)
+$listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Parse("127.0.0.1"), $Port)
 
 try {
   $listener.Start()
@@ -76,18 +75,34 @@ try {
 
   Start-Process $authUrl
 
-  $context = $listener.GetContext()
-  $request = $context.Request
-  $response = $context.Response
+  $clientConnection = $listener.AcceptTcpClient()
+  $stream = $clientConnection.GetStream()
+  $reader = [System.IO.StreamReader]::new($stream, [System.Text.Encoding]::UTF8)
+  $requestLine = $reader.ReadLine()
 
-  $code = $request.QueryString["code"]
-  $errorMessage = $request.QueryString["error"]
+  while ($reader.ReadLine()) {
+    # Drain request headers.
+  }
+
+  if ([string]::IsNullOrWhiteSpace($requestLine)) {
+    throw "OAuth redirect request was empty."
+  }
+
+  $pathAndQuery = ($requestLine -split " ")[1]
+  $query = ([uri]"http://127.0.0.1$pathAndQuery").Query.TrimStart("?")
+  $queryValues = [System.Web.HttpUtility]::ParseQueryString($query)
+
+  $code = $queryValues["code"]
+  $errorMessage = $queryValues["error"]
 
   $html = "<html><body><h1>Google OAuth finished</h1><p>You can close this tab and return to Codex.</p></body></html>"
   $buffer = [System.Text.Encoding]::UTF8.GetBytes($html)
-  $response.ContentLength64 = $buffer.Length
-  $response.OutputStream.Write($buffer, 0, $buffer.Length)
-  $response.OutputStream.Close()
+  $header = "HTTP/1.1 200 OK`r`nContent-Type: text/html; charset=utf-8`r`nContent-Length: $($buffer.Length)`r`nConnection: close`r`n`r`n"
+  $headerBuffer = [System.Text.Encoding]::ASCII.GetBytes($header)
+  $stream.Write($headerBuffer, 0, $headerBuffer.Length)
+  $stream.Write($buffer, 0, $buffer.Length)
+  $stream.Close()
+  $clientConnection.Close()
 
   if ($errorMessage) {
     throw "OAuth failed: $errorMessage"
@@ -129,9 +144,5 @@ try {
   Write-Host "Saved OAuth token file to: $TokenOutputPath"
   Write-Host "Do not commit this file."
 } finally {
-  if ($listener.IsListening) {
-    $listener.Stop()
-  }
-  $listener.Close()
+  $listener.Stop()
 }
-

@@ -12,10 +12,16 @@ tags: [scripts, google-api, raw]
 
 ## YouTubeリスト同期
 
-`sync-youtube-sheet-index.ps1` は、Google Sheetsの `AIエージェント参考YouTubeリスト` を読み、`raw/webclip-index/` にYouTubeごとの索引Markdownを作る。
+`sync-youtube-sheet-index.ps1` は、Google Driveの `ObsidianSecondBrain` フォルダ内にあるGoogle Sheetsを自動検出し、`raw/webclip-index/` にYouTubeごとの索引Markdownを作る。
 
 ```powershell
 .\scripts\sync-youtube-sheet-index.ps1
+```
+
+特定のSpreadsheetだけを読む古い動きに戻したい場合は、`-DisableSpreadsheetDiscovery` を付ける。
+
+```powershell
+.\scripts\sync-youtube-sheet-index.ps1 -DisableSpreadsheetDiscovery
 ```
 
 実行前に、次のどちらかの認証情報を環境変数に入れる。
@@ -69,9 +75,12 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 
 ## 対象
 
-- Spreadsheet ID: `1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8`
+- Driveフォルダ内のGoogle Sheetsを自動検出する
+- 既定Spreadsheet ID: `1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8`
 - Drive Folder ID: `1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz`
 - 出力先: `raw/webclip-index/`
+
+同じURLの索引Markdownがすでに `raw/webclip-index/` にある場合は、別の日に再実行しても重複作成しない。
 
 ## 想定する列名
 
