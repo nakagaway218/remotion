@@ -146,9 +146,9 @@ function Test-ExistingSourceUrl {
     return $false
   }
 
-  $escapedUrl = [regex]::Escape($Url)
+  $needle = $Url.Trim()
   $matches = Get-ChildItem -LiteralPath $OutputDirectory -Filter "*.md" -File |
-    Select-String -Pattern $escapedUrl -SimpleMatch -List
+    Select-String -Pattern $needle -SimpleMatch -List
 
   return [bool]$matches
 }
