@@ -1,6 +1,6 @@
 param(
   [string]$SpreadsheetId = "1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8",
-  [string]$Range = "A1:K200",
+  [string]$Range = "A1:Z1000",
   [string]$OutputDir = "raw/webclip-index",
   [string]$DriveFolderId = "1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz",
   [switch]$DisableSpreadsheetDiscovery,
@@ -147,14 +147,14 @@ function Get-DriveFileByName {
   return $null
 }
 
-function Get-SpreadsheetsInDriveFolder {
+function Get-DriveFilesInFolder {
   param(
     [string]$AccessToken,
     [string]$FolderId
   )
 
-  $query = "'$FolderId' in parents and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false"
-  $fields = "nextPageToken,files(id,name,webViewLink,modifiedTime)"
+  $query = "'$FolderId' in parents and trashed = false"
+  $fields = "nextPageToken,files(id,name,webViewLink,mimeType,modifiedTime)"
   $pageToken = $null
   $files = @()
 
@@ -174,6 +174,47 @@ function Get-SpreadsheetsInDriveFolder {
   return $files
 }
 
+function Get-SpreadsheetsInDriveFolder {
+  param(
+    [object[]]$Files
+  )
+
+  return @($Files | Where-Object { $_.mimeType -eq "application/vnd.google-apps.spreadsheet" })
+}
+
+function Get-SourceTypeFromMimeType {
+  param(
+    [string]$MimeType,
+    [string]$Name
+  )
+
+  if ($MimeType -eq "application/vnd.google-apps.document") {
+    return "document"
+  }
+
+  if ($MimeType -eq "application/pdf") {
+    return "pdf"
+  }
+
+  if ($MimeType -like "image/*") {
+    return "image"
+  }
+
+  if ($MimeType -like "video/*") {
+    return "video"
+  }
+
+  if ($MimeType -like "audio/*") {
+    return "audio"
+  }
+
+  if ($MimeType -eq "application/vnd.google-apps.folder") {
+    return "folder"
+  }
+
+  return "drive-file"
+}
+
 function Test-ExistingSourceUrl {
   param(
     [string]$OutputDirectory,
@@ -189,6 +230,37 @@ function Test-ExistingSourceUrl {
     Select-String -Pattern $needle -SimpleMatch -List
 
   return [bool]$matches
+}
+
+function Test-ExistingDriveFileId {
+  param(
+    [string]$OutputDirectory,
+    [string]$FileId
+  )
+
+  if ([string]::IsNullOrWhiteSpace($FileId) -or -not (Test-Path -LiteralPath $OutputDirectory)) {
+    return $false
+  }
+
+  $matches = Get-ChildItem -LiteralPath $OutputDirectory -Filter "*.md" -File |
+    Select-String -Pattern $FileId.Trim() -SimpleMatch -List
+
+  return [bool]$matches
+}
+
+function Test-HeaderExists {
+  param(
+    [hashtable]$HeaderMap,
+    [string[]]$Names
+  )
+
+  foreach ($name in $Names) {
+    if ($HeaderMap.ContainsKey($name)) {
+      return $true
+    }
+  }
+
+  return $false
 }
 
 function Sync-SpreadsheetRows {
@@ -221,6 +293,20 @@ function Sync-SpreadsheetRows {
     }
   }
 
+  $dataRowCount = [Math]::Max(0, $sheet.values.Count - 1)
+  Write-Host "Loaded spreadsheet: '$SpreadsheetTitle' headers=$($headers.Count), data_rows=$dataRowCount, range=$Range."
+
+  $rangeLimit = [regex]::Match($Range, "(\d+)$")
+  if ($rangeLimit.Success -and $sheet.values.Count -ge [int]$rangeLimit.Groups[1].Value) {
+    Write-Warning "Range limit reached in '$SpreadsheetTitle' ($Range). Rows below the configured range may be missed."
+  }
+
+  $urlHeaderNames = @("url", "ｕｒｌ", "url_or_link", "ｕｒｌ_or_link", "youtube_url", "youtube", "link", "リンク", "記事url", "記事リンク")
+  if (-not (Test-HeaderExists $headerMap $urlHeaderNames)) {
+    Write-Warning "No URL column detected in '$SpreadsheetTitle'. Headers: $($headers -join ', ')"
+    return @{ Created = 0; Skipped = $dataRowCount }
+  }
+
   $created = 0
   $skipped = 0
 
@@ -230,7 +316,7 @@ function Sync-SpreadsheetRows {
     $sourceDate = Get-CellValue $row $headerMap @("date", "追加日", "日付", "登録日", "作成日")
     $indexDate = ConvertTo-IndexDate $sourceDate $Today
     $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名", "記事タイトル", "記事名", "name", "名称")
-    $url = Get-CellValue $row $headerMap @("url", "ｕｒｌ", "url_or_link", "ｕｒｌ_or_link", "youtube_url", "youtube", "link", "リンク", "記事url", "記事リンク")
+    $url = Get-CellValue $row $headerMap $urlHeaderNames
 
     if ([string]::IsNullOrWhiteSpace($url)) {
       $skipped++
@@ -340,6 +426,98 @@ $action
   return @{ Created = $created; Skipped = $skipped }
 }
 
+function Sync-DriveFiles {
+  param(
+    [object[]]$Files,
+    [string]$OutputDirectory,
+    [string]$Today,
+    [switch]$DryRun
+  )
+
+  $created = 0
+  $skipped = 0
+  $candidates = @($Files | Where-Object {
+    $_.mimeType -ne "application/vnd.google-apps.spreadsheet" -and
+    $_.mimeType -ne "application/vnd.google-apps.folder"
+  })
+  $folders = @($Files | Where-Object { $_.mimeType -eq "application/vnd.google-apps.folder" })
+
+  if ($folders.Count -gt 0) {
+    Write-Host "Detected folders in Drive source folder: $($folders.Count). Folder entries are not indexed."
+  }
+
+  if ($candidates.Count -eq 0) {
+    Write-Host "No non-spreadsheet Drive files to index."
+    return @{ Created = 0; Skipped = 0 }
+  }
+
+  Write-Host "Checking non-spreadsheet Drive files: $($candidates.Count)."
+
+  foreach ($file in $candidates) {
+    $sourceType = Get-SourceTypeFromMimeType $file.mimeType $file.name
+    $slug = ConvertTo-Slug $file.name
+    $path = Join-Path $OutputDirectory "$Today-$sourceType-$slug.md"
+
+    if ((Test-Path -LiteralPath $path) -or (Test-ExistingDriveFileId $OutputDirectory $file.id) -or (Test-ExistingSourceUrl $OutputDirectory $file.webViewLink)) {
+      $skipped++
+      continue
+    }
+
+    $frontTitle = Escape-FrontMatterValue $file.name
+    $frontUrl = Escape-FrontMatterValue $file.webViewLink
+    $frontMimeType = Escape-FrontMatterValue $file.mimeType
+    $frontModifiedTime = Escape-FrontMatterValue $file.modifiedTime
+
+    $content = @"
+---
+type: source
+status: 未整理
+date: $Today
+source_type: $sourceType
+title: "$frontTitle"
+url: "$frontUrl"
+drive_url: "$frontUrl"
+drive_file_id: "$($file.id)"
+mime_type: "$frontMimeType"
+modified_time: "$frontModifiedTime"
+tags: [raw, drive, $sourceType]
+---
+
+# $($file.name)
+
+## Driveファイル
+
+- URL: $($file.webViewLink)
+- File ID: $($file.id)
+- MIME type: $($file.mimeType)
+- 更新日時: $($file.modifiedTime)
+
+## 要点メモ
+
+
+
+## 自分のプロジェクトに反映すること
+
+
+
+## 次に整理するなら
+
+-
+"@
+
+    if ($DryRun) {
+      Write-Host "Would create Drive file index: $path"
+    } else {
+      Set-Content -LiteralPath $path -Value $content -Encoding UTF8
+      Write-Host "Created Drive file index: $path"
+    }
+
+    $created++
+  }
+
+  return @{ Created = $created; Skipped = $skipped }
+}
+
 $root = Resolve-Path -LiteralPath (Join-Path $PSScriptRoot "..")
 $resolvedOutputDir = Join-Path $root $OutputDir
 
@@ -353,16 +531,22 @@ if (-not (Test-Path -LiteralPath $resolvedOutputDir)) {
 
 $accessToken = Get-AccessToken
 $today = (Get-Date).ToString("yyyy-MM-dd")
+$driveFiles = @()
 $spreadsheets = @()
 
 if (-not $DisableSpreadsheetDiscovery) {
-  $spreadsheets = @(Get-SpreadsheetsInDriveFolder $accessToken $DriveFolderId | ForEach-Object {
+  $driveFiles = @(Get-DriveFilesInFolder $accessToken $DriveFolderId)
+  Write-Host "Discovered Drive files: total=$($driveFiles.Count)."
+  $spreadsheets = @(Get-SpreadsheetsInDriveFolder $driveFiles | ForEach-Object {
     [PSCustomObject]@{
       Id = $_.id
       Title = $_.name
       Url = $_.webViewLink
+      MimeType = $_.mimeType
+      ModifiedTime = $_.modifiedTime
     }
   })
+  Write-Host "Discovered spreadsheets: $($spreadsheets.Count)."
 }
 
 if ($spreadsheets.Count -eq 0) {
@@ -392,4 +576,15 @@ foreach ($spreadsheet in $spreadsheets) {
   $totalSkipped += $result.Skipped
 }
 
-Write-Host "Done. Spreadsheets: $($spreadsheets.Count), created: $totalCreated, skipped: $totalSkipped."
+if (-not $DisableSpreadsheetDiscovery) {
+  $driveResult = Sync-DriveFiles `
+    -Files $driveFiles `
+    -OutputDirectory $resolvedOutputDir `
+    -Today $today `
+    -DryRun:$DryRun
+
+  $totalCreated += $driveResult.Created
+  $totalSkipped += $driveResult.Skipped
+}
+
+Write-Host "Done. Spreadsheets: $($spreadsheets.Count), drive_files: $($driveFiles.Count), created: $totalCreated, skipped: $totalSkipped."

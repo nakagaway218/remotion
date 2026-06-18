@@ -12,7 +12,7 @@ tags: [scripts, google-api, raw]
 
 ## YouTubeリスト同期
 
-`sync-youtube-sheet-index.ps1` は、Google Driveの `ObsidianSecondBrain` フォルダ内にあるGoogle Sheetsを自動検出し、`raw/webclip-index/` にYouTubeごとの索引Markdownを作る。
+`sync-youtube-sheet-index.ps1` は、Google Driveの `ObsidianSecondBrain` フォルダ内にあるGoogle Sheetsを自動検出し、`raw/webclip-index/` に軽い索引Markdownを作る。YouTubeリストだけでなく、記事リストやDrive上のGoogle Docs/PDFなども対象にする。
 
 ```powershell
 .\scripts\sync-youtube-sheet-index.ps1
@@ -78,9 +78,19 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 - Driveフォルダ内のGoogle Sheetsを自動検出する
 - 既定Spreadsheet ID: `1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8`
 - Drive Folder ID: `1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz`
+- 既定読み取り範囲: `A1:Z1000`
 - 出力先: `raw/webclip-index/`
 
 同じURLの索引Markdownがすでに `raw/webclip-index/` にある場合は、別の日に再実行しても重複作成しない。
+
+## 見落とし防止
+
+- 実行時にDriveフォルダ内のファイル数とSpreadsheet数を表示する。
+- 各Spreadsheetについて、ヘッダー数・データ行数・読み取り範囲を表示する。
+- URL列が見つからないSpreadsheetは警告する。
+- 読み取り範囲の最終行までデータがある場合は、範囲外に行がある可能性として警告する。
+- Google Sheets以外のDriveファイルは、Google Docs、PDF、画像、動画、音声などを軽いDriveファイル索引の対象にする。
+- Driveフォルダは素材ファイルではないため索引化しない。
 
 ## 想定する列名
 
@@ -88,8 +98,9 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 
 | 推奨列 | 日本語例 |
 | --- | --- |
-| title | タイトル / 動画タイトル |
-| url | リンク |
+| date | 追加日 / 日付 / 登録日 |
+| title | タイトル / 動画タイトル / 動画名 / 記事名 |
+| url | URL / ＵＲＬ / URL or Link / リンク |
 | channel | チャンネル / チャンネル名 |
 | theme | テーマ / 主題 |
 | priority | 優先度 |

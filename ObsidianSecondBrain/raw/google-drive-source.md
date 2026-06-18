@@ -27,9 +27,23 @@ tags: [raw, google-drive, external-storage]
 
 ## 連携している管理表
 
-- [[raw/youtube-reference-spreadsheet|AIエージェント参考YouTubeリスト]]
-- Spreadsheet ID: `1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8`
-- 用途: AIエージェント関連の参考YouTubeを一覧管理し、API経由で `raw/webclip-index/` に軽い索引Markdownを作る。
+同期スクリプトは、このDriveフォルダ内のGoogle Sheetsを自動検出する。
+
+| 管理表 | Spreadsheet ID | 用途 |
+| --- | --- | --- |
+| [[raw/youtube-reference-spreadsheet|AIエージェント参考YouTubeリスト]] | `1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8` | AIエージェント関連の参考YouTube |
+| 記事参考リスト | `16Qhjwrp5Bli9XjsxIq5-CL3uZ8qOsRRrB-HekWxWrXg` | 記事・Google Docs系の参考素材 |
+| 教材参考リスト | `1xT6af9MIfwJ8eH7y_b1TaZjvKrMv6MfiFDVOk8FSyE4` | 教材作成用の参考素材 |
+| ツール参考リスト | `137WKPSoGzom4IXhhgvhsuwh3o3vh9JwmYkAEMKRlsOI` | ツール調査・制作の参考素材 |
+
+## 見落とし防止
+
+- 既定の読み取り範囲は `A1:Z1000`。
+- 各Spreadsheetについて、ヘッダー数・データ行数・読み取り範囲を実行ログに出す。
+- URL列が見つからない場合は警告を出す。
+- 読み取り範囲の最終行までデータがある場合は、範囲外に行がある可能性として警告を出す。
+- Google Sheets以外のDriveファイルも検出し、Google Docs、PDF、画像、動画、音声などは軽いDriveファイル索引の対象にする。
+- Driveフォルダ自体は素材ではないため索引化しない。
 
 ## 退避済みコンテキスト
 
