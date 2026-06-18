@@ -61,6 +61,20 @@ function Escape-FrontMatterValue {
   return ($Value -replace '"', '\"')
 }
 
+function Get-SourceType {
+  param([string]$SpreadsheetTitle)
+
+  if ($SpreadsheetTitle -match "記事") {
+    return "article"
+  }
+
+  if ($SpreadsheetTitle -match "YouTube|youtube|動画") {
+    return "youtube"
+  }
+
+  return "source"
+}
+
 function Get-CellValue {
   param(
     [object[]]$Row,
@@ -188,8 +202,9 @@ function Sync-SpreadsheetRows {
 
   for ($rowIndex = 1; $rowIndex -lt $sheet.values.Count; $rowIndex++) {
     $row = @($sheet.values[$rowIndex])
-    $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名")
-    $url = Get-CellValue $row $headerMap @("url", "ｕｒｌ", "youtube_url", "youtube", "リンク")
+    $sourceType = Get-SourceType $SpreadsheetTitle
+    $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名", "記事タイトル", "記事名", "name", "名称")
+    $url = Get-CellValue $row $headerMap @("url", "ｕｒｌ", "url_or_link", "ｕｒｌ_or_link", "youtube_url", "youtube", "link", "リンク", "記事url", "記事リンク")
 
     if ([string]::IsNullOrWhiteSpace($url)) {
       $skipped++
@@ -197,7 +212,7 @@ function Sync-SpreadsheetRows {
     }
 
     if ([string]::IsNullOrWhiteSpace($title)) {
-      $title = "YouTube source row $($rowIndex + 1)"
+      $title = "$sourceType source row $($rowIndex + 1)"
     }
 
     $channel = Get-CellValue $row $headerMap @("channel", "チャンネル", "チャンネル名")
@@ -218,7 +233,7 @@ function Sync-SpreadsheetRows {
     }
 
     $slug = ConvertTo-Slug $title
-    $path = Join-Path $OutputDirectory "$Today-youtube-$slug.md"
+    $path = Join-Path $OutputDirectory "$Today-$sourceType-$slug.md"
 
     if ((Test-Path -LiteralPath $path) -or (Test-ExistingSourceUrl $OutputDirectory $url)) {
       $skipped++
@@ -229,25 +244,10 @@ function Sync-SpreadsheetRows {
     $frontUrl = Escape-FrontMatterValue $url
     $frontDriveUrl = Escape-FrontMatterValue $driveUrl
     $frontSpreadsheetTitle = Escape-FrontMatterValue $SpreadsheetTitle
-
-    $content = @"
----
-type: source
-status: 未整理
-date: $Today
-source_type: youtube
-title: "$frontTitle"
-url: "$frontUrl"
-drive_url: "$frontDriveUrl"
-spreadsheet_title: "$frontSpreadsheetTitle"
-spreadsheet_id: "$SpreadsheetId"
-tags: [raw, youtube, ai-agent]
----
-
-# $title
-
-## 元動画
-
+    $sourceLabel = if ($sourceType -eq "article") { "元記事" } elseif ($sourceType -eq "youtube") { "元動画" } else { "元素材" }
+    $tag = if ($sourceType -eq "article") { "article" } elseif ($sourceType -eq "youtube") { "youtube, ai-agent" } else { "source" }
+    $sourceDetails = if ($sourceType -eq "youtube") {
+      @"
 - URL: $url
 - チャンネル: $channel
 - テーマ: $theme
@@ -255,6 +255,37 @@ tags: [raw, youtube, ai-agent]
 - 状態: $status
 - Drive保存先: $driveUrl
 - 管理表: $SpreadsheetTitle
+"@
+    } else {
+      @"
+- URL: $url
+- テーマ: $theme
+- 優先度: $priority
+- 状態: $status
+- Drive保存先: $driveUrl
+- 管理表: $SpreadsheetTitle
+"@
+    }
+
+    $content = @"
+---
+type: source
+status: 未整理
+date: $Today
+source_type: $sourceType
+title: "$frontTitle"
+url: "$frontUrl"
+drive_url: "$frontDriveUrl"
+spreadsheet_title: "$frontSpreadsheetTitle"
+spreadsheet_id: "$SpreadsheetId"
+tags: [raw, $tag]
+---
+
+# $title
+
+## $sourceLabel
+
+$sourceDetails
 
 ## 要点メモ
 
