@@ -1,7 +1,8 @@
 ---
 type: source
 status: 未整理
-date: 2026-06-18
+date: 2026-06-17
+synced_at: 2026-06-18
 source_type: article
 title: "SNS自己紹介文"
 url: "https://docs.google.com/document/d/1NpG7Q3mmmGSUXOdEKzNuaKk-dNPbe04Qvq2-Ak1ghSc/edit?usp=sharing"

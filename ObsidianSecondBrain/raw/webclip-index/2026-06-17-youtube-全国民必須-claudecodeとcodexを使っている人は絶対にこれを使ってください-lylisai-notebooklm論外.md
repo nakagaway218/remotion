@@ -1,7 +1,8 @@
 ---
 type: source
 status: 未整理
-date: 2026-06-18
+date: 2026-06-17
+synced_at: 2026-06-18
 source_type: youtube
 title: "【全国民必須】ClaudeCodeとCodexを使っている人は絶対にこれを使ってください。【LylisAI / NoteBookLM論外】"
 url: "https://www.youtube.com/watch?v=Yhkt7XcJRWc"
