@@ -118,3 +118,23 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 ```powershell
 .\scripts\sync-youtube-sheet-index.ps1 -DryRun
 ```
+
+## Google Docs本文を読む
+
+`get-drive-doc-text.ps1` は、Google Docsをプレーンテキストとして取得する補助スクリプト。本文全文はGitに保存せず、Codexが要約を作るときだけ読み取る。
+
+```powershell
+.\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit"
+```
+
+文字数を制限して確認する場合:
+
+```powershell
+.\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit" -MaxChars 4000
+```
+
+運用方針:
+
+- Google Docs本文はDrive側に置く。
+- Git側には `raw/webclip-index/` の索引と、`reports/` の要約だけを置く。
+- 自動確認では、記事索引のURLがGoogle Docsの場合、必要に応じてこのスクリプトで本文を読み、要約レポートを作る。

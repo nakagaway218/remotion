@@ -25,6 +25,7 @@ tags: [raw, article]
 
 ## 要点メモ
 
+- [[reports/source-summaries/2026-06-17-article-sns自己紹介文|要約レポート]]
 
 
 ## 自分のプロジェクトに反映すること
