@@ -335,6 +335,7 @@ function Sync-SpreadsheetRows {
     $action = Get-CellValue $row $headerMap @("action", "反映", "自分のプロジェクトに反映すること")
     $driveUrl = Get-CellValue $row $headerMap @("drive_url", "drive", "google_drive")
     $driveName = Get-CellValue $row $headerMap @("drive_name", "drive_file", "保存ファイル名")
+    $transcriptUrl = Get-CellValue $row $headerMap @("transcript_url", "transcript", "文字起こしurl", "文字起こし", "要約リンク", "summary_url", "summary_link")
     $wikiLink = Get-CellValue $row $headerMap @("wiki_link", "wiki", "整理後ノート")
 
     if ([string]::IsNullOrWhiteSpace($driveUrl) -and -not [string]::IsNullOrWhiteSpace($driveName)) {
@@ -355,6 +356,7 @@ function Sync-SpreadsheetRows {
     $frontTitle = Escape-FrontMatterValue $title
     $frontUrl = Escape-FrontMatterValue $url
     $frontDriveUrl = Escape-FrontMatterValue $driveUrl
+    $frontTranscriptUrl = Escape-FrontMatterValue $transcriptUrl
     $frontSpreadsheetTitle = Escape-FrontMatterValue $SpreadsheetTitle
     $sourceLabel = if ($sourceType -eq "article") { "元記事" } elseif ($sourceType -eq "youtube") { "元動画" } else { "元素材" }
     $tag = if ($sourceType -eq "article") { "article" } elseif ($sourceType -eq "youtube") { "youtube, ai-agent" } else { "source" }
@@ -366,6 +368,7 @@ function Sync-SpreadsheetRows {
 - 優先度: $priority
 - 状態: $status
 - Drive保存先: $driveUrl
+- 文字起こし/要約Docs: $transcriptUrl
 - 管理表: $SpreadsheetTitle
 "@
     } else {
@@ -375,6 +378,7 @@ function Sync-SpreadsheetRows {
 - 優先度: $priority
 - 状態: $status
 - Drive保存先: $driveUrl
+- 文字起こし/要約Docs: $transcriptUrl
 - 管理表: $SpreadsheetTitle
 "@
     }
@@ -389,6 +393,7 @@ source_type: $sourceType
 title: "$frontTitle"
 url: "$frontUrl"
 drive_url: "$frontDriveUrl"
+transcript_url: "$frontTranscriptUrl"
 spreadsheet_title: "$frontSpreadsheetTitle"
 spreadsheet_id: "$SpreadsheetId"
 tags: [raw, $tag]

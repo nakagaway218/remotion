@@ -109,6 +109,7 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 | action | 反映 / 自分のプロジェクトに反映すること |
 | drive_url | drive / google_drive |
 | drive_name | 保存ファイル名 |
+| transcript_url | 文字起こしURL / 文字起こし / 要約リンク |
 | wiki_link | wiki / 整理後ノート |
 
 ## 確認だけする
