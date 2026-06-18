@@ -1,0 +1,92 @@
+---
+type: concept
+status: active
+date: 2026-06-18
+topic: YouTube文字起こし要約運用
+tags: [wiki, youtube, transcript, google-drive, automation, codex]
+---
+
+# YouTube文字起こし要約運用
+
+YouTube動画の内容をObsidianSecondBrainに取り込むときは、動画そのものや文字起こし全文をGitに入れない。Google Driveに文字起こしDocsを置き、Git側には索引と要約だけを残す。
+
+## 基本方針
+
+- YouTube URLだけでは動画内容は読めない。
+- 文字起こしDocsがGoogle Driveにあれば、Codexが本文を読み取って要約できる。
+- 自動文字起こしの誤字脱字は、文脈から補正して要約する。
+- 固有名詞、数値、料金、機能名は誤認しやすいので、必要なら要確認にする。
+- 文字起こし全文はGitに保存しない。
+
+## 標準フロー
+
+```text
+YouTube URLをSpreadsheetに追加
+↓
+文字起こしDocsをGoogle Driveに置く
+↓
+Spreadsheetの要約リンク列にDocs URLを入れる
+↓
+CodexがDocs本文を読む
+↓
+reports/source-summaries/ に要約を作る
+↓
+raw/webclip-index/ の索引から要約へリンクする
+↓
+必要に応じて wiki/ に昇格する
+```
+
+## Spreadsheetで使う列
+
+最低限:
+
+```text
+追加日
+動画名
+ＵＲＬ
+要約リンク
+```
+
+将来的な推奨:
+
+```text
+追加日
+種別
+タイトル
+URL
+Drive URL
+文字起こし/本文Docs URL
+要約状態
+要約保存先
+wiki反映
+優先度
+メモ
+```
+
+## 自動化できる範囲
+
+- Driveフォルダ内のSpreadsheet検出
+- 新規URLの索引作成
+- Docs本文の読み取り
+- 要約Markdown作成
+- 索引から要約へのリンク追加
+- 新規・警告・失敗時だけ通知
+
+## まだ手動または半自動の範囲
+
+- YouTube SummaryなどからTranscriptを取得してDocs化する作業
+- ブラウザで見ているURLを保存対象として判断する作業
+- 要約からwikiへ昇格する判断
+
+## 発展課題へ進むタイミング
+
+- 要約が5〜10本たまったとき。
+- 同じテーマの素材が複数たまったとき。
+- 「どこに置くべきか」「何をルール化すべきか」で迷いが出たとき。
+- Spreadsheetの管理が手間になり、状態管理やリンク補完を自動化したくなったとき。
+
+## 関連
+
+- [[reports/2026-06-18-youtube-transcript-automation-handoff|YouTube文字起こしとGoogle Drive同期自動化 引き継ぎ]]
+- [[raw/google-drive-source|Google Drive raw保存先]]
+- [[scripts/README|Google API Sync Scripts]]
