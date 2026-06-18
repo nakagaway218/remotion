@@ -61,6 +61,30 @@ function Escape-FrontMatterValue {
   return ($Value -replace '"', '\"')
 }
 
+function ConvertTo-IndexDate {
+  param(
+    [string]$Value,
+    [string]$Fallback
+  )
+
+  if ([string]::IsNullOrWhiteSpace($Value)) {
+    return $Fallback
+  }
+
+  $trimmed = $Value.Trim()
+  $match = [regex]::Match($trimmed, "^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$")
+  if ($match.Success) {
+    return "{0}-{1:D2}-{2:D2}" -f [int]$match.Groups[1].Value, [int]$match.Groups[2].Value, [int]$match.Groups[3].Value
+  }
+
+  $parsed = [datetime]::MinValue
+  if ([datetime]::TryParse($trimmed, [ref]$parsed)) {
+    return $parsed.ToString("yyyy-MM-dd")
+  }
+
+  return $Fallback
+}
+
 function Get-SourceType {
   param([string]$SpreadsheetTitle)
 
@@ -203,6 +227,8 @@ function Sync-SpreadsheetRows {
   for ($rowIndex = 1; $rowIndex -lt $sheet.values.Count; $rowIndex++) {
     $row = @($sheet.values[$rowIndex])
     $sourceType = Get-SourceType $SpreadsheetTitle
+    $sourceDate = Get-CellValue $row $headerMap @("date", "追加日", "日付", "登録日", "作成日")
+    $indexDate = ConvertTo-IndexDate $sourceDate $Today
     $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名", "記事タイトル", "記事名", "name", "名称")
     $url = Get-CellValue $row $headerMap @("url", "ｕｒｌ", "url_or_link", "ｕｒｌ_or_link", "youtube_url", "youtube", "link", "リンク", "記事url", "記事リンク")
 
@@ -233,7 +259,7 @@ function Sync-SpreadsheetRows {
     }
 
     $slug = ConvertTo-Slug $title
-    $path = Join-Path $OutputDirectory "$Today-$sourceType-$slug.md"
+    $path = Join-Path $OutputDirectory "$indexDate-$sourceType-$slug.md"
 
     if ((Test-Path -LiteralPath $path) -or (Test-ExistingSourceUrl $OutputDirectory $url)) {
       $skipped++
@@ -271,7 +297,8 @@ function Sync-SpreadsheetRows {
 ---
 type: source
 status: 未整理
-date: $Today
+date: $indexDate
+synced_at: $Today
 source_type: $sourceType
 title: "$frontTitle"
 url: "$frontUrl"
