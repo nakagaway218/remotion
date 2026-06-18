@@ -236,3 +236,27 @@ python -m pip install pypdf
 `output/pdf/` は生成物置き場なので、`.gitignore` でGit管理対象外にした。
 
 ツール本体と説明書はGit管理対象として残す。
+
+## 追加対応: 上書き確認
+
+同じExcelファイルを再度PDF化したとき、既存PDFが確認なしで上書きされる問題があった。
+
+対応として、`scripts/Convert-ExcelToPdf.ps1` に上書き確認を追加した。
+
+現在の挙動:
+
+- 出力予定のPDFが存在しない場合はそのまま作成する
+- 出力予定のPDFが存在する場合は、対象ファイルを表示して確認する
+- `y` を入力して Enter すると上書きする
+- Enterだけ、または `y` 以外では中止する
+- 中止はエラー扱いではなく、`Canceled.` と表示して終了する
+
+確認表示:
+
+```text
+Overwrite? Type y to overwrite, or press Enter to cancel
+```
+
+シートごとPDF化では、上書き対象になる既存PDFを一覧表示してから確認する。
+
+自動処理などで確認なしに上書きしたい場合は、`-Force` を付ける。

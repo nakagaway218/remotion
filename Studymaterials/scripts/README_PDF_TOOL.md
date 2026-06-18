@@ -40,10 +40,24 @@ powershell -ExecutionPolicy Bypass -File ".\scripts\Convert-ExcelToPdf.ps1" -Wor
 - `bookmarks`: `ファイル名_bookmarked.pdf`
 - `sheets`: `ファイル名_sheets/01_シート名.pdf`
 
+同じ名前のPDFがすでにある場合は、上書きしてよいか確認します。
+
+```text
+Overwrite? Type y to overwrite, or press Enter to cancel
+```
+
+`y` を入力して Enter すると上書きします。Enter だけなら中止します。
+
 出力先を変える場合:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File ".\scripts\Convert-ExcelToPdf.ps1" -WorkbookPath ".\教材.xlsx" -Mode bookmarks -OutputDirectory ".\配布用PDF"
+```
+
+確認なしで上書きしたい場合は、`-Force` を付けます。
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ".\scripts\Convert-ExcelToPdf.ps1" -WorkbookPath ".\教材.xlsx" -Mode all -Force
 ```
 
 ## しおり付きPDFについて

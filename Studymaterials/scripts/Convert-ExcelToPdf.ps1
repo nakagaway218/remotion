@@ -4,7 +4,8 @@ param(
     [string]$Mode,
     [string]$OutputDirectory,
     [string]$PythonCommand = "python",
-    [switch]$KeepTemporary
+    [switch]$KeepTemporary,
+    [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -75,6 +76,36 @@ function Get-SafeFileName {
         return "sheet"
     }
     return $safe
+}
+
+function Confirm-OverwritePaths {
+    param(
+        [string[]]$Paths,
+        [switch]$ForceOverwrite
+    )
+
+    if ($ForceOverwrite) {
+        return $true
+    }
+
+    $existingPaths = @($Paths | Where-Object { Test-Path -LiteralPath $_ })
+    if ($existingPaths.Count -eq 0) {
+        return $true
+    }
+
+    Write-Host ""
+    Write-Host "The following output file(s) already exist:"
+    foreach ($path in $existingPaths) {
+        Write-Host ("  {0}" -f $path)
+    }
+
+    $answer = Read-Host "Overwrite? Type y to overwrite, or press Enter to cancel"
+    if ($answer -ne "y" -and $answer -ne "Y") {
+        Write-Host "Canceled."
+        return $false
+    }
+
+    return $true
 }
 
 function Export-WorksheetPdf {
@@ -152,23 +183,44 @@ try {
     switch ($resolvedMode) {
         "all" {
             $pdfPath = Join-Path $resolvedOutputDirectory ($baseName + "_all.pdf")
+            if (-not (Confirm-OverwritePaths -Paths @($pdfPath) -ForceOverwrite:$Force)) {
+                return
+            }
             Export-WorkbookPdf -Workbook $workbook -PdfPath $pdfPath
             Write-Host ("Created: {0}" -f $pdfPath)
         }
         "sheets" {
             $sheetOutputDirectory = Join-Path $resolvedOutputDirectory ($baseName + "_sheets")
-            New-Item -ItemType Directory -Force -Path $sheetOutputDirectory | Out-Null
+            $targetPaths = @()
 
             for ($i = 0; $i -lt $visibleSheets.Count; $i++) {
                 $worksheet = $visibleSheets[$i]
                 $safeSheetName = Get-SafeFileName -Name $worksheet.Name
-                $pdfPath = Join-Path $sheetOutputDirectory ("{0:00}_{1}.pdf" -f ($i + 1), $safeSheetName)
+                $targetPaths += Join-Path $sheetOutputDirectory ("{0:00}_{1}.pdf" -f ($i + 1), $safeSheetName)
+            }
+
+            if (-not (Confirm-OverwritePaths -Paths $targetPaths -ForceOverwrite:$Force)) {
+                return
+            }
+            New-Item -ItemType Directory -Force -Path $sheetOutputDirectory | Out-Null
+
+            for ($i = 0; $i -lt $visibleSheets.Count; $i++) {
+                $worksheet = $visibleSheets[$i]
+                $pdfPath = $targetPaths[$i]
                 Export-WorksheetPdf -Worksheet $worksheet -PdfPath $pdfPath
                 Write-Host ("Created: {0}" -f $pdfPath)
             }
         }
         "bookmarks" {
+            $mergedPdfPath = Join-Path $resolvedOutputDirectory ($baseName + "_bookmarked.pdf")
+            if (-not (Confirm-OverwritePaths -Paths @($mergedPdfPath) -ForceOverwrite:$Force)) {
+                return
+            }
+
             $temporaryDirectory = Join-Path $resolvedOutputDirectory ($baseName + "_bookmark_tmp")
+            if (Test-Path -LiteralPath $temporaryDirectory) {
+                Remove-Item -LiteralPath $temporaryDirectory -Recurse -Force
+            }
             New-Item -ItemType Directory -Force -Path $temporaryDirectory | Out-Null
 
             $entries = @()
@@ -184,7 +236,6 @@ try {
                 Write-Host ("Created temporary PDF: {0}" -f $pdfPath)
             }
 
-            $mergedPdfPath = Join-Path $resolvedOutputDirectory ($baseName + "_bookmarked.pdf")
             $manifestPath = Join-Path $temporaryDirectory "manifest.json"
             [ordered]@{
                 output = $mergedPdfPath
