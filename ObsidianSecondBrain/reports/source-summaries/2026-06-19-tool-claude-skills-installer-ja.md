@@ -37,3 +37,6 @@ AIエージェントに渡すことで、業務内容をヒアリングしなが
 - セキュリティ上、見知らぬskillを無条件に入れない。
 - Codex環境で使う場合は、Claude Code向けの配置先をそのまま使えるとは限らない。
 
+## 詳細確認
+
+- [[reports/2026-06-19-claude-skills-installer-ja-deep-dive|claude-skills-installer-ja 詳細確認]]

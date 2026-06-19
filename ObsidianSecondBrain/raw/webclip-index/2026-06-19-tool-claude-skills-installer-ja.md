@@ -28,6 +28,7 @@ tags: [raw, tool, github]
 ## 要点メモ
 
 - [[reports/source-summaries/2026-06-19-tool-claude-skills-installer-ja|要約レポート]]
+- [[reports/2026-06-19-claude-skills-installer-ja-deep-dive|詳細確認]]
 
 
 ## 自分のプロジェクトに反映すること
