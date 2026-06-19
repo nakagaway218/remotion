@@ -18,6 +18,7 @@ tags: [wiki, index]
 ## 概念ページ
 
 - [[wiki/YouTube文字起こし要約運用|YouTube文字起こし要約運用]]
+- [[wiki/GitHub公開リポジトリ導入判断運用|GitHub公開リポジトリ導入判断運用]]
 
 ## Reports
 
@@ -37,6 +38,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-19-youtube-codexプラグイン24選|Codexプラグイン24選 要約]]
 - [[reports/source-summaries/2026-06-19-youtube-gpt-image-2-codex-workflow|GPT-Image-2とCodex活用フロー 要約]]
 - [[reports/2026-06-19-claude-skills-installer-ja-deep-dive|claude-skills-installer-ja 詳細確認]]
+- [[reports/2026-06-19-github-source-review-automation-handoff|公開GitHubリポジトリ導入判断の自動化 引き継ぎ]]
 
 ## GitHub Repo Reviews
 
