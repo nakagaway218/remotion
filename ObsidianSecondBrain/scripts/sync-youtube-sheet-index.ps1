@@ -92,6 +92,10 @@ function Get-SourceType {
     return "article"
   }
 
+  if ($SpreadsheetTitle -match "ツール|tool") {
+    return "tool"
+  }
+
   if ($SpreadsheetTitle -match "YouTube|youtube|動画") {
     return "youtube"
   }
@@ -315,7 +319,7 @@ function Sync-SpreadsheetRows {
     $sourceType = Get-SourceType $SpreadsheetTitle
     $sourceDate = Get-CellValue $row $headerMap @("date", "追加日", "日付", "登録日", "作成日")
     $indexDate = ConvertTo-IndexDate $sourceDate $Today
-    $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名", "記事タイトル", "記事名", "name", "名称")
+    $title = Get-CellValue $row $headerMap @("title", "タイトル", "動画タイトル", "動画名", "記事タイトル", "記事名", "ツール名", "tool_name", "name", "名称")
     $url = Get-CellValue $row $headerMap $urlHeaderNames
 
     if ([string]::IsNullOrWhiteSpace($url)) {
