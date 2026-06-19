@@ -139,3 +139,36 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 - Google Docs本文はDrive側に置く。
 - Git側には `raw/webclip-index/` の索引と、`reports/` の要約だけを置く。
 - 自動確認では、記事索引のURLがGoogle Docsの場合、必要に応じてこのスクリプトで本文を読み、要約レポートを作る。
+
+## 公開GitHubリポジトリを導入判断する
+
+`review-github-repo-source.ps1` は、`raw/webclip-index/` にある `github.com/owner/repo` 形式の公開GitHub URLを読み取り、README、AGENTS.md、package.json、ルートファイル、GitHubメタ情報を確認して、`reports/github-repo-reviews/` に導入判断レポートを作る。
+
+```powershell
+.\scripts\review-github-repo-source.ps1
+```
+
+確認だけする場合:
+
+```powershell
+.\scripts\review-github-repo-source.ps1 -DryRun
+```
+
+GitHub APIの未認証アクセスは回数制限がある。必要な場合は、読み取り専用の `GITHUB_TOKEN` を環境変数に入れる。
+
+```powershell
+$env:GITHUB_TOKEN = "GitHubの読み取り用トークン"
+```
+
+このスクリプトで行うこと:
+
+- 公開GitHub URLから `owner/repo` を抽出する。
+- GitHub APIでrepo情報、README、AGENTS.md、package.json、ルートファイルを取得する。
+- `curl | sh`、`Invoke-Expression`、`rm -rf`、`git reset --hard` などの注意サインを機械的に検出する。
+- 導入候補、要手動確認、参考情報として保留、の一次判断を残す。
+
+注意:
+
+- private repo、ログイン必須ページ、GitHub以外の配布ページは対象外。
+- 自動判断は一次判断。実際に導入する前には、Codexがレポートと主要ファイルを読み、既存スキルやプラグインと重複しないかを確認する。
+- 外部コードを実行したり、パッケージをインストールしたりはしない。

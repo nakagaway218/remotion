@@ -37,3 +37,9 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-19-youtube-codexプラグイン24選|Codexプラグイン24選 要約]]
 - [[reports/source-summaries/2026-06-19-youtube-gpt-image-2-codex-workflow|GPT-Image-2とCodex活用フロー 要約]]
 - [[reports/2026-06-19-claude-skills-installer-ja-deep-dive|claude-skills-installer-ja 詳細確認]]
+
+## GitHub Repo Reviews
+
+- `reports/github-repo-reviews/` に、公開GitHubリポジトリの導入判断レポートを置く。
+- [[reports/github-repo-reviews/README|GitHub Repo Reviews]]
+- [[reports/github-repo-reviews/2026-06-19-github-fuuuuuuma-claude-skills-installer-ja|fuuuuuuma/claude-skills-installer-ja 導入判断]]

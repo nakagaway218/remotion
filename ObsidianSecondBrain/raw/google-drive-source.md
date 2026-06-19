@@ -44,6 +44,7 @@ tags: [raw, google-drive, external-storage]
 - 読み取り範囲の最終行までデータがある場合は、範囲外に行がある可能性として警告を出す。
 - Google Sheets以外のDriveファイルも検出し、Google Docs、PDF、画像、動画、音声などは軽いDriveファイル索引の対象にする。
 - Driveフォルダ自体は素材ではないため索引化しない。
+- 公開GitHubリポジトリURLは、索引作成後に `scripts/review-github-repo-source.ps1` でREADMEや主要ファイルを確認し、`reports/github-repo-reviews/` に導入判断を残す。
 
 ## 退避済みコンテキスト
 
@@ -57,3 +58,4 @@ tags: [raw, google-drive, external-storage]
 - 記事本文の丸ごと保存、PDF、画像、動画、音声などはGoogle Drive側に置く。
 - 有料記事、限定公開URL、個人情報、学校名、顧客名、生徒情報を含む素材は、GitHubに上げない前提で慎重に扱う。
 - 必要になった素材だけ、要点を自分の言葉で `wiki/` に整理する。
+- 外部GitHubツールは、リンクだけで導入しない。README、主要設定ファイル、導入コマンド、破壊的操作の有無を確認してから判断する。
