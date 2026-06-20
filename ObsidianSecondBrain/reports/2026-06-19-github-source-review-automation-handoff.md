@@ -41,13 +41,13 @@ tags: [github, source-index, automation, tool-review, handoff]
 実行:
 
 ```powershell
-.\scripts\review-github-repo-source.ps1
+pwsh -File .\scripts\review-github-repo-source.ps1
 ```
 
 確認だけ:
 
 ```powershell
-.\scripts\review-github-repo-source.ps1 -DryRun
+pwsh -File .\scripts\review-github-repo-source.ps1 -DryRun
 ```
 
 GitHub APIの未認証アクセスは回数制限がある。必要な場合だけ、読み取り用の `GITHUB_TOKEN` を環境変数に入れる。
@@ -115,3 +115,4 @@ Codex automation `youtube` は、名称を `素材リスト同期確認` に変�
 - 逆に危険サインが出なくても安全確定ではない。自動検査は一次確認にすぎない。
 - Codexで使う場合は、Claude Code向けのskillやpluginをそのまま入れるのではなく、既存のCodexスキル、`AGENTS.md`、`.codex/`、`wiki/` へ必要部分だけ移植する判断を優先する。
 - private repoや認証必須のrepoは、この運用だけでは読めない。
+- API連携スクリプトはPowerShell 7（`pwsh`）で実行し、Windows PowerShell 5の `powershell.exe` を経由させない。

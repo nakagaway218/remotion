@@ -1,6 +1,9 @@
+#Requires -Version 7.0
+
 param(
   [string]$IndexDir = "raw/webclip-index",
   [string]$OutputDir = "reports/github-repo-reviews",
+  [int]$HttpTimeoutSec = 30,
   [switch]$DryRun
 )
 
@@ -77,7 +80,7 @@ function Invoke-GitHubJson {
     $headers["Authorization"] = "Bearer $env:GITHUB_TOKEN"
   }
 
-  return Invoke-RestMethod -Headers $headers -Uri $Uri
+  return Invoke-RestMethod -Headers $headers -Uri $Uri -TimeoutSec $HttpTimeoutSec
 }
 
 function Invoke-GitHubText {
@@ -92,7 +95,7 @@ function Invoke-GitHubText {
     $headers["Authorization"] = "Bearer $env:GITHUB_TOKEN"
   }
 
-  return Invoke-RestMethod -Headers $headers -Uri $Uri
+  return Invoke-RestMethod -Headers $headers -Uri $Uri -TimeoutSec $HttpTimeoutSec
 }
 
 function Get-RepoFileText {

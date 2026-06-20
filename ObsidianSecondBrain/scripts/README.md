@@ -15,13 +15,13 @@ tags: [scripts, google-api, raw]
 `sync-youtube-sheet-index.ps1` は、Google Driveの `ObsidianSecondBrain` フォルダ内にあるGoogle Sheetsを自動検出し、`raw/webclip-index/` に軽い索引Markdownを作る。YouTubeリストだけでなく、記事リストやDrive上のGoogle Docs/PDFなども対象にする。
 
 ```powershell
-.\scripts\sync-youtube-sheet-index.ps1
+pwsh -File .\scripts\sync-youtube-sheet-index.ps1
 ```
 
 特定のSpreadsheetだけを読む古い動きに戻したい場合は、`-DisableSpreadsheetDiscovery` を付ける。
 
 ```powershell
-.\scripts\sync-youtube-sheet-index.ps1 -DisableSpreadsheetDiscovery
+pwsh -File .\scripts\sync-youtube-sheet-index.ps1 -DisableSpreadsheetDiscovery
 ```
 
 実行前に、次のどちらかの認証情報を環境変数に入れる。
@@ -117,7 +117,7 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 ファイルを作らず動作確認する場合は `-DryRun` を付ける。
 
 ```powershell
-.\scripts\sync-youtube-sheet-index.ps1 -DryRun
+pwsh -File .\scripts\sync-youtube-sheet-index.ps1 -DryRun
 ```
 
 ## Google Docs本文を読む
@@ -125,13 +125,13 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 `get-drive-doc-text.ps1` は、Google Docsをプレーンテキストとして取得する補助スクリプト。本文全文はGitに保存せず、Codexが要約を作るときだけ読み取る。
 
 ```powershell
-.\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit"
+pwsh -File .\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit"
 ```
 
 文字数を制限して確認する場合:
 
 ```powershell
-.\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit" -MaxChars 4000
+pwsh -File .\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.com/document/d/.../edit" -MaxChars 4000
 ```
 
 運用方針:
@@ -145,13 +145,13 @@ $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
 `review-github-repo-source.ps1` は、`raw/webclip-index/` にある `github.com/owner/repo` 形式の公開GitHub URLを読み取り、README、AGENTS.md、package.json、ルートファイル、GitHubメタ情報を確認して、`reports/github-repo-reviews/` に導入判断レポートを作る。
 
 ```powershell
-.\scripts\review-github-repo-source.ps1
+pwsh -File .\scripts\review-github-repo-source.ps1
 ```
 
 確認だけする場合:
 
 ```powershell
-.\scripts\review-github-repo-source.ps1 -DryRun
+pwsh -File .\scripts\review-github-repo-source.ps1 -DryRun
 ```
 
 GitHub APIの未認証アクセスは回数制限がある。必要な場合は、読み取り専用の `GITHUB_TOKEN` を環境変数に入れる。
@@ -172,3 +172,12 @@ $env:GITHUB_TOKEN = "GitHubの読み取り用トークン"
 - private repo、ログイン必須ページ、GitHub以外の配布ページは対象外。
 - 自動判断は一次判断。実際に導入する前には、Codexがレポートと主要ファイルを読み、既存スキルやプラグインと重複しないかを確認する。
 - 外部コードを実行したり、パッケージをインストールしたりはしない。
+
+## PowerShellと通信停止の防止
+
+Google APIとGitHub APIを使うスクリプトはPowerShell 7（`pwsh`）必須。Windows PowerShell 5の `powershell.exe` では実行しない。
+
+- 各API通信は既定30秒でタイムアウトする。
+- 必要なら `-HttpTimeoutSec 60` のように変更できる。
+- PowerShell 7の中から `powershell -File ...` を二重起動しない。
+- 通信停止時は認証情報を作り直す前に、`pwsh` の使用と443番接続を確認する。

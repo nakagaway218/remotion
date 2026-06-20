@@ -1,7 +1,10 @@
+#Requires -Version 7.0
+
 param(
   [string]$DocumentId,
   [string]$DocumentUrl,
-  [int]$MaxChars = 0
+  [int]$MaxChars = 0,
+  [int]$HttpTimeoutSec = 30
 )
 
 $ErrorActionPreference = "Stop"
@@ -22,7 +25,8 @@ function Get-AccessToken {
     $response = Invoke-RestMethod `
       -Method Post `
       -Uri "https://oauth2.googleapis.com/token" `
-      -Body $body
+      -Body $body `
+      -TimeoutSec $HttpTimeoutSec
 
     return $response.access_token
   }
@@ -55,7 +59,7 @@ if ([string]::IsNullOrWhiteSpace($DocumentId)) {
 
 $accessToken = Get-AccessToken
 $uri = "https://www.googleapis.com/drive/v3/files/$DocumentId/export?mimeType=text/plain"
-$text = Invoke-RestMethod -Headers @{ Authorization = "Bearer $accessToken" } -Uri $uri
+$text = Invoke-RestMethod -Headers @{ Authorization = "Bearer $accessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
 
 if ($MaxChars -gt 0 -and $text.Length -gt $MaxChars) {
   $text = $text.Substring(0, $MaxChars)

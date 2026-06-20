@@ -1,8 +1,11 @@
+#Requires -Version 7.0
+
 param(
   [string]$SpreadsheetId = "1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8",
   [string]$Range = "A1:Z1000",
   [string]$OutputDir = "raw/webclip-index",
   [string]$DriveFolderId = "1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz",
+  [int]$HttpTimeoutSec = 30,
   [switch]$DisableSpreadsheetDiscovery,
   [switch]$DryRun
 )
@@ -25,7 +28,8 @@ function Get-AccessToken {
     $response = Invoke-RestMethod `
       -Method Post `
       -Uri "https://oauth2.googleapis.com/token" `
-      -Body $body
+      -Body $body `
+      -TimeoutSec $HttpTimeoutSec
 
     return $response.access_token
   }
@@ -142,7 +146,7 @@ function Get-DriveFileByName {
   $safeName = $Name -replace "'", "\'"
   $query = "'$FolderId' in parents and name = '$safeName' and trashed = false"
   $uri = "https://www.googleapis.com/drive/v3/files?q=$([uri]::EscapeDataString($query))&fields=files(id,name,webViewLink,mimeType,modifiedTime)&pageSize=1"
-  $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri
+  $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
 
   if ($response.files.Count -gt 0) {
     return $response.files[0]
@@ -168,7 +172,7 @@ function Get-DriveFilesInFolder {
       $uri += "&pageToken=$([uri]::EscapeDataString($pageToken))"
     }
 
-    $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri
+    $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
     if ($response.files) {
       $files += @($response.files)
     }
@@ -281,7 +285,7 @@ function Sync-SpreadsheetRows {
 
   $encodedRange = [uri]::EscapeDataString($Range)
   $sheetsUri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId/values/$encodedRange"
-  $sheet = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $sheetsUri
+  $sheet = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $sheetsUri -TimeoutSec $HttpTimeoutSec
 
   if (-not $sheet.values -or $sheet.values.Count -lt 2) {
     Write-Host "No data rows found in '$SpreadsheetTitle' range $Range."
