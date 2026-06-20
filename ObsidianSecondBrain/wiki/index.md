@@ -39,6 +39,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-19-youtube-gpt-image-2-codex-workflow|GPT-Image-2とCodex活用フロー 要約]]
 - [[reports/2026-06-19-claude-skills-installer-ja-deep-dive|claude-skills-installer-ja 詳細確認]]
 - [[reports/2026-06-19-github-source-review-automation-handoff|公開GitHubリポジトリ導入判断の自動化 引き継ぎ]]
+- [[reports/source-summaries/2026-06-20-youtube-codexを100倍賢くする8つの方法|Codexを100倍賢くする8つの方法 要約]]
 
 ## GitHub Repo Reviews
 
