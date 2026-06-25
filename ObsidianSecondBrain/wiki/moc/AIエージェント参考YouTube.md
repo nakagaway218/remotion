@@ -26,6 +26,13 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 未整理 | Codex自動化 | [[raw/webclip-index/2026-06-16-youtube-非エンジニアでも出来る-codex-のオートメーション機能-自動化-が便利すぎる|非エンジニアでも出来る『Codex』のオートメーション機能（自動化）が便利すぎる]] |
 | 未整理 | Codex入門 | [[raw/webclip-index/2026-06-16-youtube-codex入門-ai知識ゼロでもわかる基礎から応用までを完全解説|【Codex入門】AI知識ゼロでもわかる基礎から応用までを完全解説]] |
 | 未整理 | Codex x ClaudeCode x Obsidian | [[raw/webclip-index/2026-06-16-youtube-超有料級-codexとclaudecodeを100倍賢くするobsidianの使い方を徹底解説しす|【超有料級】CodexとClaudeCodeを100倍賢くするObsidianの使い方を徹底解説しす]] |
+| 要約済み | Obsidian x AI記憶設計 | [[raw/webclip-index/2026-06-22-youtube-超有益-第二の脳であなたの収入が大きく変わります-obsidian|【超有益】第二の脳であなたの収入が大きく変わります【Obsidian】]] |
+| 要約済み | Codex Record & Replay | [[raw/webclip-index/2026-06-24-youtube-record-and-replay-skills|【録画でSkillsに...!?】Codexが発表した新機能がClaudeCodeよりも未来すぎた【Record & Replay】]] |
+| 要約済み | AI社員・会社経営 | [[raw/webclip-index/2026-06-24-youtube-codex会社経営自動化|【実演】Codexを使って会社経営を自動化する裏技を公開します]] |
+| 要約済み | Claude Code x Obsidian | [[raw/webclip-index/2026-06-24-youtube-claude-code-obsidian神活用術|保存版】劇的に作業効率が上がるClaude Codeとobsidianの神活用術を教えます。]] |
+| 要約済み | AI動画編集 | [[raw/webclip-index/2026-06-24-youtube-palmier-ai-video-editor|【無料】CodexやClaudeから動画編集エディタの『Palmier』が最高すぎる]] |
+| 要約済み | Record & Replay実例 | [[raw/webclip-index/2026-06-24-youtube-codex-record-and-replay-workflow|Codexの『Record & Replay』が便利！画面録画がAIスキルになる]] |
+| 要約済み | Codex x Realtime翻訳 | [[raw/webclip-index/2026-06-24-youtube-gpt-realtime-2-codex-translation|今、Codexが熱い！話題の『GPT-Realtime-2』でリアルタイム翻訳アプリ作ってみたら感動した]] |
 
 ## 整理するときの観点
 
@@ -39,4 +46,3 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 - 動画を見たら、各索引ノートの `要点メモ` と `自分のプロジェクトに反映すること` を埋める。
 - 汎用化できる内容は `wiki/` に概念ページとして切り出す。
 - 実務手順として繰り返す内容は、`source-index-sync` のようにスキル化を検討する。
-

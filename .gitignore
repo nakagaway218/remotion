@@ -47,6 +47,11 @@ Webarticle/server*.log
 
 ObsidianSecondBrain/.obsidian/
 
+~$*.xlsx
+~$*.xls
+~$*.docx
+~$*.pptx
+
 # Local secrets and API credentials
 secrets/
 secret/
