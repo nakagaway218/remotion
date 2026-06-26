@@ -47,6 +47,8 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-24-youtube-palmier-ai-video-editor|Palmier AI動画編集 要約]]
 - [[reports/source-summaries/2026-06-24-youtube-codex-record-and-replay-workflow|Codex Record & Replayワークフロー 要約]]
 - [[reports/source-summaries/2026-06-24-youtube-gpt-realtime-2-codex-translation|GPT-Realtime-2とCodex翻訳アプリ 要約]]
+- [[reports/source-summaries/2026-06-25-youtube-codex-line副業|Codex LINE副業 要約]]
+- [[reports/source-summaries/2026-06-26-youtube-codex楽天room副業|Codex楽天ROOM副業 要約]]
 
 ## GitHub Repo Reviews
 

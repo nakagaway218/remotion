@@ -33,6 +33,8 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 要約済み | AI動画編集 | [[raw/webclip-index/2026-06-24-youtube-palmier-ai-video-editor|【無料】CodexやClaudeから動画編集エディタの『Palmier』が最高すぎる]] |
 | 要約済み | Record & Replay実例 | [[raw/webclip-index/2026-06-24-youtube-codex-record-and-replay-workflow|Codexの『Record & Replay』が便利！画面録画がAIスキルになる]] |
 | 要約済み | Codex x Realtime翻訳 | [[raw/webclip-index/2026-06-24-youtube-gpt-realtime-2-codex-translation|今、Codexが熱い！話題の『GPT-Realtime-2』でリアルタイム翻訳アプリ作ってみたら感動した]] |
+| 要約済み | Codex x LINE副業 | [[raw/webclip-index/2026-06-25-youtube-codex-line副業|【９割が知らない】Codexを使って本気でLINE副業する方法を大公開！]] |
+| 要約済み | Codex x 楽天ROOM | [[raw/webclip-index/2026-06-26-youtube-codex楽天room副業|【楽天ROOM副業】Codexで今すぐ稼げる方法教えます]] |
 
 ## 整理するときの観点
 
