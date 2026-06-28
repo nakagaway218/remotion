@@ -58,13 +58,14 @@ Career and education-AI strategy context is stored in:
 CareerAIProject/
 ```
 
-This folder records the user's long-term context for becoming an education AI strategist:
+This folder records neutral working context for the user's education, AI-use, and career hypotheses:
 
-- career and strengths context in `CareerAIProject/CONTEXT.md`
-- AI employee design for career and education-AI work in `CareerAIProject/AI_WORKFORCE.md`
+- neutralized career and education-AI context in `CareerAIProject/CONTEXT.md`
+- bias-review rules in `CareerAIProject/BIAS_REVIEW.md`
+- AI employee design for hypothesis testing in `CareerAIProject/AI_WORKFORCE.md`
 - source conversation notes in `CareerAIProject/chat_logs/`
 
-When the user asks about AI career strategy, education AI consulting, AI tool adoption, teaching-material business design, or sub-agent/AI-employee application in this domain, read `CareerAIProject/CONTEXT.md` first.
+When the user asks about AI career strategy, education AI consulting, AI tool adoption, teaching-material business design, or sub-agent/AI-employee application in this domain, read `CareerAIProject/CONTEXT.md` and `CareerAIProject/BIAS_REVIEW.md` first.
 
 ## Chat Context Preservation
 

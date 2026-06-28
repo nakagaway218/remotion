@@ -65,10 +65,12 @@ If an `.exe` can be recreated from a `.bat` or source script, document the build
 Use `CareerAIProject/` when the task is about education AI strategy, AI consulting, AI tool adoption, teaching-material business design, or the user's long-term career context.
 
 1. Read `CareerAIProject/CONTEXT.md` first.
-2. If the work involves AI employee or sub-agent design, also read `CareerAIProject/AI_WORKFORCE.md`.
-3. Keep public strategy, sanitized examples, prompts, and reusable plans in Git.
-4. Do not commit real student names, school names, customer names, private records, or unpublished client information.
-5. Prefer concrete outputs such as `SERVICE_MENU.md`, `ROADMAP_2026.md`, `PROMPTS.md`, or `CASE_STUDIES.md` over vague notes.
+2. Read `CareerAIProject/BIAS_REVIEW.md` when the source came from a GPTs, information product, course funnel, or sales page.
+3. If the work involves AI employee or sub-agent design, also read `CareerAIProject/AI_WORKFORCE.md`.
+4. Treat career and business claims as hypotheses unless they are verified facts.
+5. Keep public strategy, sanitized examples, prompts, and reusable plans in Git.
+6. Do not commit real student names, school names, customer names, private records, unpublished client information, or unreviewed sales copy.
+7. Prefer concrete outputs such as `SERVICE_HYPOTHESES.md`, `VALIDATION_PLAN.md`, `TOOL_EVALUATION.md`, `PROMPTS.md`, or `CASE_STUDIES.md` over vague notes.
 
 ## Working With Obsidian Second Brain
 
