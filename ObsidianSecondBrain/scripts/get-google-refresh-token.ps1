@@ -47,7 +47,8 @@ $client = Get-OAuthClient -Path $ClientSecretPath
 $redirectUri = "http://127.0.0.1:$Port/"
 $scopes = @(
   "https://www.googleapis.com/auth/drive.readonly",
-  "https://www.googleapis.com/auth/spreadsheets.readonly"
+  "https://www.googleapis.com/auth/drive.file",
+  "https://www.googleapis.com/auth/spreadsheets"
 ) -join " "
 
 $authParams = @{

@@ -71,12 +71,30 @@ wiki反映
 - 要約Markdown作成
 - 索引から要約へのリンク追加
 - 新規・警告・失敗時だけ通知
+- コピー済みTranscriptからGoogle Docsを作成する
+- 作成したDocs URLをSpreadsheetの `要約リンク` 列へ書き戻す
 
 ## まだ手動または半自動の範囲
 
-- YouTube SummaryなどからTranscriptを取得してDocs化する作業
+- YouTube SummaryなどからTranscriptを取得してクリップボードへコピーする作業
 - ブラウザで見ているURLを保存対象として判断する作業
 - 要約からwikiへ昇格する判断
+
+## 壊れにくい半自動フロー
+
+YouTube Summary拡張機能のUI操作は変わりやすいため、そこは手作業に残す。コピー後はGoogle APIで処理する。
+
+```text
+YouTube SummaryでTranscriptをコピー
+↓
+new-youtube-transcript-doc.ps1 を実行
+↓
+動画タイトルを使ったGoogle DocsがDriveフォルダに作成される
+↓
+Spreadsheetの要約リンク列にDocs URLが入る
+↓
+通常のDrive/Sheets同期で読み取り・要約する
+```
 
 ## 発展課題へ進むタイミング
 

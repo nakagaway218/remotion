@@ -140,6 +140,48 @@ pwsh -File .\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.co
 - Git側には `raw/webclip-index/` の索引と、`reports/` の要約だけを置く。
 - 自動確認では、記事索引のURLがGoogle Docsの場合、必要に応じてこのスクリプトで本文を読み、要約レポートを作る。
 
+## YouTube TranscriptからDocsを作りSheetsへリンクする
+
+`new-youtube-transcript-doc.ps1` は、手元でコピー済みのYouTube Transcript、またはテキストファイルからGoogle Docsを作り、対象行の `要約リンク` 列へDocs URLを書き戻す補助スクリプト。
+
+YouTube Summary拡張機能のボタン操作は自動化しない。壊れにくくするため、このスクリプトはGoogle APIでできる範囲だけを担当する。
+Google Docsのタイトルは、対象行の動画タイトルを使い、末尾に `文字起こし` を付ける。別名にしたい場合は `-DocTitle` で指定できる。
+
+```powershell
+pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "https://www.youtube.com/watch?v=..."
+```
+
+テキストファイルから作る場合:
+
+```powershell
+pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -TranscriptTextPath ".\transcript.txt" -VideoUrl "https://www.youtube.com/watch?v=..."
+```
+
+行番号を直接指定する場合:
+
+```powershell
+pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -RowNumber 12
+```
+
+Docsタイトルを明示する場合:
+
+```powershell
+pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "https://www.youtube.com/watch?v=..." -DocTitle "動画タイトル"
+```
+
+確認だけする場合:
+
+```powershell
+pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "https://www.youtube.com/watch?v=..." -DryRun
+```
+
+注意:
+
+- 実行前に、YouTube SummaryなどからTranscript本文をクリップボードへコピーする。
+- `要約リンク` 列が見つからない場合は、列を作ってよいときだけ `-CreateMissingLinkColumn` を付ける。
+- Google Docs作成とSheets書き戻しを行うため、OAuthスコープは `drive.readonly`、`drive.file`、`spreadsheets` が必要。以前の読み取り専用トークンでは動かないため、`get-google-refresh-token.ps1` で再認証する。
+- 文字起こし全文はGitに保存しない。作成されたDocsはGoogle Drive側に置く。
+
 ## 公開GitHubリポジトリを導入判断する
 
 `review-github-repo-source.ps1` は、`raw/webclip-index/` にある `github.com/owner/repo` 形式の公開GitHub URLを読み取り、README、AGENTS.md、package.json、ルートファイル、GitHubメタ情報を確認して、`reports/github-repo-reviews/` に導入判断レポートを作る。
