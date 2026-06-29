@@ -146,6 +146,8 @@ pwsh -File .\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.co
 
 YouTube Summary拡張機能のボタン操作は自動化しない。壊れにくくするため、このスクリプトはGoogle APIでできる範囲だけを担当する。
 Google Docsのタイトルは、対象行の動画タイトルを使い、末尾に `文字起こし` を付ける。別名にしたい場合は `-DocTitle` で指定できる。
+既定では `..\secrets\google-oauth-token.json` を自動で読み込む。
+既定のSpreadsheet IDが読めない場合は、Driveフォルダ内の `AIエージェント参考YouTubeリスト` を名前で探して再試行する。
 
 ```powershell
 pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "https://www.youtube.com/watch?v=..."
@@ -158,6 +160,11 @@ scripts\new-youtube-transcript-doc-from-clipboard.cmd
 ```
 
 実行するとYouTube URLの入力を求められる。先にYouTube SummaryなどでTranscript本文をコピーしておけば、Google Docs作成とSheetsへのリンク書き戻しまで行う。
+もし対象タブを明示したい場合は、次のように `-SheetName` を付ける。
+
+```powershell
+.\scripts\new-youtube-transcript-doc-from-clipboard.cmd -SheetName "シート1"
+```
 
 テキストファイルから作る場合:
 
@@ -188,6 +195,7 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "ht
 - 実行前に、YouTube SummaryなどからTranscript本文をクリップボードへコピーする。
 - `要約リンク` 列が見つからない場合は、列を作ってよいときだけ `-CreateMissingLinkColumn` を付ける。
 - Google Docs作成とSheets書き戻しを行うため、OAuthスコープは `drive.readonly`、`drive.file`、`spreadsheets` が必要。以前の読み取り専用トークンでは動かないため、`get-google-refresh-token.ps1` で再認証する。
+- 現在のトークンに必要なスコープがない場合、スクリプトはAPI実行前に停止して再認証を促す。
 - 文字起こし全文はGitに保存しない。作成されたDocsはGoogle Drive側に置く。
 
 ## 公開GitHubリポジトリを導入判断する

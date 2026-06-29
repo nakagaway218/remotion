@@ -2,6 +2,7 @@
 
 param(
   [string]$SpreadsheetId = "1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8",
+  [string]$SpreadsheetTitle = "AIエージェント参考YouTubeリスト",
   [string]$SheetName = "",
   [string]$Range = "A1:Z1000",
   [string]$DriveFolderId = "1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz",
@@ -12,6 +13,7 @@ param(
   [string]$DocTitle = "",
   [int]$RowNumber = 0,
   [string]$LinkHeader = "要約リンク",
+  [string]$TokenPath = "..\secrets\google-oauth-token.json",
   [switch]$CreateMissingLinkColumn,
   [switch]$NoSheetUpdate,
   [int]$HttpTimeoutSec = 30,
@@ -19,6 +21,42 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+function Initialize-GoogleOAuthEnvironment {
+  if ($env:GOOGLE_ACCESS_TOKEN) {
+    return
+  }
+
+  if ($env:GOOGLE_CLIENT_ID -and $env:GOOGLE_CLIENT_SECRET -and $env:GOOGLE_REFRESH_TOKEN) {
+    return
+  }
+
+  if ([string]::IsNullOrWhiteSpace($TokenPath)) {
+    return
+  }
+
+  $resolvedTokenPath = Resolve-Path -LiteralPath $TokenPath -ErrorAction SilentlyContinue
+  if (-not $resolvedTokenPath) {
+    return
+  }
+
+  $token = Get-Content -LiteralPath $resolvedTokenPath.Path -Raw | ConvertFrom-Json
+  $scope = [string]$token.scope
+  $requiredScopes = @(
+    "https://www.googleapis.com/auth/drive.readonly",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/spreadsheets"
+  )
+
+  $missingScopes = @($requiredScopes | Where-Object { $scope -notmatch [regex]::Escape($_) })
+  if ($missingScopes.Count -gt 0) {
+    throw "OAuth token scope is old or insufficient. Run scripts/get-google-refresh-token.ps1 again. Missing scopes: $($missingScopes -join ', ')"
+  }
+
+  $env:GOOGLE_CLIENT_ID = $token.client_id
+  $env:GOOGLE_CLIENT_SECRET = $token.client_secret
+  $env:GOOGLE_REFRESH_TOKEN = $token.refresh_token
+}
 
 function Get-AccessToken {
   if ($env:GOOGLE_ACCESS_TOKEN) {
@@ -43,6 +81,23 @@ function Get-AccessToken {
   }
 
   throw "Set GOOGLE_ACCESS_TOKEN, or set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN."
+}
+
+function Get-ComparableUrl {
+  param([string]$Value)
+
+  if ([string]::IsNullOrWhiteSpace($Value)) {
+    return ""
+  }
+
+  $trimmed = $Value.Trim()
+  $videoIdMatch = [regex]::Match($trimmed, "(?:youtube\.com/(?:watch\?.*?v=|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})")
+  if ($videoIdMatch.Success) {
+    return "youtube:$($videoIdMatch.Groups[1].Value)"
+  }
+
+  $withoutFragment = ($trimmed -split "#", 2)[0]
+  return $withoutFragment.TrimEnd("/")
 }
 
 function ConvertTo-ColumnName {
@@ -145,8 +200,7 @@ function Get-FirstSheetName {
     [string]$SpreadsheetId
   )
 
-  $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId?fields=sheets(properties(title,index))"
-  $metadata = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
+  $metadata = Get-SpreadsheetMetadata -AccessToken $AccessToken -SpreadsheetId $SpreadsheetId
   $first = @($metadata.sheets | Sort-Object { $_.properties.index } | Select-Object -First 1)
 
   if (-not $first) {
@@ -154,6 +208,71 @@ function Get-FirstSheetName {
   }
 
   return [string]$first.properties.title
+}
+
+function Get-SpreadsheetMetadata {
+  param(
+    [string]$AccessToken,
+    [string]$SpreadsheetId
+  )
+
+  $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId?fields=sheets(properties(title,index))"
+
+  try {
+    return Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
+  }
+  catch {
+    throw "Failed to open spreadsheet metadata: spreadsheet=$SpreadsheetId. If this is a 404, the token cannot access that spreadsheet or the ID is different. Original error: $($_.Exception.Message)"
+  }
+}
+
+function Find-SpreadsheetIdInDriveFolder {
+  param(
+    [string]$AccessToken,
+    [string]$FolderId,
+    [string]$Title
+  )
+
+  if ([string]::IsNullOrWhiteSpace($FolderId) -or [string]::IsNullOrWhiteSpace($Title)) {
+    return ""
+  }
+
+  $query = "'$FolderId' in parents and mimeType = 'application/vnd.google-apps.spreadsheet' and trashed = false"
+  $fields = "files(id,name,webViewLink)"
+  $uri = "https://www.googleapis.com/drive/v3/files?q=$([uri]::EscapeDataString($query))&fields=$([uri]::EscapeDataString($fields))&pageSize=100"
+  $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
+  $match = @($response.files | Where-Object { $_.name -eq $Title } | Select-Object -First 1)
+
+  if ($match) {
+    return [string]$match[0].id
+  }
+
+  return ""
+}
+
+function Resolve-SpreadsheetId {
+  param(
+    [string]$AccessToken,
+    [string]$SpreadsheetId,
+    [string]$SpreadsheetTitle,
+    [string]$DriveFolderId
+  )
+
+  try {
+    Get-SpreadsheetMetadata -AccessToken $AccessToken -SpreadsheetId $SpreadsheetId | Out-Null
+    return $SpreadsheetId
+  }
+  catch {
+    Write-Warning $_.Exception.Message
+  }
+
+  $discoveredId = Find-SpreadsheetIdInDriveFolder -AccessToken $AccessToken -FolderId $DriveFolderId -Title $SpreadsheetTitle
+  if (-not [string]::IsNullOrWhiteSpace($discoveredId)) {
+    Write-Host "Using discovered spreadsheet '$SpreadsheetTitle': $discoveredId"
+    return $discoveredId
+  }
+
+  throw "Could not access spreadsheet '$SpreadsheetId' and could not find '$SpreadsheetTitle' in Drive folder '$DriveFolderId'. Re-authenticate, confirm the Google account, or pass -SpreadsheetId explicitly."
 }
 
 function Get-SheetValues {
@@ -165,9 +284,20 @@ function Get-SheetValues {
   )
 
   $a1 = "$(Escape-SheetName $SheetName)!$Range"
-  $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId/values/$([uri]::EscapeDataString($a1))"
-  $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
-  return @($response.values)
+  $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId/values:batchGet?ranges=$([uri]::EscapeDataString($a1))"
+
+  try {
+    $response = Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
+  }
+  catch {
+    throw "Failed to read sheet values: spreadsheet=$SpreadsheetId, sheet='$SheetName', range=$Range. Original error: $($_.Exception.Message)"
+  }
+
+  if ($response.valueRanges -and $response.valueRanges.Count -gt 0) {
+    return @($response.valueRanges[0].values)
+  }
+
+  return @()
 }
 
 function Find-TargetRow {
@@ -188,7 +318,7 @@ function Find-TargetRow {
     $rowUrl = Get-CellValue $row $HeaderMap @("url", "ｕｒｌ", "link", "リンク", "url_or_link")
     $rowTitle = Get-CellValue $row $HeaderMap @("title", "タイトル", "動画タイトル", "動画名")
 
-    if (-not [string]::IsNullOrWhiteSpace($VideoUrl) -and $rowUrl.Trim() -eq $VideoUrl.Trim()) {
+    if (-not [string]::IsNullOrWhiteSpace($VideoUrl) -and (Get-ComparableUrl $rowUrl) -eq (Get-ComparableUrl $VideoUrl)) {
       return ($i + 1)
     }
 
@@ -260,8 +390,10 @@ function New-GoogleDocFromPlainText {
     -TimeoutSec $HttpTimeoutSec
 }
 
+Initialize-GoogleOAuthEnvironment
 $accessToken = Get-AccessToken
 $text = Get-TranscriptText
+$SpreadsheetId = Resolve-SpreadsheetId -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SpreadsheetTitle $SpreadsheetTitle -DriveFolderId $DriveFolderId
 
 if ([string]::IsNullOrWhiteSpace($SheetName)) {
   $SheetName = Get-FirstSheetName -AccessToken $accessToken -SpreadsheetId $SpreadsheetId
@@ -341,10 +473,10 @@ if (-not $NoSheetUpdate) {
   $columnName = ConvertTo-ColumnName ($linkColumnIndex + 1)
 
   if ($linkColumnIndex -ge $headers.Count) {
-    Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "$columnName`1" -Value $LinkHeader
+    Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${columnName}1" -Value $LinkHeader
   }
 
-  Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "$columnName$rowNumberToUpdate" -Value $docUrl
+  Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${columnName}${rowNumberToUpdate}" -Value $docUrl
 }
 
 Write-Host "Created Google Doc: $docUrl"
