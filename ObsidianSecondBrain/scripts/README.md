@@ -151,6 +151,14 @@ Google Docsのタイトルは、対象行の動画タイトルを使い、末尾
 pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "https://www.youtube.com/watch?v=..."
 ```
 
+PowerShellコマンドを毎回打たない場合は、次の `.cmd` を使う。
+
+```text
+scripts\new-youtube-transcript-doc-from-clipboard.cmd
+```
+
+実行するとYouTube URLの入力を求められる。先にYouTube SummaryなどでTranscript本文をコピーしておけば、Google Docs作成とSheetsへのリンク書き戻しまで行う。
+
 テキストファイルから作る場合:
 
 ```powershell

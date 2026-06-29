@@ -87,7 +87,7 @@ YouTube Summary拡張機能のUI操作は変わりやすいため、そこは手
 ```text
 YouTube SummaryでTranscriptをコピー
 ↓
-new-youtube-transcript-doc.ps1 を実行
+new-youtube-transcript-doc-from-clipboard.cmd を実行
 ↓
 動画タイトルを使ったGoogle DocsがDriveフォルダに作成される
 ↓
