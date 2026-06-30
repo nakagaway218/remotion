@@ -178,6 +178,20 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -TranscriptTextPath ".\trans
 pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -RowNumber 12
 ```
 
+`.cmd` から行番号を指定する場合:
+
+```powershell
+.\scripts\new-youtube-transcript-doc-from-clipboard.cmd -RowNumber 12
+```
+
+URLで対象行が見つからない場合は、SpreadsheetにそのYouTube URLが入っているか確認する。URLが入っていない、または列名が特殊な場合は、`-RowNumber` で対象行を直接指定する。
+
+Docs作成は成功したがSheets書き戻しで止まった場合は、作成済みDocs URLを再利用してリンクだけ書き戻せる。
+
+```powershell
+.\scripts\new-youtube-transcript-doc-from-clipboard.cmd -RowNumber 12 -ExistingDocUrl "https://docs.google.com/document/d/.../edit?usp=drivesdk"
+```
+
 Docsタイトルを明示する場合:
 
 ```powershell
@@ -197,6 +211,22 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "ht
 - Google Docs作成とSheets書き戻しを行うため、OAuthスコープは `drive.readonly`、`drive.file`、`spreadsheets` が必要。以前の読み取り専用トークンでは動かないため、`get-google-refresh-token.ps1` で再認証する。
 - 現在のトークンに必要なスコープがない場合、スクリプトはAPI実行前に停止して再認証を促す。
 - 文字起こし全文はGitに保存しない。作成されたDocsはGoogle Drive側に置く。
+
+### Googleアクセス診断
+
+再認証後もSpreadsheetやDriveフォルダが404になる場合は、保存済みOAuthトークンで見えているGoogleアカウントと対象ファイルを確認する。
+
+```powershell
+pwsh -File .\scripts\diagnose-google-source-access.ps1
+```
+
+確認する項目:
+
+- OAuthトークンの作成日時とスコープ
+- Drive API上のユーザー
+- DriveフォルダIDが見えるか
+- フォルダ内のSpreadsheet一覧
+- 対象Spreadsheet IDがSheets APIで開けるか
 
 ## 公開GitHubリポジトリを導入判断する
 

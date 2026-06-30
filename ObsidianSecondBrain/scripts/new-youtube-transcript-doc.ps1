@@ -8,6 +8,7 @@ param(
   [string]$DriveFolderId = "1f3WY-zSl1D7AAPdOUz8Spyz-y19gzvTz",
   [string]$TranscriptTextPath = "",
   [switch]$FromClipboard,
+  [string]$ExistingDocUrl = "",
   [string]$VideoUrl = "",
   [string]$Title = "",
   [string]$DocTitle = "",
@@ -216,7 +217,7 @@ function Get-SpreadsheetMetadata {
     [string]$SpreadsheetId
   )
 
-  $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId?fields=sheets(properties(title,index))"
+  $uri = "https://sheets.googleapis.com/v4/spreadsheets/${SpreadsheetId}?fields=sheets(properties(title,index))"
 
   try {
     return Invoke-RestMethod -Headers @{ Authorization = "Bearer $AccessToken" } -Uri $uri -TimeoutSec $HttpTimeoutSec
@@ -313,12 +314,19 @@ function Find-TargetRow {
     return $RowNumber
   }
 
+  $targetComparableUrl = Get-ComparableUrl $VideoUrl
+  $seenUrls = @()
+
   for ($i = 1; $i -lt $Rows.Count; $i++) {
     $row = @($Rows[$i])
-    $rowUrl = Get-CellValue $row $HeaderMap @("url", "ｕｒｌ", "link", "リンク", "url_or_link")
-    $rowTitle = Get-CellValue $row $HeaderMap @("title", "タイトル", "動画タイトル", "動画名")
+    $rowUrl = Get-CellValue $row $HeaderMap @("url", "ｕｒｌ", "URL", "ＵＲＬ", "youtube_url", "YouTube URL", "YouTube", "link", "リンク", "url_or_link")
+    $rowTitle = Get-CellValue $row $HeaderMap @("title", "タイトル", "動画タイトル", "動画名", "name", "名称")
 
-    if (-not [string]::IsNullOrWhiteSpace($VideoUrl) -and (Get-ComparableUrl $rowUrl) -eq (Get-ComparableUrl $VideoUrl)) {
+    if (-not [string]::IsNullOrWhiteSpace($rowUrl)) {
+      $seenUrls += "row $($i + 1): $rowUrl"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($VideoUrl) -and (Get-ComparableUrl $rowUrl) -eq $targetComparableUrl) {
       return ($i + 1)
     }
 
@@ -327,7 +335,10 @@ function Find-TargetRow {
     }
   }
 
-  throw "Target row not found. Set -VideoUrl, -Title, or explicit -RowNumber."
+  $sampleUrls = if ($seenUrls.Count -gt 0) { ($seenUrls | Select-Object -First 10) -join "; " } else { "(no URL-like values found in recognized URL columns)" }
+  $knownHeaders = if ($HeaderMap.Keys.Count -gt 0) { ($HeaderMap.Keys | Sort-Object) -join ", " } else { "(no headers detected)" }
+
+  throw "Target row not found for VideoUrl='$VideoUrl' normalized='$targetComparableUrl'. Headers=$knownHeaders. Candidate URLs=$sampleUrls. Add the YouTube URL to the sheet first, or rerun with -RowNumber for the target row."
 }
 
 function Invoke-SheetsValueUpdate {
@@ -341,7 +352,7 @@ function Invoke-SheetsValueUpdate {
 
   $rangeName = "$(Escape-SheetName $SheetName)!$A1Cell"
   $uri = "https://sheets.googleapis.com/v4/spreadsheets/$SpreadsheetId/values/$([uri]::EscapeDataString($rangeName))?valueInputOption=USER_ENTERED"
-  $body = @{ values = @(@($Value)) } | ConvertTo-Json -Depth 4
+  $body = @{ values = @(, @($Value)) } | ConvertTo-Json -Depth 4
 
   Invoke-RestMethod `
     -Method Put `
@@ -392,7 +403,12 @@ function New-GoogleDocFromPlainText {
 
 Initialize-GoogleOAuthEnvironment
 $accessToken = Get-AccessToken
-$text = Get-TranscriptText
+if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+  $text = Get-TranscriptText
+}
+else {
+  $text = ""
+}
 $SpreadsheetId = Resolve-SpreadsheetId -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SpreadsheetTitle $SpreadsheetTitle -DriveFolderId $DriveFolderId
 
 if ([string]::IsNullOrWhiteSpace($SheetName)) {
@@ -415,8 +431,8 @@ for ($i = 0; $i -lt $headers.Count; $i++) {
 
 $rowNumberToUpdate = Find-TargetRow -Rows $rows -HeaderMap $headerMap -VideoUrl $VideoUrl -Title $Title -RowNumber $RowNumber
 $targetRow = @($rows[$rowNumberToUpdate - 1])
-$rowTitle = Get-CellValue $targetRow $headerMap @("title", "タイトル", "動画タイトル", "動画名")
-$rowUrl = Get-CellValue $targetRow $headerMap @("url", "ｕｒｌ", "link", "リンク", "url_or_link")
+$rowTitle = Get-CellValue $targetRow $headerMap @("title", "タイトル", "動画タイトル", "動画名", "name", "名称")
+$rowUrl = Get-CellValue $targetRow $headerMap @("url", "ｕｒｌ", "URL", "ＵＲＬ", "youtube_url", "YouTube URL", "YouTube", "link", "リンク", "url_or_link")
 
 if ([string]::IsNullOrWhiteSpace($Title)) {
   $Title = $rowTitle
@@ -459,15 +475,25 @@ if ($linkColumnIndex -lt 0 -and -not $NoSheetUpdate) {
 if ($DryRun) {
   Write-Host "DryRun: would create Google Doc in folder $DriveFolderId"
   Write-Host "DryRun: doc name: $docName"
-  Write-Host "DryRun: transcript chars: $($text.Length)"
+  if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+    Write-Host "DryRun: transcript chars: $($text.Length)"
+  }
+  else {
+    Write-Host "DryRun: would reuse existing Google Doc: $ExistingDocUrl"
+  }
   if (-not $NoSheetUpdate) {
     Write-Host "DryRun: would update row $rowNumberToUpdate, column $(ConvertTo-ColumnName ($linkColumnIndex + 1)) in sheet '$SheetName'"
   }
   exit 0
 }
 
-$doc = New-GoogleDocFromPlainText -AccessToken $accessToken -DriveFolderId $DriveFolderId -Name $docName -Text $text
-$docUrl = [string]$doc.webViewLink
+if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+  $doc = New-GoogleDocFromPlainText -AccessToken $accessToken -DriveFolderId $DriveFolderId -Name $docName -Text $text
+  $docUrl = [string]$doc.webViewLink
+}
+else {
+  $docUrl = $ExistingDocUrl
+}
 
 if (-not $NoSheetUpdate) {
   $columnName = ConvertTo-ColumnName ($linkColumnIndex + 1)
@@ -479,7 +505,12 @@ if (-not $NoSheetUpdate) {
   Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${columnName}${rowNumberToUpdate}" -Value $docUrl
 }
 
-Write-Host "Created Google Doc: $docUrl"
+if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+  Write-Host "Created Google Doc: $docUrl"
+}
+else {
+  Write-Host "Reused Google Doc: $docUrl"
+}
 if (-not [string]::IsNullOrWhiteSpace($rowUrl)) {
   Write-Host "Matched source URL: $rowUrl"
 }

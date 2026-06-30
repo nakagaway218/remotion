@@ -4,6 +4,7 @@ param(
   [string]$VideoUrl = "",
   [int]$RowNumber = 0,
   [string]$DocTitle = "",
+  [string]$ExistingDocUrl = "",
   [string]$SpreadsheetId = "1SJAAR1_qG7UWQtumyUIGMi7V1e3h0PNRP6LK836LDD8",
   [string]$SpreadsheetTitle = "AIエージェント参考YouTubeリスト",
   [string]$SheetName = "",
@@ -21,16 +22,24 @@ if ($RowNumber -lt 1 -and [string]::IsNullOrWhiteSpace($VideoUrl)) {
   $VideoUrl = Read-Host "YouTube URLを貼り付けてください"
 }
 
-$clipboard = Get-Clipboard -Raw
-if ([string]::IsNullOrWhiteSpace($clipboard)) {
-  throw "クリップボードが空です。先にYouTube SummaryのTranscript本文をコピーしてください。"
+if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+  $clipboard = Get-Clipboard -Raw
+  if ([string]::IsNullOrWhiteSpace($clipboard)) {
+    throw "クリップボードが空です。先にYouTube SummaryのTranscript本文をコピーしてください。"
+  }
 }
 
 $paramsForScript = @{
-  FromClipboard = $true
   SpreadsheetId = $SpreadsheetId
   SpreadsheetTitle = $SpreadsheetTitle
   TokenPath = $TokenPath
+}
+
+if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
+  $paramsForScript.FromClipboard = $true
+}
+else {
+  $paramsForScript.ExistingDocUrl = $ExistingDocUrl
 }
 
 if (-not [string]::IsNullOrWhiteSpace($SheetName)) {
