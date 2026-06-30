@@ -49,6 +49,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-24-youtube-gpt-realtime-2-codex-translation|GPT-Realtime-2とCodex翻訳アプリ 要約]]
 - [[reports/source-summaries/2026-06-25-youtube-codex-line副業|Codex LINE副業 要約]]
 - [[reports/source-summaries/2026-06-26-youtube-codex楽天room副業|Codex楽天ROOM副業 要約]]
+- [[reports/2026-06-30-youtube-transcript-docs-workflow-fix|YouTube Transcript Docs作成フローの失敗と修正]]
 
 ## GitHub Repo Reviews
 

@@ -12,6 +12,10 @@ param(
   [string]$VideoUrl = "",
   [string]$Title = "",
   [string]$DocTitle = "",
+  [switch]$FillBlankMetadata,
+  [switch]$FillBlankUrl,
+  [int]$MinTranscriptChars = 200,
+  [switch]$AllowShortTranscript,
   [int]$RowNumber = 0,
   [string]$LinkHeader = "要約リンク",
   [string]$TokenPath = "..\secrets\google-oauth-token.json",
@@ -178,6 +182,7 @@ function Get-TranscriptText {
     if ([string]::IsNullOrWhiteSpace($text)) {
       throw "Clipboard is empty. Copy the transcript text first."
     }
+    Assert-TranscriptTextLooksSafe -Text $text -Source "clipboard" -MinChars $MinTranscriptChars -AllowShortTranscript:$AllowShortTranscript
     return $text
   }
 
@@ -189,10 +194,41 @@ function Get-TranscriptText {
     if ([string]::IsNullOrWhiteSpace($text)) {
       throw "Transcript text file is empty: $TranscriptTextPath"
     }
+    Assert-TranscriptTextLooksSafe -Text $text -Source $TranscriptTextPath -MinChars $MinTranscriptChars -AllowShortTranscript:$AllowShortTranscript
     return $text
   }
 
   throw "Use -FromClipboard or set -TranscriptTextPath."
+}
+
+function Assert-TranscriptTextLooksSafe {
+  param(
+    [string]$Text,
+    [string]$Source,
+    [int]$MinChars = 200,
+    [switch]$AllowShortTranscript
+  )
+
+  $trimmed = $Text.Trim()
+  $commandPatterns = @(
+    '(?im)^\s*cd\s+',
+    '(?im)^\s*powershell\s+',
+    '(?im)^\s*pwsh\s+',
+    '(?im)^\s*\.\s*\\scripts\\',
+    '(?im)new-youtube-transcript-doc',
+    '(?im)get-google-refresh-token',
+    '(?im)diagnose-google-source-access'
+  )
+
+  foreach ($pattern in $commandPatterns) {
+    if ($trimmed -match $pattern) {
+      throw "The $Source content looks like a command, not a YouTube Transcript. Copy the Transcript text again, then rerun this script."
+    }
+  }
+
+  if (-not $AllowShortTranscript -and $trimmed.Length -lt $MinChars) {
+    throw "The $Source content is too short ($($trimmed.Length) chars) to be treated as a YouTube Transcript. Copy the full Transcript text, then rerun this script."
+  }
 }
 
 function Get-FirstSheetName {
@@ -362,6 +398,43 @@ function Invoke-SheetsValueUpdate {
     -TimeoutSec $HttpTimeoutSec | Out-Null
 }
 
+function Get-FirstHeaderIndex {
+  param(
+    [hashtable]$HeaderMap,
+    [string[]]$Names
+  )
+
+  foreach ($name in $Names) {
+    $normalized = Normalize-Header $name
+    if ($HeaderMap.ContainsKey($normalized)) {
+      return [int]$HeaderMap[$normalized]
+    }
+
+    if ($HeaderMap.ContainsKey($name)) {
+      return [int]$HeaderMap[$name]
+    }
+  }
+
+  return -1
+}
+
+function Test-RowCellBlank {
+  param(
+    [object[]]$Row,
+    [int]$Index
+  )
+
+  if ($Index -lt 0) {
+    return $false
+  }
+
+  if ($Index -ge $Row.Count) {
+    return $true
+  }
+
+  return [string]::IsNullOrWhiteSpace([string]$Row[$Index])
+}
+
 function New-GoogleDocFromPlainText {
   param(
     [string]$AccessToken,
@@ -438,9 +511,17 @@ if ([string]::IsNullOrWhiteSpace($Title)) {
   $Title = $rowTitle
 }
 
+if ([string]::IsNullOrWhiteSpace($VideoUrl)) {
+  $VideoUrl = $rowUrl
+}
+
 $baseDocTitle = if (-not [string]::IsNullOrWhiteSpace($DocTitle)) { $DocTitle } else { $Title }
 if ([string]::IsNullOrWhiteSpace($baseDocTitle)) {
   $baseDocTitle = "YouTube transcript"
+}
+
+if ([string]::IsNullOrWhiteSpace($Title) -and -not [string]::IsNullOrWhiteSpace($DocTitle)) {
+  $Title = $DocTitle
 }
 
 $docName = "$(Get-SafeDocName $baseDocTitle) 文字起こし"
@@ -503,6 +584,31 @@ if (-not $NoSheetUpdate) {
   }
 
   Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${columnName}${rowNumberToUpdate}" -Value $docUrl
+
+  if ($FillBlankMetadata) {
+    $dateColumnIndex = Get-FirstHeaderIndex $headerMap @("date", "追加日", "日付", "登録日", "作成日")
+    if (Test-RowCellBlank -Row $targetRow -Index $dateColumnIndex) {
+      $dateColumnName = ConvertTo-ColumnName ($dateColumnIndex + 1)
+      Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${dateColumnName}${rowNumberToUpdate}" -Value (Get-Date -Format "yyyy-MM-dd")
+      Write-Host "Filled date column '$dateColumnName' on row $rowNumberToUpdate."
+    }
+
+    $titleColumnIndex = Get-FirstHeaderIndex $headerMap @("title", "タイトル", "動画タイトル", "動画名", "name", "名称")
+    if ((Test-RowCellBlank -Row $targetRow -Index $titleColumnIndex) -and -not [string]::IsNullOrWhiteSpace($Title)) {
+      $titleColumnName = ConvertTo-ColumnName ($titleColumnIndex + 1)
+      Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${titleColumnName}${rowNumberToUpdate}" -Value $Title
+      Write-Host "Filled title column '$titleColumnName' on row $rowNumberToUpdate."
+    }
+
+    if ($FillBlankUrl) {
+      $urlColumnIndex = Get-FirstHeaderIndex $headerMap @("url", "ｕｒｌ", "URL", "ＵＲＬ", "youtube_url", "YouTube URL", "YouTube", "link", "リンク", "url_or_link")
+      if ((Test-RowCellBlank -Row $targetRow -Index $urlColumnIndex) -and -not [string]::IsNullOrWhiteSpace($VideoUrl)) {
+        $urlColumnName = ConvertTo-ColumnName ($urlColumnIndex + 1)
+        Invoke-SheetsValueUpdate -AccessToken $accessToken -SpreadsheetId $SpreadsheetId -SheetName $SheetName -A1Cell "${urlColumnName}${rowNumberToUpdate}" -Value $VideoUrl
+        Write-Host "Filled URL column '$urlColumnName' on row $rowNumberToUpdate."
+      }
+    }
+  }
 }
 
 if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {

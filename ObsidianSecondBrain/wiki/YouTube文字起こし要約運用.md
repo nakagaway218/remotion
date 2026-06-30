@@ -85,16 +85,26 @@ wiki反映
 YouTube Summary拡張機能のUI操作は変わりやすいため、そこは手作業に残す。コピー後はGoogle APIで処理する。
 
 ```text
-YouTube SummaryでTranscriptをコピー
-↓
 new-youtube-transcript-doc-from-clipboard.cmd を実行
+↓
+URLと動画タイトルを入力する
+↓
+表示に従ってYouTube SummaryでTranscript本文をコピーし、PowerShellに戻ってEnter
 ↓
 動画タイトルを使ったGoogle DocsがDriveフォルダに作成される
 ↓
-Spreadsheetの要約リンク列にDocs URLが入る
+Spreadsheetの追加日・動画名・URL・要約リンクが補完される
 ↓
 通常のDrive/Sheets同期で読み取り・要約する
 ```
+
+## クリップボード運用の注意
+
+- クリップボードは1つだけなので、`.cmd`実行用コマンドをコピーするとTranscript本文は上書きされる。
+- 安定運用では、`.cmd`を起動してURL・動画タイトルを入力した後、スクリプトの表示に従ってTranscriptをコピーする。
+- 動画タイトルはDocsタイトルとSpreadsheetの `動画名` に使う。Docs本文には入れない。
+- Transcript本文だけをDocs本文に入れる。
+- 間違ってコマンド文や動画タイトルだけをコピーしている場合、スクリプトはコピーし直しを促す。
 
 ## 発展課題へ進むタイミング
 
@@ -106,5 +116,6 @@ Spreadsheetの要約リンク列にDocs URLが入る
 ## 関連
 
 - [[reports/2026-06-18-youtube-transcript-automation-handoff|YouTube文字起こしとGoogle Drive同期自動化 引き継ぎ]]
+- [[reports/2026-06-30-youtube-transcript-docs-workflow-fix|YouTube Transcript Docs作成フローの失敗と修正]]
 - [[raw/google-drive-source|Google Drive raw保存先]]
 - [[scripts/README|Google API Sync Scripts]]

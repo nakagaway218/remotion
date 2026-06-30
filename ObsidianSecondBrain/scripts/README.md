@@ -160,6 +160,8 @@ scripts\new-youtube-transcript-doc-from-clipboard.cmd
 ```
 
 実行するとYouTube URLの入力を求められる。先にYouTube SummaryなどでTranscript本文をコピーしておけば、Google Docs作成とSheetsへのリンク書き戻しまで行う。
+続けて動画タイトルの入力を求められる。入力したタイトルは、Docsタイトルに使われ、Spreadsheetの `動画名` が空欄なら補完される。`追加日` が空欄なら今日の日付で補完される。`URL` が空欄で、実行時にYouTube URLを入力している場合はURLも補完される。
+動画タイトルは入力推奨。空Enterでも実行は続くが、Docsタイトルは `YouTube transcript 文字起こし` になり、Spreadsheetの `動画名` は空欄のままになる。
 もし対象タブを明示したい場合は、次のように `-SheetName` を付ける。
 
 ```powershell
@@ -207,6 +209,9 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "ht
 注意:
 
 - 実行前に、YouTube SummaryなどからTranscript本文をクリップボードへコピーする。
+- クリップボードにPowerShellコマンドが残っている場合は停止する。Docs本文がコマンド文になるのを防ぐため。
+- クリップボードの本文が短い場合は確認してから進む。`N` を選ぶと、スクリプトを終了せず、Transcriptをコピーし直してEnterで再確認できる。動画タイトルだけの場合もコピーし直しを促す。既定では200文字未満を短いTranscriptとして確認対象にする。
+- `.cmd` では空欄の `追加日`、`動画名`、`URL` を補完する。補完したくない場合は `-NoFillBlankMetadata` を付ける。
 - `要約リンク` 列が見つからない場合は、列を作ってよいときだけ `-CreateMissingLinkColumn` を付ける。
 - Google Docs作成とSheets書き戻しを行うため、OAuthスコープは `drive.readonly`、`drive.file`、`spreadsheets` が必要。以前の読み取り専用トークンでは動かないため、`get-google-refresh-token.ps1` で再認証する。
 - 現在のトークンに必要なスコープがない場合、スクリプトはAPI実行前に停止して再認証を促す。
