@@ -105,6 +105,28 @@ function Get-ComparableUrl {
   return $withoutFragment.TrimEnd("/")
 }
 
+function Get-YouTubeOEmbedTitle {
+  param([string]$Url)
+
+  if ([string]::IsNullOrWhiteSpace($Url)) {
+    return ""
+  }
+
+  if ((Get-ComparableUrl $Url) -notmatch '^youtube:') {
+    return ""
+  }
+
+  $oEmbedUrl = "https://www.youtube.com/oembed?url=$([uri]::EscapeDataString($Url.Trim()))&format=json"
+  try {
+    $response = Invoke-RestMethod -Uri $oEmbedUrl -TimeoutSec $HttpTimeoutSec
+    return [string]$response.title
+  }
+  catch {
+    Write-Warning "Could not fetch YouTube title automatically: $($_.Exception.Message)"
+    return ""
+  }
+}
+
 function ConvertTo-ColumnName {
   param([int]$Index)
 
@@ -174,6 +196,62 @@ function Escape-SheetName {
   param([string]$Value)
 
   return "'" + ($Value -replace "'", "''") + "'"
+}
+
+function Get-GoogleDriveFileIdFromUrl {
+  param([string]$Url)
+
+  if ([string]::IsNullOrWhiteSpace($Url)) {
+    return ""
+  }
+
+  $patterns = @(
+    '/d/([^/?#]+)',
+    '[?&]id=([^&#]+)'
+  )
+
+  foreach ($pattern in $patterns) {
+    $match = [regex]::Match($Url, $pattern)
+    if ($match.Success) {
+      return [uri]::UnescapeDataString($match.Groups[1].Value)
+    }
+  }
+
+  return ""
+}
+
+function Rename-GoogleDriveFile {
+  param(
+    [string]$AccessToken,
+    [string]$FileUrl,
+    [string]$Name
+  )
+
+  if ([string]::IsNullOrWhiteSpace($FileUrl) -or [string]::IsNullOrWhiteSpace($Name)) {
+    return
+  }
+
+  $fileId = Get-GoogleDriveFileIdFromUrl -Url $FileUrl
+  if ([string]::IsNullOrWhiteSpace($fileId)) {
+    Write-Warning "Could not parse Google Drive file ID from ExistingDocUrl; skipped renaming."
+    return
+  }
+
+  $uri = "https://www.googleapis.com/drive/v3/files/$fileId?fields=id,name"
+  $body = @{ name = $Name } | ConvertTo-Json -Depth 3
+
+  try {
+    Invoke-RestMethod `
+      -Method Patch `
+      -Headers @{ Authorization = "Bearer $AccessToken"; "Content-Type" = "application/json" } `
+      -Uri $uri `
+      -Body $body `
+      -TimeoutSec $HttpTimeoutSec | Out-Null
+    Write-Host "Renamed existing Google Doc to: $Name"
+  }
+  catch {
+    Write-Warning "Could not rename existing Google Doc: $($_.Exception.Message)"
+  }
 }
 
 function Get-TranscriptText {
@@ -515,6 +593,15 @@ if ([string]::IsNullOrWhiteSpace($VideoUrl)) {
   $VideoUrl = $rowUrl
 }
 
+if ([string]::IsNullOrWhiteSpace($Title) -and [string]::IsNullOrWhiteSpace($DocTitle)) {
+  $autoTitle = Get-YouTubeOEmbedTitle -Url $VideoUrl
+  if (-not [string]::IsNullOrWhiteSpace($autoTitle)) {
+    $Title = $autoTitle
+    $DocTitle = $autoTitle
+    Write-Host "Fetched YouTube title: $autoTitle"
+  }
+}
+
 $baseDocTitle = if (-not [string]::IsNullOrWhiteSpace($DocTitle)) { $DocTitle } else { $Title }
 if ([string]::IsNullOrWhiteSpace($baseDocTitle)) {
   $baseDocTitle = "YouTube transcript"
@@ -574,6 +661,7 @@ if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
 }
 else {
   $docUrl = $ExistingDocUrl
+  Rename-GoogleDriveFile -AccessToken $accessToken -FileUrl $ExistingDocUrl -Name $docName
 }
 
 if (-not $NoSheetUpdate) {

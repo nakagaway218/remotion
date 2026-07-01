@@ -145,7 +145,7 @@ pwsh -File .\scripts\get-drive-doc-text.ps1 -DocumentUrl "https://docs.google.co
 `new-youtube-transcript-doc.ps1` は、手元でコピー済みのYouTube Transcript、またはテキストファイルからGoogle Docsを作り、対象行の `要約リンク` 列へDocs URLを書き戻す補助スクリプト。
 
 YouTube Summary拡張機能のボタン操作は自動化しない。壊れにくくするため、このスクリプトはGoogle APIでできる範囲だけを担当する。
-Google Docsのタイトルは、対象行の動画タイトルを使い、末尾に `文字起こし` を付ける。別名にしたい場合は `-DocTitle` で指定できる。
+Google Docsのタイトルは、対象行の動画タイトル、またはYouTube URLから自動取得したタイトルを使い、末尾に `文字起こし` を付ける。別名にしたい場合は `-DocTitle` で指定できる。
 既定では `..\secrets\google-oauth-token.json` を自動で読み込む。
 既定のSpreadsheet IDが読めない場合は、Driveフォルダ内の `AIエージェント参考YouTubeリスト` を名前で探して再試行する。
 
@@ -160,8 +160,8 @@ scripts\new-youtube-transcript-doc-from-clipboard.cmd
 ```
 
 実行するとYouTube URLの入力を求められる。先にYouTube SummaryなどでTranscript本文をコピーしておけば、Google Docs作成とSheetsへのリンク書き戻しまで行う。
-続けて動画タイトルの入力を求められる。入力したタイトルは、Docsタイトルに使われ、Spreadsheetの `動画名` が空欄なら補完される。`追加日` が空欄なら今日の日付で補完される。`URL` が空欄で、実行時にYouTube URLを入力している場合はURLも補完される。
-動画タイトルは入力推奨。空Enterでも実行は続くが、Docsタイトルは `YouTube transcript 文字起こし` になり、Spreadsheetの `動画名` は空欄のままになる。
+動画タイトルは、対象行の `動画名` が空欄ならYouTube URLから自動取得を試みる。取得できたタイトルはDocsタイトルに使われ、Spreadsheetの `動画名` が空欄なら補完される。`追加日` が空欄なら今日の日付で補完される。`URL` が空欄で、実行時にYouTube URLを入力している場合はURLも補完される。
+自動取得できない場合や別名にしたい場合だけ、`-DocTitle "動画タイトル"` を付けて手動指定する。
 もし対象タブを明示したい場合は、次のように `-SheetName` を付ける。
 
 ```powershell
@@ -189,6 +189,7 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -RowNumber 12
 URLで対象行が見つからない場合は、SpreadsheetにそのYouTube URLが入っているか確認する。URLが入っていない、または列名が特殊な場合は、`-RowNumber` で対象行を直接指定する。
 
 Docs作成は成功したがSheets書き戻しで止まった場合は、作成済みDocs URLを再利用してリンクだけ書き戻せる。
+この場合も、アクセス権があれば既存Docsのタイトルを動画タイトルベースの `... 文字起こし` にそろえる。
 
 ```powershell
 .\scripts\new-youtube-transcript-doc-from-clipboard.cmd -RowNumber 12 -ExistingDocUrl "https://docs.google.com/document/d/.../edit?usp=drivesdk"

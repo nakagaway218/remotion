@@ -26,7 +26,7 @@ if ($RowNumber -lt 1 -and [string]::IsNullOrWhiteSpace($VideoUrl)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($DocTitle)) {
-  $DocTitle = Read-Host "動画タイトルを入力してください（推奨。空EnterならDocsタイトルと動画名は未設定）"
+  Write-Host "動画タイトルはYouTube URLから自動取得します。うまく取得できない場合だけ -DocTitle で指定してください。"
 }
 
 if ([string]::IsNullOrWhiteSpace($ExistingDocUrl)) {
