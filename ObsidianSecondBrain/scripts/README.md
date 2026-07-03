@@ -218,6 +218,22 @@ pwsh -File .\scripts\new-youtube-transcript-doc.ps1 -FromClipboard -VideoUrl "ht
 - 現在のトークンに必要なスコープがない場合、スクリプトはAPI実行前に停止して再認証を促す。
 - 文字起こし全文はGitに保存しない。作成されたDocsはGoogle Drive側に置く。
 
+## Google Apps ScriptでSpreadsheet上からDocsを作る
+
+PowerShellではなくSpreadsheet上で処理したい場合は、`google-apps-script/youtube-transcript-docs.gs` を使う。
+
+```text
+Transcript列に文字起こし本文を貼る
+↓
+Spreadsheetのメニューから実行
+↓
+Google Docs作成
+↓
+要約リンク列へDocs URLを書き戻し
+```
+
+詳細は `scripts/google-apps-script/README.md` を参照する。
+
 ### Googleアクセス診断
 
 再認証後もSpreadsheetやDriveフォルダが404になる場合は、保存済みOAuthトークンで見えているGoogleアカウントと対象ファイルを確認する。
