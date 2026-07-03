@@ -55,6 +55,8 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-06-29-youtube-obsidian神メモアプリ|Obsidian神メモアプリ 要約]]
 - [[reports/source-summaries/2026-06-30-youtube-obsidian第二の脳入門|Obsidian第二の脳入門 要約]]
 - [[reports/source-summaries/2026-07-01-youtube-codex-x投稿自動化|Codex X投稿自動化 要約]]
+- [[reports/source-summaries/2026-07-02-youtube-codex使い方完全ガイド|Codex使い方完全ガイド 要約]]
+- [[reports/source-summaries/2026-07-02-youtube-codex全体像15分|Codex全体像15分 要約]]
 
 ## GitHub Repo Reviews
 

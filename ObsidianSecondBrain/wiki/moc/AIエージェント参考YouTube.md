@@ -39,6 +39,8 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 要約済み | Obsidian第二の脳 | [[raw/webclip-index/2026-06-29-youtube-実演あり-notionよりやは-い-神メモアフ-リ-obsidian-新時代の使い方を紹介します-初心者ok|【実演あり】Notionよりやばい！神メモアプリ「Obsidian」新時代の使い方を紹介します！【初心者OK】]] |
 | 要約済み | Obsidian第二の脳 | [[raw/webclip-index/2026-06-30-youtube-超入門-話題の-obsidian-で第二の脳を構築し-インプットした知識を永久資産に変える方法|【超入門】話題の「Obsidian」で第二の脳を構築し、インプットした知識を永久資産に変える方法]] |
 | 要約済み | Codex Record & Replay / X投稿自動化 | [[raw/webclip-index/2026-07-01-youtube-初心者必見-codexでxの投稿を量産する方法を見つけました|【初心者必見】CodexでXの投稿を量産する方法を見つけました]] |
+| 要約済み | Codex入門・使い方 | [[raw/webclip-index/2026-07-02-youtube-徹底解説-初心者でもわかるcodexの使い方完全ガイド|【徹底解説】初心者でもわかるCodexの使い方完全ガイド]] |
+| 要約済み | Codexデスクトップアプリ全体像 | [[raw/webclip-index/2026-07-02-youtube-初心者もchatgpt感覚で触れる-codexの全体像をたった15分で解説|【初心者もChatGPT感覚で触れる】Codexの全体像をたった15分で解説]] |
 
 ## 整理するときの観点
 
