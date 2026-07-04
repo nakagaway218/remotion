@@ -57,6 +57,13 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-01-youtube-codex-x投稿自動化|Codex X投稿自動化 要約]]
 - [[reports/source-summaries/2026-07-02-youtube-codex使い方完全ガイド|Codex使い方完全ガイド 要約]]
 - [[reports/source-summaries/2026-07-02-youtube-codex全体像15分|Codex全体像15分 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-ai動画制作sjinn-skills|AI動画制作 / SJinn Skills 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-codex-linkedin海外案件|Codex x LinkedIn海外案件リサーチ 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-claudecode道場-20260516|ClaudeCode道場 2026-05-16 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-claudecode道場-20260523|ClaudeCode道場 2026-05-23 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-claudecode勉強会-20260613|ClaudeCode勉強会 2026-06-13 要約]]
+- [[reports/source-summaries/2026-07-03-youtube-claudecode勉強会-20260627|ClaudeCode勉強会 2026-06-27 要約]]
+- [[reports/source-summaries/2026-07-03-tool-claudecodeお店改善提案書フォローシート|ClaudeCode店舗改善提案フォローシート 要約]]
 
 ## GitHub Repo Reviews
 

@@ -46,6 +46,11 @@ function Get-DocumentIdFromUrl {
     return $match.Groups[1].Value
   }
 
+  $match = [regex]::Match($Url, "[?&]id=([^&#]+)")
+  if ($match.Success) {
+    return [System.Uri]::UnescapeDataString($match.Groups[1].Value)
+  }
+
   return ""
 }
 

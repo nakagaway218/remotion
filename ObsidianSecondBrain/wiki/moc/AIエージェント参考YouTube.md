@@ -41,6 +41,12 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 要約済み | Codex Record & Replay / X投稿自動化 | [[raw/webclip-index/2026-07-01-youtube-初心者必見-codexでxの投稿を量産する方法を見つけました|【初心者必見】CodexでXの投稿を量産する方法を見つけました]] |
 | 要約済み | Codex入門・使い方 | [[raw/webclip-index/2026-07-02-youtube-徹底解説-初心者でもわかるcodexの使い方完全ガイド|【徹底解説】初心者でもわかるCodexの使い方完全ガイド]] |
 | 要約済み | Codexデスクトップアプリ全体像 | [[raw/webclip-index/2026-07-02-youtube-初心者もchatgpt感覚で触れる-codexの全体像をたった15分で解説|【初心者もChatGPT感覚で触れる】Codexの全体像をたった15分で解説]] |
+| 要約済み | AI動画制作 / SJinn Skills | [[raw/webclip-index/2026-07-03-youtube-エージェントが勝手に動画を作る-ai動画制作の自動化についてわかりやすく解説します-sjinn-skills|エージェントが勝手に動画を作る！？AI動画制作の自動化についてわかりやすく解説します 【SJinn Skills】]] |
+| 要約済み | Codex x LinkedIn案件リサーチ | [[raw/webclip-index/2026-07-03-youtube-日本人が知らない-codexで高時給案件が見つかる-linkedin-の稼ぎ方を教えます|【日本人が知らない】Codexで高時給案件が見つかる「LinkedIn」の稼ぎ方を教えます。]] |
+| 要約済み | Claude Code道場 / AIエージェント基礎 | [[raw/webclip-index/2026-07-03-youtube-2026-5-16-ロコ-道場claudecode勉強会-池田講師|2026 5 16【ロゴ】道場ClaudeCode勉強会①（池田講師）]] |
+| 要約済み | Claude Code道場 / SNSコンサル | [[raw/webclip-index/2026-07-03-youtube-2026-5-23道場claudecode勉強会-池田講師|2026 5 23道場ClaudeCode勉強会②（池田講師）]] |
+| 要約済み | Claude Code実演 / 店舗改善提案書 | [[raw/webclip-index/2026-07-03-youtube-20260613-claudecode勉強会|20260613 ClaudeCode勉強会]] |
+| 要約済み | Claude Code実演 / 多媒体SNS投稿 | [[raw/webclip-index/2026-07-03-youtube-20260627-claudecode勉強会|20260627 ClaudeCode勉強会]] |
 
 ## 整理するときの観点
 
