@@ -64,6 +64,8 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-03-youtube-claudecode勉強会-20260613|ClaudeCode勉強会 2026-06-13 要約]]
 - [[reports/source-summaries/2026-07-03-youtube-claudecode勉強会-20260627|ClaudeCode勉強会 2026-06-27 要約]]
 - [[reports/source-summaries/2026-07-03-tool-claudecodeお店改善提案書フォローシート|ClaudeCode店舗改善提案フォローシート 要約]]
+- [[reports/zip-inspections/README|Zip Inspections]]
+- [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 
 ## GitHub Repo Reviews
 
