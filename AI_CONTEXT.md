@@ -99,3 +99,18 @@ ObsidianSecondBrain now includes a source-index workflow for external materials:
 - OAuth credentials and tokens live under the Git-root `secrets/` folder and are ignored by Git.
 - The OAuth app was rebuilt as `ObsidianSecondBrain Sync`; future OAuth failures should first check project mismatch, disabled APIs, missing test users, and stale refresh tokens.
 - The detailed recovery log is `ObsidianSecondBrain/reports/2026-06-16-google-api-oauth-lessons.md`.
+
+## Zip Source Inspection
+
+Zip files may appear in Google Drive source folders, Google Sheets source lists such as `ツール参考リスト`, or other folders under `C:\Users\nakag\Desktop\GitHub`.
+
+Default rule: do not commit Zip bodies or extracted contents. Inspect them in a Git-ignored temporary location, then save only lightweight Markdown reports and adoption decisions.
+
+For `ObsidianSecondBrain`, the reference workflow is:
+
+- `ObsidianSecondBrain/scripts/inspect-drive-zip-sources.ps1`
+- `ObsidianSecondBrain/reports/zip-inspections/`
+
+The inspection report should include file names, sizes, extensions, nested Zip files, readable Markdown/YAML/text candidates, risky executable/script candidates, and whether the material duplicates existing `reports/`, `wiki/`, or `raw/` notes.
+
+If the new material overlaps strongly with existing notes, update or link the existing note instead of creating another parallel summary. If it is only partially useful, record `一部だけ採用` or `既存運用で代替可` in the report.

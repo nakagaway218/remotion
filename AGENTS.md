@@ -19,6 +19,16 @@
 - Use short English commit messages that describe the change.
 - Ask for user approval before pushing or creating a pull request.
 
+## External source and Zip handling
+
+- When Google Drive, Google Sheets, local folders, or tool reference lists contain Zip files, do not extract them directly into Git.
+- Download or inspect Zip files only in a Git-ignored temporary location.
+- First record a lightweight inspection report: file list, sizes, extensions, nested Zip files, readable candidates, and risky candidates.
+- Do not run scripts, installers, binaries, or external code found inside a Zip.
+- Commit only Markdown inspection reports, summaries, and adoption decisions. Do not commit the Zip body or extracted contents unless the user explicitly approves a sanitized subset.
+- For `ObsidianSecondBrain`, use `scripts/inspect-drive-zip-sources.ps1` and `reports/zip-inspections/` as the reference workflow.
+- Before creating new notes from Zip, Docs, YouTube, or article sources, check whether existing `reports/`, `wiki/`, or `raw/` notes already cover the same content. Prefer updating or linking existing notes when the content overlaps strongly.
+
 ## Setup commands
 
 ```bash

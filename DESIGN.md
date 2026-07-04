@@ -47,6 +47,19 @@ For generated applications or outputs:
 - Ignore generated `.exe` files when they can be recreated from source.
 - Ignore generated PDFs and temporary files unless the user specifically wants to preserve them.
 
+## External Archives and Zip Files
+
+Zip files and other archive formats are treated as external source material by default.
+
+- Keep Zip bodies and extracted folders out of Git unless the user explicitly approves a sanitized subset.
+- Inspect archives in a temporary Git-ignored location first.
+- Save only lightweight Markdown reports, summaries, adoption decisions, and links.
+- Do not run scripts, installers, or binaries found inside archives.
+- When an archive contains Markdown/YAML/text files, read only what is needed and summarize rather than copying full source material into Git.
+- If archive content duplicates existing knowledge, update or link the existing note instead of creating a parallel duplicate.
+
+For the current Google Drive source workflow, use `ObsidianSecondBrain/scripts/inspect-drive-zip-sources.ps1` and keep reports under `ObsidianSecondBrain/reports/zip-inspections/`.
+
 ## Current Ignore Rules
 
 The PDF tool uses these ignore rules:
