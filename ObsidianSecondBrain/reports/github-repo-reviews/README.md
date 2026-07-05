@@ -20,3 +20,6 @@ tags: [report, github, tool-review]
 ## 現在のレポート
 
 - [[reports/github-repo-reviews/2026-06-19-github-fuuuuuuma-claude-skills-installer-ja|fuuuuuuma/claude-skills-installer-ja 導入判断]]
+- [[reports/github-repo-reviews/2026-07-05-github-fuuuuuuma-ai-design-build-kit|fuuuuuuma/ai-design-build-kit 導入判断]]
+- [[reports/github-repo-reviews/2026-07-05-github-fuuuuuuma-claude-opus-4-8-guide|fuuuuuuma/claude-opus-4-8-guide 導入判断]]
+- [[reports/github-repo-reviews/2026-07-05-github-smotodays-ai-blog-post01|smotoDays/AI_blog-post01 導入判断]]
