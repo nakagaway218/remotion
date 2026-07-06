@@ -48,6 +48,7 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 要約済み | Claude Code実演 / 店舗改善提案書 | [[raw/webclip-index/2026-07-03-youtube-20260613-claudecode勉強会|20260613 ClaudeCode勉強会]] |
 | 要約済み | Claude Code実演 / 多媒体SNS投稿 | [[raw/webclip-index/2026-07-03-youtube-20260627-claudecode勉強会|20260627 ClaudeCode勉強会]] |
 | 整理済み | Codex動画・記事・AI社員・スライド横断 | [[reports/source-summaries/2026-07-04-youtube-codex-workflows-batch|2026-07-04 YouTube追加分 / Codexワークフロー横断要約]] |
+| 整理済み | Codex長時間運用・AIエージェント横断 | [[reports/source-summaries/2026-07-06-youtube-codex-long-running-and-ai-agent-batch|2026-07-06 YouTube追加分 / Codex長時間運用・AIエージェント横断要約]] |
 
 ## 整理するときの観点
 
