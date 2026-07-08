@@ -97,6 +97,8 @@ When the user asks to create or correct middle-school English composition workbo
 
 Recent durable lesson: for present-perfect workbooks, check not only full English answers but also natural short replies. In `have not` / `haven't` replies, optional tails such as `(visited Kyoto before)` should be marked with parentheses when they may be omitted. Do not apply that rule blindly to `never` lines, because `I have never.` is incomplete without the action phrase. Apply the same check to Yes/No questions and `How many times ...?` replies.
 
+When the user asks to add a new example or question pattern, preserve the existing examples unless replacement is explicitly requested. Treat addition and replacement as different operations; if both cannot coexist cleanly, confirm the intended scope before rewriting the original example.
+
 ## Google Drive / Sheets Source Sync
 
 ObsidianSecondBrain now includes a source-index workflow for external materials:

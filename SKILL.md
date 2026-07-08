@@ -99,7 +99,8 @@ Use `Studymaterials/` when the user asks for teaching materials, Excel教材, mi
 1. Read `Studymaterials/README.md`, `Studymaterials/AI_CONTEXT.md`, `Studymaterials/SKILL.md`, and `Studymaterials/english_composition_dialogue_notes.md` before editing English composition workbooks.
 2. Preserve Sheet1/Sheet2 correspondence, print layout, page breaks, row heights, merged cells, and user-tuned formatting.
 3. For present-perfect English workbooks, verify natural short replies before finalizing answers. `have not` / `haven't` replies may omit tails such as `visited Kyoto before`, so mark the optional part as `(visited Kyoto before)`. Keep `never` lines as full sentences, such as `I have never visited Kyoto.`
-4. Apply that optional-tail check to both Yes/No questions and `How many times ...?` replies.
+4. Interpret requests to add examples as additive. Do not replace or rewrite an existing example unless the user explicitly asks for replacement; if preserving both creates a conflict, ask before changing the original.
+5. Apply that optional-tail check to both Yes/No questions and `How many times ...?` replies.
 
 ## Evaluating External Skills
 
