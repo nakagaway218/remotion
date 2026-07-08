@@ -89,6 +89,14 @@ This folder adapts `fuuuuuuma/ai-second-brain-kit` for the user's `Myownproject`
 
 When the user asks about Obsidian, second-brain notes, personal knowledge management, or making AI remember project context, read `ObsidianSecondBrain/README.md`, `ObsidianSecondBrain/Memory.md`, and `ObsidianSecondBrain/rules/corrections.md` first.
 
+## Study Materials Context
+
+Study-material workbook rules are kept under `Studymaterials/`.
+
+When the user asks to create or correct middle-school English composition workbooks, read `Studymaterials/README.md`, `Studymaterials/AI_CONTEXT.md`, `Studymaterials/SKILL.md`, and `Studymaterials/english_composition_dialogue_notes.md` first.
+
+Recent durable lesson: for present-perfect workbooks, check not only full English answers but also natural short replies. In `have not` / `haven't` replies, optional tails such as `(visited Kyoto before)` should be marked with parentheses when they may be omitted. Do not apply that rule blindly to `never` lines, because `I have never.` is incomplete without the action phrase. Apply the same check to Yes/No questions and `How many times ...?` replies.
+
 ## Google Drive / Sheets Source Sync
 
 ObsidianSecondBrain now includes a source-index workflow for external materials:

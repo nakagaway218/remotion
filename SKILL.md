@@ -92,6 +92,15 @@ For multi-step implementation, UI repair, research-to-artifact work, or migratio
 3. For Windows-first work, prefer Browser verification and screenshots before Appshots-specific guidance.
 4. Keep plugin sharing and Analytics guidance as team or Business/Enterprise topics unless the user asks for organizational rollout.
 
+## Working With Studymaterials
+
+Use `Studymaterials/` when the user asks for teaching materials, Excel教材, middle-school English composition workbooks, Japanese grammar tables, study plans, or PDF conversion for study sheets.
+
+1. Read `Studymaterials/README.md`, `Studymaterials/AI_CONTEXT.md`, `Studymaterials/SKILL.md`, and `Studymaterials/english_composition_dialogue_notes.md` before editing English composition workbooks.
+2. Preserve Sheet1/Sheet2 correspondence, print layout, page breaks, row heights, merged cells, and user-tuned formatting.
+3. For present-perfect English workbooks, verify natural short replies before finalizing answers. `have not` / `haven't` replies may omit tails such as `visited Kyoto before`, so mark the optional part as `(visited Kyoto before)`. Keep `never` lines as full sentences, such as `I have never visited Kyoto.`
+4. Apply that optional-tail check to both Yes/No questions and `How many times ...?` replies.
+
 ## Evaluating External Skills
 
 When the user provides a Claude Skill, Codex Skill, plugin, agent, or installer repository, do not bulk-install it by default.

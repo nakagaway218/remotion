@@ -135,6 +135,32 @@
 - 「いいえ」の返答で、基本形だけでなく短縮形も必要だと後から気づいた。
 - 後から行を差し込むと、改頁、行高、余白調整が連鎖してやり直しになる。
 
+## 現在完了形の返答省略チェック
+
+現在完了形では、正しい英文を全文で書くだけでなく、実際の返答としてどこまで省略できるかを確認する。
+
+経験用法の例:
+
+- `Have you ever visited Kyoto?`
+- `No, I have not (visited Kyoto before).`
+- `No, I haven't (visited Kyoto before).`
+- `No, I have never visited Kyoto.`
+
+`have not` / `haven't` は後ろを省略して `No, I have not.` / `No, I haven't.` と答えられるため、教材では省略できる部分を括弧で示す。`never` は `I have never.` だけでは目的語が欠けるので、`visited Kyoto` まで書く。
+
+回数を聞く疑問文でも同じ確認をする。
+
+- `How many times have you visited Kyoto?`
+- `I have not (visited Kyoto before).`
+- `I haven't (visited Kyoto before).`
+- `I have never visited Kyoto.`
+
+今回の反省:
+
+- Yes/No疑問文側の `No, I have not / haven't` だけでなく、`How many times ...?` への「一度もありません」でも同じ省略ができることを最初に見落とした。
+- これは中学生向け教材の表記問題であると同時に、英語として自然な返答をAI側が先に点検すべき問題だった。
+- 今後は現在完了形の完了・経験・継続・結果用法を作る前に、全文形、短い返答、省略可能部分、短縮形を表にしてから行構成を決める。
+
 ## 余白調整で縮小に逃げない
 
 英作文教材で上下の余白が目立つ場合、最初にシート全体の縮小率を下げない。縮小を先に使うと、文字が小さくなった状態を基準にしてしまい、列幅・行高・不要列の判断が遅れる。
