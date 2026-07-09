@@ -69,6 +69,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-06-youtube-codex-long-running-and-ai-agent-batch|2026-07-06 YouTube追加分 / Codex長時間運用・AIエージェント横断要約]]
 - [[reports/source-summaries/2026-07-06-tool-github-materials-triage|2026-07-06 ツール参考リスト追加分 / GitHub導入判断メモ]]
 - [[reports/source-summaries/2026-07-08-youtube-codex-updates-and-complete-guide|2026-07-08 YouTube追加分 / Codex新機能・完全解説 要約]]
+- [[reports/source-summaries/2026-07-09-youtube-ai-music-video-workflow|AIで一発撮り風ミュージックビデオを作る手順]]
 - [[reports/zip-inspections/README|Zip Inspections]]
 - [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 
