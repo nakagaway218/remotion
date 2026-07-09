@@ -99,6 +99,8 @@ Recent durable lesson: for present-perfect workbooks, check not only full Englis
 
 When the user asks to add a new example or question pattern, preserve the existing examples unless replacement is explicitly requested. Treat addition and replacement as different operations; if both cannot coexist cleanly, confirm the intended scope before rewriting the original example.
 
+For workbook formatting corrections, distinguish borders from font emphasis explicitly. Check both the `Border` properties and the `Font` properties for the intended heading row, and verify the rendered Excel PDF. In merged rows, adjacent top and bottom borders can overlap and look thicker than their internal style names suggest.
+
 ## Google Drive / Sheets Source Sync
 
 ObsidianSecondBrain now includes a source-index workflow for external materials:

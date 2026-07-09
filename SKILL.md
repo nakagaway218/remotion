@@ -101,6 +101,7 @@ Use `Studymaterials/` when the user asks for teaching materials, Excel教材, mi
 3. For present-perfect English workbooks, verify natural short replies before finalizing answers. `have not` / `haven't` replies may omit tails such as `visited Kyoto before`, so mark the optional part as `(visited Kyoto before)`. Keep `never` lines as full sentences, such as `I have never visited Kyoto.`
 4. Interpret requests to add examples as additive. Do not replace or rewrite an existing example unless the user explicitly asks for replacement; if preserving both creates a conflict, ask before changing the original.
 5. Apply that optional-tail check to both Yes/No questions and `How many times ...?` replies.
+6. When moving emphasis in a workbook, identify whether the user means a border or text formatting. Inspect and validate `Border` and `Font` separately, then confirm the result in an Excel-rendered PDF.
 
 ## Evaluating External Skills
 
