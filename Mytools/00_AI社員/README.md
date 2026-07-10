@@ -1,4 +1,4 @@
-# Mytool AI社員
+# Mytools AI社員
 
 Windows ツール改善に使う AI 社員の一覧です。
 

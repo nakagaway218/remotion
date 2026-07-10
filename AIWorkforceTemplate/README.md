@@ -86,7 +86,7 @@ claude
 - `Webarticle`: 調査、構成、本文、SEOチェック、出典整理
 - `Scenariowriting`: リサーチ、あらすじ、台本、対話化、チェック
 - `Learner`: 教材要件、問題作成、解答、難易度レビュー、印刷形式
-- `Mytool`: ツール要件、実装手順、README、テスト観点
+- `Mytools`: ツール要件、実装手順、README、テスト観点
 - `MyConversion`: 変換手順、再現手順、成果物チェック
 - `.agents/skills` や `.claude/skills`: 既存のスキル型タスクを AI 社員カードに変換
 - `CareerAIProject`: 教育・AI活用・キャリア仮説の中立的な検証、バイアス点検、プロンプト蓄積
@@ -103,7 +103,7 @@ claude
 - 削除、移動、リネームされたファイル
 - 未追跡ファイルを誤って置き去りにしていないか
 
-特に `Studymaterials`、`Learner`、`Rikei_Kokkoritsu_Juken_Learner`、`Webarticle`、`Scenariowriting`、`Mytool`、`teaching materials` のようなユーザー所有フォルダは、構成変更の前後で所在を確認します。
+特に `Studymaterials`、`Learner`、`Rikei_Kokkoritsu_Juken_Learner`、`Webarticle`、`Scenariowriting`、`Mytools`、`teaching materials` のようなユーザー所有フォルダは、構成変更の前後で所在を確認します。
 
 ## 注意
 

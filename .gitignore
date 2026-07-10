@@ -38,11 +38,11 @@ packages/example-without-zod/build
 packages/docs/out
 packages/cloudrun/container/ensure-browser.mjs
 
-Mytool/*.exe
-Mytool/*_output.pdf
-Mytool/~temp_*.pdf
-Mytool/merge_state.txt
-Mytool/folder_backup_sync_last_run.log
+Mytools/*.exe
+Mytools/*_output.pdf
+Mytools/~temp_*.pdf
+Mytools/merge_state.txt
+Mytools/folder_backup_sync_last_run.log
 
 Webarticle/server*.log
 *.lnk

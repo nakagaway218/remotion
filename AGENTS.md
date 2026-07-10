@@ -1,7 +1,7 @@
 ## Codex work instructions
 
 - This repository contains the restored Remotion codebase plus the user's own project files.
-- The current main user-owned tool area is `Mytool/`.
+- The current main user-owned tool area is `Mytools/`.
 - Match the existing code structure, naming, and style when making changes.
 - Check the current worktree state with `git status` before starting edits.
 - Do not revert or overwrite uncommitted user changes unless the user explicitly asks.

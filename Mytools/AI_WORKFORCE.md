@@ -1,6 +1,6 @@
-# Mytool AI Workforce
+# Mytools AI Workforce
 
-`Mytool` 用の AI 社員設計です。
+`Mytools` 用の AI 社員設計です。
 
 共通テンプレートは `../AIWorkforceTemplate/` を参照します。このファイルでは、PDF 結合ツールなどの小さな Windows ツールを改善、検証、記録するための役割だけを切り出して使います。
 
@@ -11,7 +11,7 @@
 - 生成物や一時ファイルを GitHub に含めない判断を残す
 - 初心者にも再実行できる確認手順を残す
 
-## Mytool の AI 社員
+## Mytools の AI 社員
 
 | 順番 | AI 社員 | 元の汎用役割 | 担当 |
 | --- | --- | --- | --- |
@@ -58,7 +58,7 @@
 推奨保存先:
 
 ```text
-Mytool/
+Mytools/
   tool-projects/
     [tool-change-name]/
       requirements.md

@@ -21,7 +21,7 @@ description: 大きな変更の前後に、ブランチと重要フォルダの�
 - `Rikei_Kokkoritsu_Juken_Learner`
 - `Webarticle`
 - `Scenariowriting`
-- `Mytool`
+- `Mytools`
 - `teaching materials`
 
 出力は次の形にしてください。

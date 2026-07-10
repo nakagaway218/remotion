@@ -35,7 +35,7 @@ If the user asks to save it:
 
 ## Adding A User Tool
 
-1. Create or use a dedicated folder such as `Mytool/`.
+1. Create or use a dedicated folder such as `Mytools/`.
 2. Keep readable source files, such as `.bat`, `.py`, `.md`, and configuration files.
 3. Add a `README.md` explaining:
    - what the tool does
@@ -52,10 +52,10 @@ Use `.gitignore` for files that should exist locally but not on GitHub.
 For the current PDF tool:
 
 ```gitignore
-Mytool/*.exe
-Mytool/*_output.pdf
-Mytool/~temp_*.pdf
-Mytool/merge_state.txt
+Mytools/*.exe
+Mytools/*_output.pdf
+Mytools/~temp_*.pdf
+Mytools/merge_state.txt
 ```
 
 If an `.exe` can be recreated from a `.bat` or source script, document the build steps instead of committing the `.exe`.

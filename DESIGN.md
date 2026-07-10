@@ -12,7 +12,7 @@ Myownproject/
   AIWorkforceTemplate/
   CareerAIProject/
   ObsidianSecondBrain/
-  Mytool/
+  Mytools/
   packages/
 ```
 
@@ -29,7 +29,7 @@ Use `Myownproject/` as the Git-managed project root.
 User-created tools should live in their own folders. For example:
 
 ```text
-Mytool/
+Mytools/
   README.md
   *.bat
   *.py
@@ -65,13 +65,13 @@ For the current Google Drive source workflow, use `ObsidianSecondBrain/scripts/i
 The PDF tool uses these ignore rules:
 
 ```gitignore
-Mytool/*.exe
-Mytool/*_output.pdf
-Mytool/~temp_*.pdf
-Mytool/merge_state.txt
+Mytools/*.exe
+Mytools/*_output.pdf
+Mytools/~temp_*.pdf
+Mytools/merge_state.txt
 ```
 
-This means `何でもPDF結合ツール.exe` can exist locally, but it is not committed to GitHub.
+This means `何でもPDF結合ツール.exe` can exist locally under `Mytools/`, but it is not committed to GitHub.
 
 ## GitHub Sync Design
 

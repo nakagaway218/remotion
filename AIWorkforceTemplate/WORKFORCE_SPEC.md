@@ -18,14 +18,14 @@ AI 社員を使う前の小さな要件定義です。
   - [ ] Rikei_Kokkoritsu_Juken_Learner
   - [ ] Webarticle
   - [ ] Scenariowriting
-  - [ ] Mytool
+  - [ ] Mytools
   - [ ] teaching materials
   - [ ] その他:
 - 対象分野:
   - [ ] Webarticle
   - [ ] Scenariowriting
   - [ ] Learner
-  - [ ] Mytool
+  - [ ] Mytools
   - [ ] MyConversion
   - [ ] その他:
 

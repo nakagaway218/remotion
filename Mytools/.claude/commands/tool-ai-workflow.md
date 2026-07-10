@@ -1,10 +1,10 @@
 ---
-description: Mytool の AI 社員フローでツール改善タスクを整理する
+description: Mytools の AI 社員フローでツール改善タスクを整理する
 ---
 
 # /tool-ai-workflow [改善したい内容]
 
-`AI_WORKFORCE.md` と `WORKFORCE_SPEC.md` を読み、`[改善したい内容]` を Mytool の AI 社員フローに分解してください。
+`AI_WORKFORCE.md` と `WORKFORCE_SPEC.md` を読み、`[改善したい内容]` を Mytools の AI 社員フローに分解してください。
 
 ## 手順
 
@@ -19,7 +19,7 @@ description: Mytool の AI 社員フローでツール改善タスクを整理�
 ## 出力
 
 ```markdown
-## Mytool AI社員フロー
+## Mytools AI社員フロー
 
 ### 今回の改善内容
 

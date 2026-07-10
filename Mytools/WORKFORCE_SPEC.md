@@ -1,6 +1,6 @@
-# Mytool AI Workforce Spec
+# Mytools AI Workforce Spec
 
-`Mytool` のツール改善を始める前の小さな要件定義です。
+`Mytools` のツール改善を始める前の小さな要件定義です。
 
 ## 目的
 

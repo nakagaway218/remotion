@@ -38,7 +38,7 @@ Protected folders to consider by default:
 - `Rikei_Kokkoritsu_Juken_Learner`
 - `Webarticle`
 - `Scenariowriting`
-- `Mytool`
+- `Mytools`
 - `teaching materials`
 
 Useful commands:

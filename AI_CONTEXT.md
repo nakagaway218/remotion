@@ -45,7 +45,7 @@ The local folder name is `Myownproject`, but the GitHub repository is still name
 The user's PDF tool is stored in:
 
 ```text
-Mytool/
+Mytools/
 ```
 
 It contains `.bat` launchers, Python scripts, and a README. Generated `.exe` files are intentionally ignored by Git.
