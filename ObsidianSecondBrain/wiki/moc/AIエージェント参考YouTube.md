@@ -51,6 +51,7 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 整理済み | Codex長時間運用・AIエージェント横断 | [[reports/source-summaries/2026-07-06-youtube-codex-long-running-and-ai-agent-batch|2026-07-06 YouTube追加分 / Codex長時間運用・AIエージェント横断要約]] |
 | 整理済み | Codex新機能・完全解説 | [[reports/source-summaries/2026-07-08-youtube-codex-updates-and-complete-guide|2026-07-08 YouTube追加分 / Codex新機能・完全解説 要約]] |
 | 整理済み | AIミュージックビデオ制作 | [[reports/source-summaries/2026-07-09-youtube-ai-music-video-workflow|AIで一発撮り風ミュージックビデオを作る手順]] |
+| 整理済み | Codex x Premiere Pro動画編集 | [[reports/source-summaries/2026-07-10-youtube-codex-premiere-video-editing|CodexでPremiere Proのカットとテロップを自動化する手順]] |
 
 ## 整理するときの観点
 
