@@ -1,4 +1,5 @@
 {
-  "source": "C:\\Users\\nakag\\Desktop",
-  "destination": "D:\\Desktop"
+  "source": "C:\\Users\\nakag\\Documents",
+  "destination": "F:\\Documents",
+  "exclude_heavy_dirs": true
 }

@@ -1,4 +1,5 @@
 node_modules
+__pycache__/
 dist
 tsconfig.tsbuildinfo
 .DS_Store
@@ -41,6 +42,7 @@ Mytool/*.exe
 Mytool/*_output.pdf
 Mytool/~temp_*.pdf
 Mytool/merge_state.txt
+Mytool/folder_backup_sync_last_run.log
 
 Webarticle/server*.log
 *.lnk
