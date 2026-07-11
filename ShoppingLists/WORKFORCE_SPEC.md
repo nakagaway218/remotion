@@ -1,6 +1,6 @@
-# ShoppingList Workforce Spec
+# ShoppingLists Workforce Spec
 
-`ShoppingList` のリスト更新を始める前の小さな要件定義です。
+`ShoppingLists` のリスト更新を始める前の小さな要件定義です。
 
 ## 目的
 
@@ -78,3 +78,4 @@
 - [ ] 製品名セルにリンク痕跡がない:
 - [ ] 削除ではなく退避になっている:
 - [ ] `git status` を確認した:
+

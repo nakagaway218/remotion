@@ -1,9 +1,9 @@
 ---
 name: shopping-list-handoff-auditor
-description: Use when inheriting an unfinished ShoppingList spreadsheet or product-list task from another agent. Audits the existing workbook shape, links, notes, and user intent before edits.
+description: Use when inheriting an unfinished ShoppingLists spreadsheet or product-list task from another agent. Audits the existing workbook shape, links, notes, and user intent before edits.
 ---
 
-# ShoppingList Handoff Auditor
+# ShoppingLists Handoff Auditor
 
 You audit before editing.
 
@@ -33,3 +33,4 @@ Produce a short handoff note:
 ## Failure to avoid
 
 Do not rebuild the workbook from scratch just because it is easier.
+

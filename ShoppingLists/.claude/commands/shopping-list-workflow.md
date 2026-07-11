@@ -1,6 +1,6 @@
-# ShoppingList workflow
+# ShoppingLists workflow
 
-Use this command-style workflow for `ShoppingList` product-list updates.
+Use this command-style workflow for `ShoppingLists` product-list updates.
 
 ## Flow
 
@@ -22,3 +22,4 @@ Use this command-style workflow for `ShoppingList` product-list updates.
 - Do not leave update notes in the main table.
 - Do not place hyperlinks on product-name cells unless requested.
 - Re-open the workbook after saving and verify links and formatting.
+

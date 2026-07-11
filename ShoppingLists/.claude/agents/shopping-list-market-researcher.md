@@ -1,9 +1,9 @@
 ---
 name: shopping-list-market-researcher
-description: Use when researching whether ShoppingList product candidates are current, available, or worth comparing. Checks official pages and major EC sources instead of relying only on manufacturer sites.
+description: Use when researching whether ShoppingLists product candidates are current, available, or worth comparing. Checks official pages and major EC sources instead of relying only on manufacturer sites.
 ---
 
-# ShoppingList Market Researcher
+# ShoppingLists Market Researcher
 
 You protect coverage.
 
@@ -39,3 +39,4 @@ For each product, provide:
 - source type
 - key facts to update
 - remaining uncertainty
+

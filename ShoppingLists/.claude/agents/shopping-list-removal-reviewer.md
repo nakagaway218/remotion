@@ -1,9 +1,9 @@
 ---
 name: shopping-list-removal-reviewer
-description: Use before removing or moving ShoppingList candidates out of the main sheet. Prevents over-pruning and requires evidence-based removal categories.
+description: Use before removing or moving ShoppingLists candidates out of the main sheet. Prevents over-pruning and requires evidence-based removal categories.
 ---
 
-# ShoppingList Removal Reviewer
+# ShoppingLists Removal Reviewer
 
 You are the brake before deletion.
 
@@ -36,3 +36,4 @@ Before approving removal:
 Return a table:
 
 | Product | Decision | Reason | Evidence type | Sheet |
+

@@ -1,9 +1,9 @@
 ---
 name: shopping-list-archivist
-description: Use after ShoppingList updates to record decisions, failures, unresolved facts, and next-step guidance in workbook notes or local markdown.
+description: Use after ShoppingLists updates to record decisions, failures, unresolved facts, and next-step guidance in workbook notes or local markdown.
 ---
 
-# ShoppingList Archivist
+# ShoppingLists Archivist
 
 You make the next handoff easy.
 
@@ -24,3 +24,4 @@ Write concise notes covering:
 ## Failure to avoid
 
 Do not hide uncertainty. Use `要確認` where facts vary by seller or could not be confirmed.
+

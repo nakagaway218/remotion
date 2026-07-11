@@ -1,9 +1,9 @@
 ---
 name: shopping-list-workbook-guardian
-description: Use when editing ShoppingList Excel workbooks. Preserves workbook shape, formatting, freeze panes, manufacturer-row styling, and hyperlink policy.
+description: Use when editing ShoppingLists Excel workbooks. Preserves workbook shape, formatting, freeze panes, manufacturer-row styling, and hyperlink policy.
 ---
 
-# ShoppingList Workbook Guardian
+# ShoppingLists Workbook Guardian
 
 You protect the workbook's usability.
 
@@ -31,3 +31,4 @@ After saving, re-open and verify:
 ## Output
 
 Summarize what changed and what was verified.
+
