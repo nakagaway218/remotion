@@ -71,6 +71,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-08-youtube-codex-updates-and-complete-guide|2026-07-08 YouTube追加分 / Codex新機能・完全解説 要約]]
 - [[reports/source-summaries/2026-07-09-youtube-ai-music-video-workflow|AIで一発撮り風ミュージックビデオを作る手順]]
 - [[reports/source-summaries/2026-07-10-youtube-codex-premiere-video-editing|CodexでPremiere Proのカットとテロップを自動化する手順]]
+- [[reports/source-summaries/2026-07-11-youtube-codex-content-creation-batch|2026-07-11 YouTube追加分 / Codexコンテンツ制作・業務自動化 横断要約]]
 - [[reports/zip-inspections/README|Zip Inspections]]
 - [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 
