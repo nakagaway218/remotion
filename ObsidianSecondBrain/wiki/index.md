@@ -72,6 +72,8 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-09-youtube-ai-music-video-workflow|AIで一発撮り風ミュージックビデオを作る手順]]
 - [[reports/source-summaries/2026-07-10-youtube-codex-premiere-video-editing|CodexでPremiere Proのカットとテロップを自動化する手順]]
 - [[reports/source-summaries/2026-07-11-youtube-codex-content-creation-batch|2026-07-11 YouTube追加分 / Codexコンテンツ制作・業務自動化 横断要約]]
+- [[reports/source-summaries/2026-07-12-youtube-codex-websites-work-batch|2026-07-12 YouTube追加分 / Codex・ChatGPT Work・Web制作 横断要約]]
+- [[reports/source-summaries/2026-07-12-tool-website-spec-prompts|Webサイト仕様書とプロンプトZip 導入判断メモ]]
 - [[reports/zip-inspections/README|Zip Inspections]]
 - [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 
