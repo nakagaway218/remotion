@@ -74,6 +74,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-11-youtube-codex-content-creation-batch|2026-07-11 YouTube追加分 / Codexコンテンツ制作・業務自動化 横断要約]]
 - [[reports/source-summaries/2026-07-12-youtube-codex-websites-work-batch|2026-07-12 YouTube追加分 / Codex・ChatGPT Work・Web制作 横断要約]]
 - [[reports/source-summaries/2026-07-12-tool-website-spec-prompts|Webサイト仕様書とプロンプトZip 導入判断メモ]]
+- [[reports/source-summaries/2026-07-13-youtube-record-replay-business-automation|Record & Replayで繰り返し業務を自動化する判断基準]]
 - [[reports/zip-inspections/README|Zip Inspections]]
 - [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 

@@ -54,6 +54,7 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 整理済み | Codex x Premiere Pro動画編集 | [[reports/source-summaries/2026-07-10-youtube-codex-premiere-video-editing|CodexでPremiere Proのカットとテロップを自動化する手順]] |
 | 整理済み | Codexコンテンツ制作・業務自動化 | [[reports/source-summaries/2026-07-11-youtube-codex-content-creation-batch|2026-07-11 YouTube追加分 / Codexコンテンツ制作・業務自動化 横断要約]] |
 | 整理済み | Codex・ChatGPT Work・Web制作 | [[reports/source-summaries/2026-07-12-youtube-codex-websites-work-batch|2026-07-12 YouTube追加分 / Codex・ChatGPT Work・Web制作 横断要約]] |
+| 整理済み | Record & Replay / 業務自動化判断 | [[reports/source-summaries/2026-07-13-youtube-record-replay-business-automation|Record & Replayで繰り返し業務を自動化する判断基準]] |
 
 ## 整理するときの観点
 
