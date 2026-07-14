@@ -55,6 +55,7 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 整理済み | Codexコンテンツ制作・業務自動化 | [[reports/source-summaries/2026-07-11-youtube-codex-content-creation-batch|2026-07-11 YouTube追加分 / Codexコンテンツ制作・業務自動化 横断要約]] |
 | 整理済み | Codex・ChatGPT Work・Web制作 | [[reports/source-summaries/2026-07-12-youtube-codex-websites-work-batch|2026-07-12 YouTube追加分 / Codex・ChatGPT Work・Web制作 横断要約]] |
 | 整理済み | Record & Replay / 業務自動化判断 | [[reports/source-summaries/2026-07-13-youtube-record-replay-business-automation|Record & Replayで繰り返し業務を自動化する判断基準]] |
+| 整理済み | Codex収益化・AI社員・TikTok運用 | [[reports/source-summaries/2026-07-14-youtube-codex-monetization-and-ai-company-batch|2026-07-14 YouTube追加分 / Codex収益化・AI社員・TikTok運用 横断要約]] |
 
 ## 整理するときの観点
 
