@@ -76,6 +76,7 @@ tags: [wiki, index]
 - [[reports/source-summaries/2026-07-12-tool-website-spec-prompts|Webサイト仕様書とプロンプトZip 導入判断メモ]]
 - [[reports/source-summaries/2026-07-13-youtube-record-replay-business-automation|Record & Replayで繰り返し業務を自動化する判断基準]]
 - [[reports/source-summaries/2026-07-14-youtube-codex-monetization-and-ai-company-batch|2026-07-14 YouTube追加分 / Codex収益化・AI社員・TikTok運用 横断要約]]
+- [[reports/source-summaries/2026-07-15-youtube-codex-line-automation|Codexで公式LINE運用を自動化する考え方]]
 - [[reports/zip-inspections/README|Zip Inspections]]
 - [[reports/zip-inspections/2026-07-04-zip-inspection-summary|2026-07-04 Zip素材確認まとめ]]
 
