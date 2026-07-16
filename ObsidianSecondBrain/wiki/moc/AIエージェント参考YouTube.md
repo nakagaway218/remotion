@@ -57,6 +57,7 @@ AIエージェント、Codex、Obsidian連携、自動化運用に関する参�
 | 整理済み | Record & Replay / 業務自動化判断 | [[reports/source-summaries/2026-07-13-youtube-record-replay-business-automation|Record & Replayで繰り返し業務を自動化する判断基準]] |
 | 整理済み | Codex収益化・AI社員・TikTok運用 | [[reports/source-summaries/2026-07-14-youtube-codex-monetization-and-ai-company-batch|2026-07-14 YouTube追加分 / Codex収益化・AI社員・TikTok運用 横断要約]] |
 | 整理済み | Codex x 公式LINE運用自動化 | [[reports/source-summaries/2026-07-15-youtube-codex-line-automation|Codexで公式LINE運用を自動化する考え方]] |
+| 整理済み | Codex初心者ロードマップ・安全運用 | [[reports/source-summaries/2026-07-16-youtube-codex-complete-guide-roadmap|Codex完全攻略 120分版の要点]] |
 
 ## 整理するときの観点
 
