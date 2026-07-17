@@ -48,6 +48,7 @@ Webarticle/server*.log
 *.lnk
 
 ObsidianSecondBrain/.obsidian/
+ObsidianSecondBrain/
 
 ~$*.xlsx
 ~$*.xls

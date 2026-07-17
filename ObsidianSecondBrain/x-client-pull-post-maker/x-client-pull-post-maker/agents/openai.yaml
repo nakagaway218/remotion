@@ -1,6 +1,0 @@
-interface:
-  display_name: "X Client Pull Post Maker"
-  short_description: "案件相談につながるX投稿をヒアリング生成する"
-  default_prompt: "Use $x-client-pull-post-maker to interview me and draft X posts that build trust and lead to inbound client inquiries."
-policy:
-  allow_implicit_invocation: true
