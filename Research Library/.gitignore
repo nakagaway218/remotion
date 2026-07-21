@@ -1,0 +1,15 @@
+.env
+.env.*
+credentials.json
+token.json
+google-oauth-token.json
+secrets/
+*.pdf
+*.webarchive
+*.mhtml
+raw/webclip-full/
+raw/assets/
+raw/downloads/
+outputs/
+zotero/*.json
+zotero/*.bib
