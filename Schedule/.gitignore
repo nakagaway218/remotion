@@ -1,0 +1,6 @@
+*.pst
+*.CSV
+.schedule-pdf-state.json
+.schedule-pdf-notification-state.json
+pending-schedule-pdfs.json
+Pending-Schedule-PDFs.txt
