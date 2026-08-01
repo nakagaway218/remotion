@@ -62,3 +62,6 @@ credentials.json
 token.json
 google-oauth-token.json
 client_secret_*.json
+
+# Private school schedule source files and rendered previews
+tmp/pdfs/schoolie-shifts/

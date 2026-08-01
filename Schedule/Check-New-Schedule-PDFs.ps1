@@ -1,6 +1,6 @@
 ﻿[CmdletBinding()]
 param(
-    [string]$DownloadsPath = '%USERPROFILE%\Downloads',
+    [string]$DownloadsPath = (Join-Path $env:USERPROFILE 'Downloads'),
     [datetime]$Today = (Get-Date).Date,
     [switch]$InitializeExisting,
     [switch]$ConfirmPending,
