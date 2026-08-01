@@ -15,6 +15,22 @@ $notificationStatePath = Join-Path $scriptRoot '.schedule-pdf-notification-state
 $pendingPath = Join-Path $scriptRoot 'pending-schedule-pdfs.json'
 $reportPath = Join-Path $scriptRoot 'Pending-Schedule-PDFs.txt'
 
+function Get-Sha256Hex {
+    param([string]$Path)
+
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        $sha256 = [Security.Cryptography.SHA256]::Create()
+        try {
+            ([BitConverter]::ToString($sha256.ComputeHash($stream))).Replace('-', '')
+        } finally {
+            $sha256.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
+}
+
 function Get-ScheduleRange {
     param(
         [string]$FileName,
@@ -205,7 +221,7 @@ foreach ($entry in @($state.confirmed)) {
 $futureFiles = [System.Collections.Generic.List[object]]::new()
 $unparsedFiles = [System.Collections.Generic.List[string]]::new()
 
-$scheduleFilePattern = '^(守山北校)?(?:改訂)?シフト(?:表)?(?:改訂)?[\[［(（]'
+$scheduleFilePattern = '^(守山北(?:校)?)?(?:改訂)?シフト(?:表)?(?:改訂)?[\[［(（]'
 $pdfFiles = Get-ChildItem -LiteralPath $DownloadsPath -File -Filter '*.pdf' |
     Where-Object { $_.BaseName -match $scheduleFilePattern }
 
@@ -219,7 +235,7 @@ foreach ($file in $pdfFiles) {
         continue
     }
 
-    $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+    $hash = Get-Sha256Hex -Path $file.FullName
     $futureFiles.Add([pscustomobject]@{
         fileName = $file.Name
         fullPath = $file.FullName

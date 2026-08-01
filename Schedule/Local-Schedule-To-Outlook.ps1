@@ -10,12 +10,36 @@ $ErrorActionPreference = 'Stop'
 $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $privateRoot = Join-Path $scriptRoot 'private'
 $configPath = Join-Path $privateRoot 'local-schedule-config.json'
+$logPath = Join-Path $privateRoot 'local-schedule-tool.log'
 $pendingPath = Join-Path $scriptRoot 'pending-schedule-pdfs.json'
 $scannerPath = Join-Path $scriptRoot 'Check-New-Schedule-PDFs.ps1'
 $ollamaUri = 'http://127.0.0.1:11434/api/chat'
 $ollamaModel = 'qwen2.5vl:7b'
 
 New-Item -ItemType Directory -Force -Path $privateRoot | Out-Null
+
+function Write-LocalLog {
+    param([string]$Message)
+
+    ('{0} {1}' -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss'), $Message) |
+        Add-Content -LiteralPath $logPath -Encoding UTF8
+}
+
+function Get-Sha256Hex {
+    param([string]$Path)
+
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        $sha256 = [Security.Cryptography.SHA256]::Create()
+        try {
+            ([BitConverter]::ToString($sha256.ComputeHash($stream))).Replace('-', '')
+        } finally {
+            $sha256.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
+}
 
 function Show-Message {
     param(
@@ -101,6 +125,25 @@ function Find-Executable {
     throw "$Name が見つかりません。"
 }
 
+function Find-OptionalExecutable {
+    param(
+        [string]$Name,
+        [string[]]$Candidates
+    )
+
+    foreach ($candidate in $Candidates) {
+        if ($candidate -and (Test-Path -LiteralPath $candidate)) {
+            return (Resolve-Path -LiteralPath $candidate).Path
+        }
+    }
+
+    $command = Get-Command $Name -ErrorAction SilentlyContinue
+    if ($command) {
+        return $command.Source
+    }
+    return $null
+}
+
 function Get-ScheduleRange {
     param(
         [string]$FileName,
@@ -152,12 +195,18 @@ function Get-ScheduleRange {
 }
 
 function Get-InputPdfs {
-    if (@($PdfPath).Count -gt 0) {
-        return @($PdfPath | ForEach-Object { (Resolve-Path -LiteralPath $_).Path })
+    $explicitPaths = @($PdfPath | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    if ($explicitPaths.Count -gt 0) {
+        return @($explicitPaths | ForEach-Object { (Resolve-Path -LiteralPath $_).Path })
     }
 
-    if (Test-Path -LiteralPath $scannerPath) {
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scannerPath -AutomationCheck | Out-Null
+    if (-not (Test-Path -LiteralPath $scannerPath)) {
+        throw '新着シフトPDFの確認プログラムが見つかりません。'
+    }
+
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scannerPath -AutomationCheck | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw '新着シフトPDFの確認に失敗しました。'
     }
 
     if (-not (Test-Path -LiteralPath $pendingPath)) {
@@ -177,7 +226,7 @@ function Select-LatestSchedulePdfs {
         if (-not $range) {
             continue
         }
-        $school = if ($file.BaseName -like '守山北校*') { '守山北校' } else { '水口校' }
+        $school = if ($file.BaseName -like '守山北*') { '守山北校' } else { '水口校' }
         [pscustomobject]@{
             Path = $file.FullName
             Key = '{0}|{1}|{2}' -f $school, $range.Start.ToString('yyyy-MM-dd'), $range.End.ToString('yyyy-MM-dd')
@@ -536,7 +585,8 @@ function New-EventRowCrop {
     param(
         [string]$DayImagePath,
         [object]$Point,
-        [string]$OutputPath
+        [string]$OutputPath,
+        [string]$RawOutputPath
     )
 
     Add-Type -AssemblyName System.Drawing
@@ -555,6 +605,19 @@ function New-EventRowCrop {
             )
         } finally {
             $graphics.Dispose()
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($RawOutputPath)) {
+            $rawScaled = [System.Drawing.Bitmap]::new($crop.Width * 3, $crop.Height * 3)
+            $rawGraphics = [System.Drawing.Graphics]::FromImage($rawScaled)
+            try {
+                $rawGraphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+                $rawGraphics.DrawImage($crop, 0, 0, $rawScaled.Width, $rawScaled.Height)
+                $rawScaled.Save($RawOutputPath, [System.Drawing.Imaging.ImageFormat]::Png)
+            } finally {
+                $rawGraphics.Dispose()
+                $rawScaled.Dispose()
+            }
         }
 
         $clean = [System.Drawing.Bitmap]::new($crop.Width, $crop.Height)
@@ -606,6 +669,7 @@ function Convert-PdfToEvents {
     param(
         [string]$Path,
         [string]$InstructorName,
+        [string]$Python,
         [string]$PdfToPpm,
         [string]$Tesseract,
         [string]$TessdataPath
@@ -617,10 +681,51 @@ function Convert-PdfToEvents {
         throw "日付範囲を読み取れません: $($file.Name)"
     }
 
-    $school = if ($file.BaseName -like '守山北校*') { '守山北校' } else { '水口校' }
-    $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    $school = if ($file.BaseName -like '守山北*') { '守山北校' } else { '水口校' }
+    $hash = (Get-Sha256Hex -Path $file.FullName).ToLowerInvariant()
     $work = Join-Path $privateRoot ("analysis-" + $hash.Substring(0, 12))
     New-Item -ItemType Directory -Force -Path $work | Out-Null
+
+    if ($school -eq '水口校' -and $Python) {
+        $tableExtractor = Join-Path $scriptRoot 'Extract-Schedule-Table.py'
+        $tableResultPath = Join-Path $work 'embedded-table-events.json'
+        if (Test-Path -LiteralPath $tableExtractor) {
+            $previousErrorPreference = $ErrorActionPreference
+            $ErrorActionPreference = 'SilentlyContinue'
+            & $Python $tableExtractor `
+                --pdf $file.FullName `
+                --config $configPath `
+                --start-date $range.Start.ToString('yyyy-MM-dd') `
+                --output $tableResultPath 2>$null
+            $pythonExitCode = $LASTEXITCODE
+            $ErrorActionPreference = $previousErrorPreference
+            if ($pythonExitCode -eq 0 -and (Test-Path -LiteralPath $tableResultPath)) {
+                $tableResult = Get-Content -Raw -LiteralPath $tableResultPath -Encoding UTF8 | ConvertFrom-Json
+                if ([bool]$tableResult.supported -and @($tableResult.events).Count -gt 0) {
+                    Write-LocalLog -Message ('埋め込み表を使用 {0}件' -f @($tableResult.events).Count)
+                    return @($tableResult.events | ForEach-Object {
+                        [pscustomobject]@{
+                            Include = $false
+                            Date = [string]$_.date
+                            Start = [string]$_.start
+                            End = [string]$_.end
+                            School = $school
+                            Student = ([string]$_.student).Trim()
+                            Subject = ([string]$_.subject).Trim()
+                            Number = ([string]$_.number).Trim()
+                            Confidence = [string]$_.confidence
+                            SourcePath = $file.FullName
+                            SourceHash = $hash
+                        }
+                    } | Where-Object {
+                        $eventDate = [datetime]::ParseExact($_.Date, 'yyyy-MM-dd', $null)
+                        $eventDate.Add([timespan]::Parse($_.Start)) -gt (Get-Date)
+                    } | Sort-Object Date, Start -Unique)
+                }
+            }
+        }
+    }
+
     $prefix = Join-Path $work 'page'
 
     & $PdfToPpm -png -r 220 $file.FullName $prefix
@@ -682,7 +787,8 @@ function Convert-PdfToEvents {
             }
             foreach ($target in $points) {
                 $rowImage = Join-Path $work ("row-$pageNumber-$dayNumber-$($target.Y).png")
-                $rowInfo = New-EventRowCrop -DayImagePath $dayImage -Point $target -OutputPath $rowImage
+                $rawRowImage = Join-Path $work ("row-raw-$pageNumber-$dayNumber-$($target.Y).png")
+                $rowInfo = New-EventRowCrop -DayImagePath $dayImage -Point $target -OutputPath $rowImage -RawOutputPath $rawRowImage
                 if ($school -eq '水口校' -and -not $rowInfo.HasAssignmentColor) {
                     continue
                 }
@@ -720,6 +826,29 @@ studentには中央の生徒欄を必ず転記し、担当者名や左右端に�
                         -not [string]::IsNullOrWhiteSpace([string]$fallback.subject)
                     ) {
                         $event = $fallback
+                    }
+                }
+                if (
+                    $school -eq '水口校' -and (
+                        [string]::IsNullOrWhiteSpace([string]$event.student) -or
+                        [string]::IsNullOrWhiteSpace([string]$event.subject)
+                    )
+                ) {
+                    $rawPrompt = @"
+この画像は水口校のシフト表から、担当者名「$InstructorName」がある横1行を加工せず拡大したものです。
+担当者欄の右隣にある生徒欄と、その右隣にある教科欄だけを読み取ってください。
+氏名は姓と名を省略せず転記してください。2人分が上下2行にある場合は、studentとsubjectを同じ順番で「 / 」区切りにしてください。
+教科の後の丸数字などの番号はnumberへ入れてください。推測はせず、画像にある文字だけを使ってください。
+次のJSONだけを返してください。
+{"student":"","subject":"","number":"","confidence":0.0}
+"@
+                    $rawResultPath = Join-Path $work ("result-raw-$pageNumber-$dayNumber-$($target.Y).json")
+                    $rawResult = Invoke-LocalModel -ImagePath $rawRowImage -Prompt $rawPrompt -ResultPath $rawResultPath
+                    if (
+                        -not [string]::IsNullOrWhiteSpace([string]$rawResult.student) -and
+                        -not [string]::IsNullOrWhiteSpace([string]$rawResult.subject)
+                    ) {
+                        $event = $rawResult
                     }
                 }
 
@@ -861,6 +990,18 @@ function Show-ReviewForm {
     $openPdf.Size = New-Object System.Drawing.Size(100, 30)
     $top.Controls.Add($openPdf)
 
+    $selectAll = New-Object System.Windows.Forms.Button
+    $selectAll.Text = 'すべて選択'
+    $selectAll.Location = New-Object System.Drawing.Point(770, 11)
+    $selectAll.Size = New-Object System.Drawing.Size(100, 30)
+    $top.Controls.Add($selectAll)
+
+    $clearAll = New-Object System.Windows.Forms.Button
+    $clearAll.Text = 'すべて解除'
+    $clearAll.Location = New-Object System.Drawing.Point(880, 11)
+    $clearAll.Size = New-Object System.Drawing.Size(100, 30)
+    $top.Controls.Add($clearAll)
+
     $selectedIndex = -1
     for ($i = 0; $i -lt $Calendars.Count; $i++) {
         $calendarInfo = $Calendars[$i]
@@ -919,8 +1060,8 @@ function Show-ReviewForm {
     [void]$grid.Columns.Add($sourceColumn)
 
     foreach ($event in $Events) {
-        [void]$grid.Rows.Add(
-            $false,
+        $rowIndex = $grid.Rows.Add(
+            $true,
             $event.Date,
             $event.Start,
             $event.End,
@@ -931,7 +1072,28 @@ function Show-ReviewForm {
             $event.Confidence,
             $event.SourcePath
         )
+        if (
+            $event.School -eq '水口校' -and (
+                [string]::IsNullOrWhiteSpace([string]$event.Student) -or
+                [string]::IsNullOrWhiteSpace([string]$event.Subject)
+            )
+        ) {
+            $grid.Rows[$rowIndex].DefaultCellStyle.BackColor = [System.Drawing.Color]::MistyRose
+            $grid.Rows[$rowIndex].ErrorText = '生徒名または教科名をPDFから入力してください。'
+        }
     }
+
+    $selectAll.Add_Click({
+        foreach ($row in $grid.Rows) {
+            $row.Cells['Include'].Value = $true
+        }
+    })
+
+    $clearAll.Add_Click({
+        foreach ($row in $grid.Rows) {
+            $row.Cells['Include'].Value = $false
+        }
+    })
 
     $openPdf.Add_Click({
         $paths = @($grid.Rows | ForEach-Object { [string]$_.Cells['SourcePath'].Value } | Where-Object { $_ } | Sort-Object -Unique)
@@ -962,6 +1124,10 @@ function Show-ReviewForm {
     $apply.Location = New-Object System.Drawing.Point(970, 14)
     $apply.Anchor = 'Top,Right'
     $apply.DialogResult = [System.Windows.Forms.DialogResult]::OK
+    $apply.Add_Click({
+        $grid.CommitEdit([System.Windows.Forms.DataGridViewDataErrorContexts]::Commit)
+        $grid.EndEdit()
+    })
     $bottom.Controls.Add($apply)
 
     $form.AcceptButton = $apply
@@ -995,11 +1161,48 @@ function Show-ReviewForm {
 function Ensure-YellowCategory {
     param([object]$Namespace)
 
-    try {
-        $null = $Namespace.Categories.Item('黄色')
-    } catch {
-        $null = $Namespace.Categories.Add('黄色', 3)
+    $category = $null
+    for ($i = 1; $i -le $Namespace.Categories.Count; $i++) {
+        $candidate = $Namespace.Categories.Item($i)
+        if ([string]$candidate.Name -eq '黄色') {
+            $category = $candidate
+            break
+        }
     }
+    if (-not $category) {
+        $category = $Namespace.Categories.Add('黄色', 4)
+    }
+    if ($category.Color -ne 4) {
+        $category.Color = 4
+    }
+}
+
+function Split-ScheduleValue {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return @()
+    }
+    @([regex]::Split($Value.Trim(), '\s*/\s*') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+}
+
+function Format-WaterEventBody {
+    param([object]$Event)
+
+    $students = @(Split-ScheduleValue -Value ([string]$Event.Student))
+    $subjects = @(Split-ScheduleValue -Value ([string]$Event.Subject))
+    $numbers = @(Split-ScheduleValue -Value ([string]$Event.Number))
+    $lineCount = [Math]::Max($students.Count, [Math]::Max($subjects.Count, $numbers.Count))
+    $lines = for ($i = 0; $i -lt $lineCount; $i++) {
+        $student = if ($i -lt $students.Count) { $students[$i] } elseif ($students.Count -eq 1) { $students[0] } else { '' }
+        $subject = if ($i -lt $subjects.Count) { $subjects[$i] } elseif ($subjects.Count -eq 1) { $subjects[0] } else { '' }
+        $number = if ($i -lt $numbers.Count) { $numbers[$i] } elseif ($numbers.Count -eq 1) { $numbers[0] } else { '' }
+        if (-not [string]::IsNullOrWhiteSpace($number) -and $subject -notlike "*$number*") {
+            $subject = (($subject, $number | Where-Object { $_ }) -join ' ')
+        }
+        (($student, $subject | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ' ').Trim()
+    }
+    @($lines | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "`r`n"
 }
 
 function Apply-Events {
@@ -1012,30 +1215,54 @@ function Apply-Events {
     Ensure-YellowCategory -Namespace $Namespace
     $created = 0
     $updated = 0
+    $now = Get-Date
+    $preparedEvents = @()
+    $desiredStartTicks = @{}
 
     foreach ($event in $Events) {
         $date = [datetime]::ParseExact($event.Date, 'yyyy-MM-dd', $null)
         $start = $date.Add([timespan]::Parse($event.Start))
         $end = $date.Add([timespan]::Parse($event.End))
-        if ($start -le (Get-Date)) {
+        if ($start -le $now) {
             continue
         }
 
-        $appointment = $null
-        for ($i = 1; $i -le $Calendar.Items.Count; $i++) {
-            try {
-                $candidate = $Calendar.Items.Item($i)
-                if ($candidate.Class -ne 26) {
-                    continue
-                }
-                if ([datetime]$candidate.Start -eq $start -and [string]$candidate.Subject -like '*IE*個別*') {
-                    $appointment = $candidate
-                    break
-                }
-            } catch {
-                # Skip unreadable items.
-            }
+        $preparedEvents += [pscustomobject]@{
+            Event = $event
+            Start = $start
+            End = $end
         }
+        $desiredStartTicks[[string]$start.Ticks] = $true
+    }
+
+    $appointmentsByStart = @{}
+    $calendarItems = $Calendar.Items
+    $calendarItemCount = $calendarItems.Count
+    for ($i = 1; $i -le $calendarItemCount; $i++) {
+        try {
+            $candidate = $calendarItems.Item($i)
+            if ($candidate.Class -ne 26 -or [string]$candidate.Subject -notlike '*IE*個別*') {
+                continue
+            }
+            if ([datetime]$candidate.Start -gt $now -and [string]$candidate.Categories -ne '黄色') {
+                $candidate.Categories = '黄色'
+                $candidate.Save()
+            }
+            $key = [string]([datetime]$candidate.Start).Ticks
+            if ($desiredStartTicks.ContainsKey($key) -and -not $appointmentsByStart.ContainsKey($key)) {
+                $appointmentsByStart[$key] = $candidate
+            }
+        } catch {
+            # Skip unreadable items.
+        }
+    }
+
+    foreach ($prepared in $preparedEvents) {
+        $event = $prepared.Event
+        $start = $prepared.Start
+        $end = $prepared.End
+        $key = [string]$start.Ticks
+        $appointment = if ($appointmentsByStart.ContainsKey($key)) { $appointmentsByStart[$key] } else { $null }
 
         if (-not $appointment) {
             $appointment = $Calendar.Items.Add(1)
@@ -1051,11 +1278,7 @@ function Apply-Events {
         $appointment.Categories = '黄色'
         $appointment.ReminderSet = $false
         if ($event.School -eq '水口校') {
-            $subjectLine = $event.Subject
-            if (-not [string]::IsNullOrWhiteSpace($event.Number)) {
-                $subjectLine += " $($event.Number)"
-            }
-            $appointment.Body = "生徒名: $($event.Student)`r`n教科名: $subjectLine"
+            $appointment.Body = Format-WaterEventBody -Event $event
         } else {
             $appointment.Body = ''
         }
@@ -1076,10 +1299,15 @@ function Apply-Events {
 
 try {
     Add-Type -AssemblyName System.Windows.Forms
+    Write-LocalLog -Message ('開始 AnalyzeOnly={0}' -f [bool]$AnalyzeOnly)
+    if (-not $AnalyzeOnly) {
+        Show-Message -Text "処理を開始しました。`r`nPDFの読み取りに2～4分ほどかかる場合があります。`r`n確認画面が出るまでお待ちください。"
+    }
 
     $config = Get-Config
     $instructorName = Get-InstructorName -Config $config
     $pdfs = @(Select-LatestSchedulePdfs -Paths @(Get-InputPdfs))
+    Write-LocalLog -Message ('対象PDF {0}件' -f $pdfs.Count)
     if ($pdfs.Count -eq 0) {
         if ($AnalyzeOnly) {
             [pscustomobject]@{ eventCount = 0; dates = @() } | ConvertTo-Json -Compress
@@ -1093,6 +1321,9 @@ try {
         'C:\texlive\2024\bin\windows\pdftoppm.exe',
         (Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\Library\bin\pdftoppm.exe'),
         (Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\native\poppler\bin\pdftoppm.cmd')
+    )
+    $python = Find-OptionalExecutable -Name 'python.exe' -Candidates @(
+        (Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe')
     )
     $tesseract = Find-Executable -Name 'tesseract.exe' -Candidates @(
         'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -1108,16 +1339,30 @@ try {
         $events += @(Convert-PdfToEvents `
             -Path $pdf `
             -InstructorName $instructorName `
+            -Python $python `
             -PdfToPpm $pdfToPpm `
             -Tesseract $tesseract `
             -TessdataPath $tessdataPath)
     }
     $events = @($events | Sort-Object Date, Start, School, Student, Subject -Unique)
+    Write-LocalLog -Message ('抽出予定 {0}件' -f $events.Count)
 
     if ($AnalyzeOnly) {
         [pscustomobject]@{
             eventCount = $events.Count
             dates = @($events | ForEach-Object { $_.Date } | Sort-Object -Unique)
+            slots = @($events | ForEach-Object {
+                [pscustomobject]@{
+                    date = $_.Date
+                    start = $_.Start
+                    end = $_.End
+                    school = $_.School
+                    hasStudent = -not [string]::IsNullOrWhiteSpace([string]$_.Student)
+                    hasSubject = -not [string]::IsNullOrWhiteSpace([string]$_.Subject)
+                    studentCount = @(Split-ScheduleValue -Value ([string]$_.Student)).Count
+                    subjectCount = @(Split-ScheduleValue -Value ([string]$_.Subject)).Count
+                }
+            })
             allWaterEventsHaveDetails = (@($events | Where-Object {
                 $_.School -eq '水口校' -and ([string]::IsNullOrWhiteSpace($_.Student) -or [string]::IsNullOrWhiteSpace($_.Subject))
             }).Count -eq 0)
@@ -1131,14 +1376,16 @@ try {
     }
 
 
-    Show-Message -Text "ローカルAIの結果は下書きです。`r`n最初は全件が未選択です。PDFを開き、正しい行だけを確認・修正してから反映してください。" -Icon Warning
+    Show-Message -Text "ローカルAIの結果は下書きです。`r`n全件が選択済みです。赤い行の空欄を入力し、PDFと照合してから反映してください。" -Icon Warning
 
     $outlookData = Get-TargetStoreAndCalendars -Config $config
+    Write-LocalLog -Message ('対象予定表候補 {0}件' -f $outlookData.Calendars.Count)
     if ($outlookData.Calendars.Count -eq 0) {
         throw '対象PST内に予定表が見つかりません。'
     }
 
     $review = Show-ReviewForm -Events $events -Calendars $outlookData.Calendars -Config $config
+    Write-LocalLog -Message ('確認画面終了 Result={0} Selected={1}' -f $review.DialogResult, @($review.Events).Count)
     if ($review.DialogResult -ne [System.Windows.Forms.DialogResult]::OK) {
         exit 0
     }
@@ -1163,10 +1410,19 @@ try {
     $config.pstPath = [string]$calendarInfo.PstPath
     Save-Config -Config $config
     $applied = Apply-Events -Events @($review.Events) -Calendar $calendar -Namespace $outlookData.Namespace
+    Write-LocalLog -Message ('反映完了 New={0} Updated={1}' -f $applied.Created, $applied.Updated)
 
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scannerPath -ConfirmPending | Out-Null
-    Show-Message -Text ("完了しました。`r`n新規: {0}件`r`n更新: {1}件" -f $applied.Created, $applied.Updated)
+    $allEventsApplied = @($review.Events).Count -eq $events.Count
+    if ($allEventsApplied) {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $scannerPath -ConfirmPending | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Outlookへの反映後、PDFを確認済みにする処理に失敗しました。'
+        }
+    }
+    $pendingMessage = if ($allEventsApplied) { '' } else { "`r`n未選択の予定があるため、PDFは未確認のまま残しました。" }
+    Show-Message -Text (("完了しました。`r`n新規: {0}件`r`n更新: {1}件" -f $applied.Created, $applied.Updated) + $pendingMessage)
 } catch {
+    Write-LocalLog -Message ('エラー: {0}' -f $_.Exception.Message)
     if ($AnalyzeOnly) {
         throw
     }
