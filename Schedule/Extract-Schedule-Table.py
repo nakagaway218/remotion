@@ -65,6 +65,94 @@ def period_for_row(row_index, starts):
     return result
 
 
+def table_schema(column_count):
+    if column_count >= 45:
+        return (
+            (1, 3, 6, 5),
+            (10, 12, 14, 13),
+            (17, 19, 22, 21),
+            (25, 27, 29, 28),
+            (32, 34, 36, 35),
+            (39, 41, 44, 43),
+        )
+    if column_count >= 24:
+        return (
+            (1, 2, 4, None),
+            (6, 7, 8, None),
+            (9, 10, 12, None),
+            (14, 15, 16, None),
+            (17, 18, 19, None),
+            (20, 21, 23, None),
+        )
+    return tuple((1 + day * 3, 2 + day * 3, 3 + day * 3, None) for day in range(6))
+
+
+def extract_events_from_table(table, instructor, start_date):
+    events = []
+    starts = period_starts(table)
+    schema = table_schema(max(len(row) for row in table))
+    for row_index, row in enumerate(table):
+        for day_index, columns in enumerate(schema):
+            column_index, student_column, subject_column, number_column = columns
+            if column_index >= len(row):
+                continue
+            cell = row[column_index]
+            if not cell or instructor not in str(cell):
+                continue
+            if student_column >= len(row) or subject_column >= len(row):
+                continue
+
+            period_index = period_for_row(row_index, starts)
+            if period_index is None or period_index >= len(PERIOD_TIMES):
+                continue
+
+            students = clean_lines(row[student_column])
+            subject_lines = clean_lines(row[subject_column])
+            number_lines = (
+                clean_lines(row[number_column])
+                if number_column is not None and number_column < len(row)
+                else []
+            )
+            continuation_index = row_index + 1
+            while continuation_index < len(table):
+                continuation = table[continuation_index]
+                if max(column_index, student_column, subject_column) >= len(continuation):
+                    break
+                if clean_lines(continuation[column_index]):
+                    break
+                next_students = clean_lines(continuation[student_column])
+                next_subjects = clean_lines(continuation[subject_column])
+                if not next_students and not next_subjects:
+                    if period_for_row(continuation_index, starts) != period_index:
+                        break
+                    continuation_index += 1
+                    continue
+                students.extend(next_students)
+                subject_lines.extend(next_subjects)
+                if number_column is not None and number_column < len(continuation):
+                    number_lines.extend(clean_lines(continuation[number_column]))
+                continuation_index += 1
+
+            subjects, numbers = split_subjects("\n".join(subject_lines))
+            if number_lines:
+                numbers = number_lines
+            if not students and not subjects:
+                continue
+            event_date = start_date + timedelta(days=day_index)
+            events.append(
+                {
+                    "date": event_date.isoformat(),
+                    "start": PERIOD_TIMES[period_index][0],
+                    "end": PERIOD_TIMES[period_index][1],
+                    "student": " / ".join(students),
+                    "subject": " / ".join(subjects),
+                    "number": " / ".join(numbers),
+                    "confidence": "embedded-table",
+                }
+            )
+    return events
+
+
 def extract_events(pdf_path, config_path, start_date):
     with open(config_path, encoding="utf-8-sig") as config_file:
         instructor = str(json.load(config_file).get("instructorName", "")).strip()
@@ -79,53 +167,7 @@ def extract_events(pdf_path, config_path, start_date):
                 if not table or len(table) < 10:
                     continue
                 table_found = True
-                starts = period_starts(table)
-                for row_index, row in enumerate(table):
-                    for column_index, cell in enumerate(row):
-                        if not cell or instructor not in str(cell):
-                            continue
-                        if column_index < 1 or (column_index - 1) % 3 != 0:
-                            continue
-                        if column_index + 2 >= len(row):
-                            continue
-
-                        day_index = (column_index - 1) // 3
-                        if day_index < 0 or day_index > 5:
-                            continue
-                        period_index = period_for_row(row_index, starts)
-                        if period_index is None or period_index >= len(PERIOD_TIMES):
-                            continue
-
-                        students = clean_lines(row[column_index + 1])
-                        subject_lines = clean_lines(row[column_index + 2])
-                        continuation_index = row_index + 1
-                        while continuation_index < len(table):
-                            continuation = table[continuation_index]
-                            if column_index + 2 >= len(continuation):
-                                break
-                            if clean_lines(continuation[column_index]):
-                                break
-                            next_students = clean_lines(continuation[column_index + 1])
-                            next_subjects = clean_lines(continuation[column_index + 2])
-                            if not next_students and not next_subjects:
-                                break
-                            students.extend(next_students)
-                            subject_lines.extend(next_subjects)
-                            continuation_index += 1
-
-                        subjects, numbers = split_subjects("\n".join(subject_lines))
-                        event_date = start_date + timedelta(days=day_index)
-                        events.append(
-                            {
-                                "date": event_date.isoformat(),
-                                "start": PERIOD_TIMES[period_index][0],
-                                "end": PERIOD_TIMES[period_index][1],
-                                "student": " / ".join(students),
-                                "subject": " / ".join(subjects),
-                                "number": " / ".join(numbers),
-                                "confidence": "embedded-table",
-                            }
-                        )
+                events.extend(extract_events_from_table(table, instructor, start_date))
 
     unique = {}
     for event in events:
