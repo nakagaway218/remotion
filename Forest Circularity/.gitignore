@@ -1,0 +1,13 @@
+raw/webclip-full/
+raw/assets/
+raw/downloads/
+*.pdf
+*.webarchive
+*.mhtml
+.env
+.env.*
+credentials.json
+token.json
+google-oauth-token.json
+secrets/
+
