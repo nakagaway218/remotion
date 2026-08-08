@@ -9,15 +9,15 @@
 ## Shared Knowledge Workflow
 
 1. Enter the video title and script settings.
-2. For specialized topics, create a `Codex調査用プロンプト`.
+2. For specialized topics, create a `AI調査用プロンプト`.
 3. Paste trusted source candidates into `重要情報ソースリスト`.
-4. Paste Codex output into `Codex調査メモ`.
+4. Paste AI research output into `AI調査メモ`.
 5. Import or paste source materials into `インポートした文献・資料`.
 6. If extra source-document reading is needed, click `リサーチセット作成` and paste the generated research set into NotebookLM.
 7. Paste NotebookLM output into `NotebookLMで作成した基礎知識メモ` when used.
 8. Continue into the script workflow.
 
-The Codex research memo, knowledge memo, and source materials should be reflected in all three script workflows.
+The AI research memo, knowledge memo, and source materials should be reflected in all three script workflows.
 The trusted source list should also be reflected in all three script workflows.
 
 ## Trusted Source Workflow
@@ -31,8 +31,8 @@ The trusted source list should also be reflected in all three script workflows.
    - structure reference
    - speaking-style reference
    - dialogue-conversion reference
-5. Click `Codex調査用プロンプト` and paste it into Codex.
-6. Paste the returned research memo into `Codex調査メモ`.
+5. Click `AI調査用プロンプト` and paste it into your AI tool.
+6. Paste the returned research memo into `AI調査メモ`.
 7. Use `リサーチセット作成` and NotebookLM only when extra source-document reading is needed.
 
 ## 一人語り Workflow
@@ -113,7 +113,7 @@ For prompt checks:
 
 1. Start the server with a temporary `PORT`.
 2. Send sample data to `/api/prompt`.
-3. Confirm `Codex調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected prompts.
+3. Confirm `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected prompts.
 
 ## Project Save Workflow
 
@@ -123,7 +123,7 @@ The tool writes:
 
 - `request.json`
 - `characters.json`
-- `codex-research.md`
+- `ai-research.md`
 - `trusted-sources.md`
 - `knowledge.md`
 - `sources.md`

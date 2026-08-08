@@ -17,11 +17,11 @@ Use this skill when editing the Scenariowriting tool.
 
 - Edit prompt builders in `server.mjs`.
 - Preserve `knowledgeSection(fields)` in planning, writing, and rewrite prompts.
-- Preserve Codex research as the standard specialized-topic path.
+- Preserve AI research as the standard specialized-topic path.
 - Preserve trusted-source discovery and NotebookLM memo creation as optional additions.
 - Preserve normal synopsis approval and rewrite synopsis approval.
 - Preserve the preflight check behavior and pass `preflightCheck` into intro/ending, body, and dialogue rewrite prompts.
-- Keep manual ChatGPT and Codex prompt transfer as the main path. NotebookLM is optional.
+- Keep manual transfer to the user's AI tool as the main path. NotebookLM is optional.
 
 ### UI Changes
 

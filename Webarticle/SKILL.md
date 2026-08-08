@@ -14,11 +14,11 @@ Use this skill when editing the Webarticle tool.
 
 - Edit prompt builders in `server.mjs`.
 - Preserve `knowledgeSection(fields)` in downstream prompts.
-- Preserve Codex research as the standard specialized-topic path.
+- Preserve AI research as the standard specialized-topic path.
 - Preserve trusted-source discovery and NotebookLM memo creation as optional additions.
 - Preserve synopsis approval behavior.
 - Preserve the preflight check behavior and pass `preflightCheck` into body and summary prompts.
-- Keep prompt output labels clear for manual ChatGPT, Codex, or NotebookLM transfer.
+- Keep prompt output labels clear for manual an AI tool or NotebookLM transfer.
 
 ### UI Changes
 

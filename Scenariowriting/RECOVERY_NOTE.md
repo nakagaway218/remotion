@@ -8,7 +8,7 @@
 復元元:
 
 - commit: `c73e2f7d37`
-- message: `Adopt Codex research as the standard knowledge step`
+- message: `Adopt AI research as the standard knowledge step`
 
 ## 消してはいけないもの
 

@@ -20,7 +20,7 @@ The broader system now treats this as part of a four-flow content workspace toge
 ## Default Operation
 
 - The user has ChatGPT Plus.
-- The standard mode is manual prompt transfer to ChatGPT or Codex. NotebookLM is optional for extra source-document reading.
+- The standard mode is manual prompt transfer to an AI tool. NotebookLM is optional for extra source-document reading.
 - OpenAI API generation is optional and hidden under `API生成の詳細設定`.
 - Avoid making API usage the main path.
 
@@ -41,9 +41,9 @@ The broader system now treats this as part of a four-flow content workspace toge
 
 ## Important Product Decisions
 
-- `重要情報ソースリスト`, `Codex調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` are optional but should feed all relevant script prompts.
+- `重要情報ソースリスト`, `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` are optional but should feed all relevant script prompts.
 - The knowledge step applies to all three script workflows.
-- Specialized topics should support a Codex research step as the standard path, with trusted-source discovery and NotebookLM memo creation as optional additions.
+- Specialized topics should support a AI research step as the standard path, with trusted-source discovery and NotebookLM memo creation as optional additions.
 - Trusted sources for scripts should distinguish fact-checking sources from structure, speaking-style, and dialogue-conversion references.
 - `リサーチセット作成` builds an optional NotebookLM research prompt and URL list from imported outline/source fields.
 - Rakko CSV/JSON and Rakko GPTs results should be treated as viewer needs and topic candidates for scripts, not as the final script outline.

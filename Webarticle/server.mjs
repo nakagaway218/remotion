@@ -25,7 +25,7 @@ const contentTypes = {
 
 const stepLabels = {
   sourceDiscovery: "情報ソース候補",
-  codexResearch: "Codex調査",
+  codexResearch: "AI調査",
   knowledge: "基礎知識",
   rakkoGpts: "ラッコGPTs連携",
   intent: "検索意図",
@@ -110,7 +110,7 @@ const articleSettings = (fields) => {
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
 
-# Codex調査メモ
+# AI調査メモ
 ${fields.codexResearchMemo || "なし"}
 
 # NotebookLMで作成した基礎知識メモ
@@ -161,10 +161,10 @@ const usageSummary = (usage) => ({
 
 const promptBuilders = {
   codexResearch: ({keyword, ...fields}) => ({
-    target: "Codex",
+    target: "AI",
     instructions:
       "あなたはWeb記事作成前の調査担当です。必要に応じてWeb検索や手元資料を確認し、信頼できる根拠と記事に使える基礎知識を日本語で整理してください。",
-    input: `「${keyword}」の記事を書く前に、Codex上で基礎調査をしてください。
+    input: `「${keyword}」の記事を書く前に、普段使っているAIで基礎調査をしてください。
 
 ${articleSettings(fields)}
 
@@ -882,7 +882,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       2,
     ),
     "trusted-sources.md": `# 重要情報ソースリスト\n\n${compact(fields.trustedSources) || "なし"}\n`,
-    "codex-research.md": `# Codex調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
+    "ai-research.md": `# AI調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
     "knowledge.md": `# NotebookLMで作成した基礎知識メモ\n\n${compact(fields.knowledgeMemo) || "なし"}\n\n# NotebookLM用リサーチセット\n\n${compact(fields.notebookResearchSet) || "なし"}\n`,
     "sources.md": `# インポートした文献・資料\n\n${compact(fields.sourceMaterials) || "なし"}\n`,
     "rakko-gpts.md": `# ラッコGPTs結果\n\n${compact(fields.rakkoGptsResult) || "なし"}\n`,
@@ -902,7 +902,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- codex-research.md: Codex調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- ai-research.md: AI調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
   };
 
   await mkdir(projectDir, {recursive: true});

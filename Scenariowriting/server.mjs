@@ -22,7 +22,7 @@ const contentTypes = {
 
 const stepLabels = {
   sourceDiscovery: "情報ソース候補",
-  codexResearch: "Codex調査",
+  codexResearch: "AI調査",
   knowledge: "基礎知識",
   rakkoGpts: "ラッコGPTs連携",
   intent: "検索意図",
@@ -170,7 +170,7 @@ ${compact(fields.spreadsheetColumnExamples) || "指定なし"}`;
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
 
-# Codex調査メモ
+# AI調査メモ
 ${fields.codexResearchMemo || "なし"}
 
 # NotebookLMで作成した基礎知識メモ
@@ -323,10 +323,10 @@ const usageSummary = (usage) => ({
 
 const promptBuilders = {
   codexResearch: ({videoTitle, ...fields}) => ({
-    target: "Codex",
+    target: "AI",
     instructions:
       "あなたはYouTube台本作成前の調査担当です。必要に応じてWeb検索や手元資料を確認し、信頼できる根拠、視聴者ニーズ、台本に使える話題候補を日本語で整理してください。",
-    input: `「${videoTitle}」というYouTube台本を作る前に、Codex上で基礎調査をしてください。
+    input: `「${videoTitle}」というYouTube台本を作る前に、普段使っているAIで基礎調査をしてください。
 
 ${scriptSettings(fields)}
 
@@ -1341,7 +1341,7 @@ const saveScriptProject = async (fields, draftMarkdown) => {
     "request.json": JSON.stringify(scriptPlan, null, 2),
     "characters.json": JSON.stringify(characterPlan, null, 2),
     "trusted-sources.md": `# 重要情報ソースリスト\n\n${compact(fields.trustedSources) || "なし"}\n`,
-    "codex-research.md": `# Codex調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
+    "ai-research.md": `# AI調査メモ\n\n${compact(fields.codexResearchMemo) || "なし"}\n`,
     "knowledge.md": `# NotebookLMで作成した基礎知識メモ\n\n${compact(fields.knowledgeMemo) || "なし"}\n\n# 参考動画\n\n${compact(fields.referenceVideos) || "なし"}\n\n# 参考台本\n\n${compact(fields.referenceScripts) || "なし"}\n\n# 参考プロット\n\n${compact(fields.referencePlots) || "なし"}\n\n# NotebookLM用リサーチセット\n\n${compact(fields.notebookResearchSet) || "なし"}\n`,
     "sources.md": `# インポートした文献・資料\n\n${compact(fields.sourceMaterials) || "なし"}\n`,
     "rakko-gpts.md": `# ラッコGPTs結果\n\n${compact(fields.rakkoGptsResult) || "なし"}\n\n# 扱い方\n\nこの見出しは台本の目次そのものではなく、視聴者ニーズと話題候補の材料として扱います。\n`,
@@ -1366,7 +1366,7 @@ const saveScriptProject = async (fields, draftMarkdown) => {
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.videoTitle) || "script"}\n\nこのフォルダーは Scenariowriting から保存した台本プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- characters.json: キャラクター設定\n- trusted-sources.md: 重要情報ソースリスト\n- codex-research.md: Codex調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図と視聴者理解\n- serp-analysis.md: 検索上位記事の目次構成\n- outline.md: 台本目次\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 台本前チェック\n- intro-ending.md: 冒頭・エンディング\n- body.md: 本文\n- transcript.md: 書き起こし整形\n- rewrite-analysis.md: 対話化設計\n- rewrite-synopsis.md: 採用リライトあらすじ\n- dialogue-rewrite.md: 対話リライト\n- draft.md: 台本下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.videoTitle) || "script"}\n\nこのフォルダーは Scenariowriting から保存した台本プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- characters.json: キャラクター設定\n- trusted-sources.md: 重要情報ソースリスト\n- ai-research.md: AI調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図と視聴者理解\n- serp-analysis.md: 検索上位記事の目次構成\n- outline.md: 台本目次\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 台本前チェック\n- intro-ending.md: 冒頭・エンディング\n- body.md: 本文\n- transcript.md: 書き起こし整形\n- rewrite-analysis.md: 対話化設計\n- rewrite-synopsis.md: 採用リライトあらすじ\n- dialogue-rewrite.md: 対話リライト\n- draft.md: 台本下書き\n- review.json: レビュー結果の保存先\n`,
   };
 
   await mkdir(projectDir, {recursive: true});

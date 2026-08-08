@@ -3,9 +3,9 @@
 ## Article Creation
 
 1. Fill in keyword, target length, body allocation, article purpose, and tone.
-2. If the topic is specialized, use `Codex調査用プロンプト`.
+2. If the topic is specialized, use `AI調査用プロンプト`.
 3. Paste trusted source candidates into `重要情報ソースリスト`.
-4. Paste Codex research output into `Codex調査メモ`.
+4. Paste AI research output into `AI調査メモ`.
 5. Optionally use `リサーチセット作成` or `NotebookLM用プロンプト` when NotebookLM should read source documents.
 6. Paste NotebookLM notes into `NotebookLMで作成した基礎知識メモ` when used.
 7. Import or paste source materials into `インポートした文献・資料`.
@@ -29,8 +29,8 @@
 2. Paste the prompt into ChatGPT.
 3. Paste the returned list into `重要情報ソースリスト`.
 4. Add URLs, source names, reliability reasons, and article-use notes where possible.
-5. Click `Codex調査用プロンプト` and paste it into Codex.
-6. Paste the returned research memo into `Codex調査メモ`.
+5. Click `AI調査用プロンプト` and paste it into your AI tool.
+6. Paste the returned research memo into `AI調査メモ`.
 7. Use `リサーチセット作成` and NotebookLM only when extra source-document reading is needed.
 
 ## Rakko CSV Workflow
@@ -76,7 +76,7 @@ For prompt checks:
 
 1. Start the server with a temporary `PORT`.
 2. Send sample data to `/api/prompt`.
-3. Confirm `Codex調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected downstream prompts.
+3. Confirm `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected downstream prompts.
 
 ## Project Save Workflow
 
@@ -86,7 +86,7 @@ The tool writes:
 
 - `request.json`
 - `trusted-sources.md`
-- `codex-research.md`
+- `ai-research.md`
 - `knowledge.md`
 - `sources.md`
 - `rakko-gpts.md`
