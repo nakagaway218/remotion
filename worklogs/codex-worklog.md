@@ -141,3 +141,16 @@ PDF読取に必要なツールを削除した可能性があるため、残存�
 - 実施内容: Scenariowriting の手順説明に残っていた旧名称併記を、汎用的なAIツール表記へ統一。
 - 変更ファイル: Scenariowriting/SKILL.md、worklogs/codex-worklog.md
 - 未解決事項: なし。
+
+## 2026-08-09 Codex / Claude Code 共有用の最小整備
+
+- `docs/PROJECT_CONTEXT.md`、`docs/WORKFLOW.md`、`docs/DECISIONS.md` を追加し、AI 間で共有する概要・手順・判断の置き場を作成。
+- `tasks/active/`、`tasks/paused/`、`tasks/done/` と各 README を追加し、タスクの現在地を Markdown で引き継げるように整理。
+- `CLAUDE.md` を、詳細ルールを二重管理しない薄い参照入口として更新。
+- 既存の Antigravity / RECOVERY 系メモを確認したが、確定できる途中放置タスクは見つからなかったため、推測で個別タスクは作成していない。
+
+## 2026-08-09 会話圧縮前の情報整理
+
+- 自動圧縮で細かな判断が落ちる可能性があるため、`docs/WORKFLOW.md` に圧縮前の Markdown 記録方針を追記。
+- `docs/DECISIONS.md` に「チャット圧縮前に重要情報を Markdown に残す」判断を追記。
+- `tasks/done/2026-08-09-ai-agent-shared-memory-setup.md` を追加し、今回の整備内容・判断・未着手事項・次の行動をタスク完了メモとして固定。
