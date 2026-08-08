@@ -96,3 +96,15 @@ From `packages/example`:
 - The Remotion Studio (`bun run dev` in `packages/example`) sometimes reports "Already running on port 3000" if a previous instance is still bound. Check with `curl http://localhost:3000` before assuming it failed.
 - After `bun install`, always run `bun run build` before running tests or starting the Studio, as many packages depend on built artifacts from other packages.
 - The `prepare` script in root `package.json` sets git hooks path to `.githooks`. The pre-commit hook runs `bun pre-commit.ts` for formatting.
+
+
+## Work Log Policy
+
+- 作業を行った場合は、終了時に `.codex/worklog.md` に作業記録を追記する。
+- 記録内容は、日時、依頼内容、実施内容、変更ファイル、未解決事項とする。
+- ファイルを変更していない調査だけの場合も、調査結果を簡潔に記録する。
+- 同じ内容を重複記録しない。
+- Windows環境では `apply_patch` が失敗する場合があるため、ファイルの作成・編集・追記にはPowerShellを使用する。
+- 同じ失敗したコマンドを繰り返し実行しない。
+
+

@@ -32,3 +32,10 @@ CodexをLM Studio上のローカルモデルで運用し、作業記録を残す
 
 **未解決事項**
 - なし。
+
+## 2026-08-08 AGENTS.md worklog policy cleanup
+
+- 依頼内容: AGENTS.md の文字化け修正と作業記録先の統一。
+- 実施内容: 文字化けしていたダッシュ表記を復元し、作業記録先を .codex/worklog.md に統一。
+- 変更ファイル: AGENTS.md, .codex/worklog.md
+- 未解決事項: なし。
