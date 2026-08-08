@@ -951,6 +951,17 @@ function Get-TargetStoreAndCalendars {
     }
 }
 
+function Get-IncompleteMizuguchiEvents {
+    param([object[]]$Events)
+
+    @($Events | Where-Object {
+        $_.School -eq '水口校' -and (
+            [string]::IsNullOrWhiteSpace([string]$_.Student) -or
+            [string]::IsNullOrWhiteSpace([string]$_.Subject)
+        )
+    })
+}
+
 function Show-ReviewForm {
     param(
         [object[]]$Events,
@@ -1060,7 +1071,7 @@ function Show-ReviewForm {
     [void]$grid.Columns.Add($sourceColumn)
 
     foreach ($event in $Events) {
-        $rowIndex = $grid.Rows.Add(
+        [void]$grid.Rows.Add(
             $true,
             $event.Date,
             $event.Start,
@@ -1072,15 +1083,6 @@ function Show-ReviewForm {
             $event.Confidence,
             $event.SourcePath
         )
-        if (
-            $event.School -eq '水口校' -and (
-                [string]::IsNullOrWhiteSpace([string]$event.Student) -or
-                [string]::IsNullOrWhiteSpace([string]$event.Subject)
-            )
-        ) {
-            $grid.Rows[$rowIndex].DefaultCellStyle.BackColor = [System.Drawing.Color]::MistyRose
-            $grid.Rows[$rowIndex].ErrorText = '生徒名または教科名をPDFから入力してください。'
-        }
     }
 
     $selectAll.Add_Click({
@@ -1348,6 +1350,7 @@ try {
     Write-LocalLog -Message ('抽出予定 {0}件' -f $events.Count)
 
     if ($AnalyzeOnly) {
+        $incompleteCount = @(Get-IncompleteMizuguchiEvents -Events $events).Count
         [pscustomobject]@{
             eventCount = $events.Count
             dates = @($events | ForEach-Object { $_.Date } | Sort-Object -Unique)
@@ -1363,9 +1366,7 @@ try {
                     subjectCount = @(Split-ScheduleValue -Value ([string]$_.Subject)).Count
                 }
             })
-            allWaterEventsHaveDetails = (@($events | Where-Object {
-                $_.School -eq '水口校' -and ([string]::IsNullOrWhiteSpace($_.Student) -or [string]::IsNullOrWhiteSpace($_.Subject))
-            }).Count -eq 0)
+            allWaterEventsHaveDetails = ($incompleteCount -eq 0)
         } | ConvertTo-Json -Compress
         exit 0
     }
@@ -1375,8 +1376,15 @@ try {
         exit 1
     }
 
+    # Incomplete rows never reach the review form or Outlook.
+    $incomplete = @(Get-IncompleteMizuguchiEvents -Events $events)
+    if ($incomplete.Count -gt 0) {
+        Write-LocalLog -Message ('読み取り未完了 {0}件。確認画面とOutlook反映を中止' -f $incomplete.Count)
+        Show-Message -Text "PDFを行・日付欄・元画像の3通りで再確認しましたが、水口校の生徒名または教科名を確定できない予定が $($incomplete.Count) 件ありました。`r`n確認画面は開かず、Outlookも変更していません。PDFの画質や最新版かどうかを確認して、もう一度実行してください。" -Icon Warning
+        exit 1
+    }
 
-    Show-Message -Text "ローカルAIの結果は下書きです。`r`n全件が選択済みです。赤い行の空欄を入力し、PDFと照合してから反映してください。" -Icon Warning
+    Show-Message -Text "PDFを3通りの方法で確認し、必要項目をすべて読み取れました。`r`n内容を最終確認してください。通常は入力不要で、全件が選択済みです。" -Icon Information
 
     $outlookData = Get-TargetStoreAndCalendars -Config $config
     Write-LocalLog -Message ('対象予定表候補 {0}件' -f $outlookData.Calendars.Count)
@@ -1393,14 +1401,9 @@ try {
         Show-Message -Text '反映する予定または予定表が選択されていません。' -Icon Warning
         exit 1
     }
-    $incomplete = @($review.Events | Where-Object {
-        $_.School -eq '水口校' -and (
-            [string]::IsNullOrWhiteSpace([string]$_.Student) -or
-            [string]::IsNullOrWhiteSpace([string]$_.Subject)
-        )
-    })
+    $incomplete = @(Get-IncompleteMizuguchiEvents -Events $review.Events)
     if ($incomplete.Count -gt 0) {
-        Show-Message -Text '水口校の予定には生徒名と教科名が必要です。空欄を入力してから、もう一度反映してください。' -Icon Warning
+        Show-Message -Text '確認画面で水口校の生徒名または教科名が未入力になった予定があります。Outlookは変更していません。PDFからもう一度実行してください。' -Icon Warning
         exit 1
     }
 
