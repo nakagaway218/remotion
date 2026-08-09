@@ -65,3 +65,9 @@ client_secret_*.json
 
 # Private school schedule source files and rendered previews
 tmp/pdfs/schoolie-shifts/
+
+# Generated local Codex reference index
+/CodexMemory/Codex-Reference-Pack.md
+
+# Generated local Codex reference index
+/CodexMemory/Codex-Reference-Pack.md

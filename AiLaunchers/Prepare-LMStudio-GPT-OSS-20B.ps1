@@ -185,5 +185,5 @@ else {
     }
 }
 
-Write-Step "[4/4] Ready."
+Write-Step "[LM Studio] Ready."
 Write-Host "$ModelId is loaded with context $ContextLength."

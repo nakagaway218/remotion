@@ -1,7 +1,6 @@
 @echo off
 setlocal
 
-chcp 65001 >nul
 title Codex - openai/gpt-oss-20b
 
 set "SCRIPT_DIR=%~dp0"
@@ -28,22 +27,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/4] Preparing CodexMemory hook...
-if exist "%MEMORY_HOOK%" (
-  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%MEMORY_HOOK%"
-  if errorlevel 1 (
-    echo.
-    echo CodexMemory hook failed. Please check the messages above.
-    pause
-    exit /b 1
-  )
-) else (
-  echo CodexMemory hook was not found:
-  echo %MEMORY_HOOK%
-)
-
-echo.
-echo [3/4] Checking codex.cmd...
+echo [2/4] Checking codex.cmd...
 where codex.cmd >nul 2>nul
 if errorlevel 1 (
   echo codex.cmd was not found in PATH.
@@ -73,16 +57,21 @@ if errorlevel 1 (
 )
 
 echo.
-echo [4/4] Starting Codex in:
-echo %CD%
-echo.
-echo Command:
-echo codex.cmd --oss -m %MODEL_ID%
-echo.
-echo First message to local Codex is shown above by CodexMemory hook.
-echo.
+echo [3/4] Preparing Codex reference material...
+if exist "%MEMORY_HOOK%" (
+  powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "%MEMORY_HOOK%"
+  if errorlevel 1 (
+    echo.
+    echo CodexMemory hook failed. Please check the messages above.
+    pause
+    exit /b 1
+  )
+) else (
+  echo CodexMemory hook was not found:
+  echo %MEMORY_HOOK%
+)
 
-call codex.cmd --oss -m %MODEL_ID%
+codex.cmd --no-alt-screen --oss -m "%MODEL_ID%"
 set "CODEX_EXIT=%ERRORLEVEL%"
 
 echo.

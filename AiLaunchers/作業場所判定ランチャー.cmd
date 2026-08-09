@@ -1,7 +1,6 @@
 @echo off
 setlocal
 
-chcp 65001 >nul
 title AI Workplace Advisor
 
 set "SCRIPT_DIR=%~dp0"

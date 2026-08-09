@@ -98,6 +98,13 @@ From `packages/example`:
 - The `prepare` script in root `package.json` sets git hooks path to `.githooks`. The pre-commit hook runs `bun pre-commit.ts` for formatting.
 
 
+## Local Codex Reference Context
+
+- `AiLaunchers/Prepare-CodexMemory-Hook.ps1` regenerates `CodexMemory/Codex-Reference-Pack.md` when a local Codex launcher starts.
+- The user's first message may be the actual task. Do not ask them to paste a preparation message, reply only with `準備できました`, or wait for a second instruction unless explicitly asked.
+- For a task, consult relevant original files named in `CodexMemory/Codex-Handoff.md`, `docs/`, and `tasks/`. Treat `CodexMemory/Codex-Reference-Pack.md` as a generated index/fallback and do not edit it directly.
+- When the user names an additional reference file, read that file only as needed for the task.
+
 ## Work Log Policy
 
 - 作業を行った場合は、終了時に `.codex/worklog.md` に作業記録を追記する。
