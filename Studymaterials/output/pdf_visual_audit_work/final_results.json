@@ -1,0 +1,456 @@
+{
+  "audit_date": "2026-08-11",
+  "scope": {
+    "pdf_count": 23,
+    "page_count": 169
+  },
+  "outcome": "問題候補なし",
+  "lm_studio": {
+    "used": true,
+    "model": "google/gemma-3-12b",
+    "render_dpi": 120,
+    "contact_sheet_max_pages": 4,
+    "note": "llama-3.2-11b-vision-instructはローカル起動に失敗したためGemma 3へ切り替えました。"
+  },
+  "static_checks": {
+    "pdf_count": 23,
+    "page_count": 169,
+    "possibly_blank_pages": [],
+    "outside_object_pages": [],
+    "suspicious_text_hits": []
+  },
+  "manual_sample_pdfs": [
+    "週間学習計画表生徒用_横型.pdf",
+    "週間学習計画表生徒用_縦型.pdf",
+    "日本語用言活用対応表.pdf",
+    "日本語助動詞一覧.pdf",
+    "中学生英作文be動詞現在形編.pdf",
+    "英語助動詞表現A41枚.pdf"
+  ],
+  "issue_candidate_count": 0,
+  "validation_errors": [],
+  "pdfs": [
+    {
+      "pdf": "中学生英作文be動詞現在形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文be動詞現在形編問題見本.pdf",
+      "page_count": 1,
+      "audited_pages": [
+        1
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文be動詞現在形編解答見本.pdf",
+      "page_count": 1,
+      "audited_pages": [
+        1
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文be動詞過去形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文一般動詞現在形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文一般動詞過去形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文助動詞can編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文助動詞must編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文助動詞will編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文受動態編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文現在完了形_完了用法編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文現在完了形_経験用法編.pdf",
+      "page_count": 18,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "method": "LM Studio（4ページ単位の再試行）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文現在完了形_結果用法編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文現在完了形_継続用法編.pdf",
+      "page_count": 18,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文現在進行形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "中学生英作文過去進行形編.pdf",
+      "page_count": 10,
+      "audited_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "日本語助動詞一覧.pdf",
+      "page_count": 1,
+      "audited_pages": [
+        1
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "日本語用言活用対応表.pdf",
+      "page_count": 1,
+      "audited_pages": [
+        1
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "生活記録表生徒用_横型.pdf",
+      "page_count": 2,
+      "audited_pages": [
+        1,
+        2
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "生活記録表生徒用_縦型.pdf",
+      "page_count": 2,
+      "audited_pages": [
+        1,
+        2
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "英語助動詞表現A41枚.pdf",
+      "page_count": 1,
+      "audited_pages": [
+        1
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "週間学習計画表生徒用_横型.pdf",
+      "page_count": 2,
+      "audited_pages": [
+        1,
+        2
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    },
+    {
+      "pdf": "週間学習計画表生徒用_縦型.pdf",
+      "page_count": 2,
+      "audited_pages": [
+        1,
+        2
+      ],
+      "method": "LM Studio（PDF単位）",
+      "issues": [],
+      "missing_pages": [],
+      "unexpected_pages": [],
+      "status": "ok"
+    }
+  ]
+}
