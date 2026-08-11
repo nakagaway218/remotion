@@ -32,6 +32,13 @@
         </div>
         <section class="article-spec" aria-label="記事仕様">
           <label>
+            記事モード
+            <select id="articleMode">
+              <option value="commissioned">依頼記事</option>
+              <option value="note-self">note・自分発信</option>
+            </select>
+          </label>
+          <label>
             目標文字数
             <input id="targetLength" inputmode="numeric" type="number" min="800" step="100" value="4000" />
           </label>
@@ -63,6 +70,86 @@
             </select>
           </label>
         </section>
+        <section class="publish-target-wrap" aria-label="公開先">
+          <div>
+            <p class="eyebrow">Publish target</p>
+            <h2>公開先</h2>
+          </div>
+          <div class="publish-target" role="radiogroup" aria-label="公開先を選択">
+            <label class="is-active">
+              <input type="radio" name="publishTargetChoice" value="note" checked />
+              <span>note</span>
+            </label>
+            <label>
+              <input type="radio" name="publishTargetChoice" value="blog" />
+              <span>ブログ</span>
+            </label>
+            <label>
+              <input type="radio" name="publishTargetChoice" value="wordpress" />
+              <span>WordPress</span>
+            </label>
+          </div>
+          <input id="publishTarget" type="hidden" value="note" />
+          <p class="publish-target-copy" id="publishTargetCopy">note向けに、書き手の視点と読後感を残しやすくします。</p>
+        </section>
+        <details class="wordpress-details" id="wordpressDetails" hidden>
+          <summary>WordPress入稿メモ</summary>
+          <div class="wordpress-grid">
+            <label>
+              スラッグ
+              <input id="wpSlug" autocomplete="off" placeholder="例：web-writer-start" />
+            </label>
+            <label>
+              カテゴリー
+              <input id="wpCategories" autocomplete="off" placeholder="例：Webライティング, 副業" />
+            </label>
+            <label>
+              タグ
+              <input id="wpTags" autocomplete="off" placeholder="例：初心者, note, WordPress" />
+            </label>
+            <label>
+              メタディスクリプション
+              <textarea id="wpMetaDescription" placeholder="検索結果やSNS共有で使う短い説明文"></textarea>
+            </label>
+          </div>
+        </details>
+        <details class="personal-details" open>
+          <summary>note・自分発信メモ</summary>
+          <div class="personal-grid">
+            <label>
+              一番言いたいこと
+              <textarea id="coreMessage" placeholder="この記事で最後に残したい主張や軸"></textarea>
+            </label>
+            <label>
+              私の意見・感想
+              <textarea id="personalOpinions" placeholder="自分はどう感じたか、どこに違和感や納得感があるか"></textarea>
+            </label>
+            <label>
+              体験・背景
+              <textarea id="personalExperience" placeholder="きっかけ、経験、読者に共有したい前提"></textarea>
+            </label>
+            <label>
+              強調したい点
+              <textarea id="emphasisPoints" placeholder="何度も読者に伝わってほしい要点"></textarea>
+            </label>
+            <label>
+              こだわりポイント
+              <textarea id="commitmentPoints" placeholder="言葉選び、構成、読後感で外したくないこと"></textarea>
+            </label>
+            <label>
+              あえて入れたい言葉
+              <textarea id="preferredExpressions" placeholder="自分らしい表現、必ず使いたい言い回し"></textarea>
+            </label>
+            <label>
+              避けたい言い方
+              <textarea id="avoidExpressions" placeholder="強すぎる断定、煽り、使いたくない表現など"></textarea>
+            </label>
+            <label>
+              読者に残したい気持ち
+              <textarea id="readerFeeling" placeholder="読み終わった人に持ち帰ってほしい感情"></textarea>
+            </label>
+          </div>
+        </details>
         <section class="chatgpt-prompt-pane" aria-label="プロンプト連携">
           <div class="prompt-head">
             <div>

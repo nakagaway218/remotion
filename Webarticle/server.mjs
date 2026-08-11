@@ -68,8 +68,20 @@ const safeSegment = (value, fallback = "article") =>
     .replace(/_+/g, "_")
     .slice(0, 80);
 const optionLabel = (value, labels, fallback) => labels[compact(value)] || fallback;
+const publishTargetValue = (value) => {
+  const target = compact(value);
+  return ["note", "blog", "wordpress"].includes(target) ? target : "note";
+};
 const articleSettings = (fields) => {
   const targetLength = Math.max(800, Math.min(30000, Number(fields.targetLength) || 4000));
+  const articleMode = optionLabel(
+    fields.articleMode,
+    {
+      commissioned: "依頼記事",
+      "note-self": "note・自分発信",
+    },
+    "依頼記事",
+  );
   const bodyAllocation = optionLabel(
     fields.bodyAllocation,
     {
@@ -100,13 +112,59 @@ const articleSettings = (fields) => {
     },
     "初心者向け",
   );
+  const publishTarget = optionLabel(
+    publishTargetValue(fields.publishTarget),
+    {
+      note: "note",
+      blog: "ブログ",
+      wordpress: "WordPress",
+    },
+    "note",
+  );
 
   return `# 記事仕様
+- 記事モード：${articleMode}
 - 用途：${articlePurpose}
+- 公開先：${publishTarget}
 - 目標文字数：記事全体で約${targetLength}文字
 - 本文の分量配分：${bodyAllocation}
 - トーン：${articleTone}`;
 };
+const personalPerspectiveFields = [
+  ["coreMessage", "一番言いたいこと"],
+  ["personalOpinions", "私の意見・感想"],
+  ["personalExperience", "体験・背景"],
+  ["emphasisPoints", "強調したい点"],
+  ["commitmentPoints", "こだわりポイント"],
+  ["preferredExpressions", "あえて入れたい言葉"],
+  ["avoidExpressions", "避けたい言い方"],
+  ["readerFeeling", "読者に残したい気持ち"],
+];
+const personalPerspectiveSection = (fields) => {
+  const entries = personalPerspectiveFields
+    .map(([key, label]) => [label, compact(fields[key])])
+    .filter(([, value]) => value)
+    .map(([label, value]) => `## ${label}\n${value}`);
+  const isSelfMode = compact(fields.articleMode) === "note-self";
+  if (!isSelfMode && entries.length === 0) {
+    return "";
+  }
+
+  return `# note・自分発信メモ
+${
+  isSelfMode
+    ? "このモードでは、情報整理だけで終えず、書き手の意見・感想・体験・こだわりが自然に残る記事にしてください。根拠のない断定や過度な自分語りは避け、読者に役立つ視点として編み込んでください。"
+    : "以下は書き手の視点として、記事の主張や言葉選びに反映してください。"
+}
+
+${
+  entries.length
+    ? entries.join("\n\n")
+    : "具体メモは未入力です。必要に応じて、書き手があとから体験や感想を追記しやすい余白を残してください。"
+}`;
+};
+const articleContext = (fields) =>
+  [articleSettings(fields), personalPerspectiveSection(fields)].filter(Boolean).join("\n\n");
 const knowledgeSection = (fields) => `# 重要情報ソースリスト
 ${fields.trustedSources || "なし"}
 
@@ -166,7 +224,7 @@ const promptBuilders = {
       "あなたはWeb記事作成前の調査担当です。必要に応じてWeb検索や手元資料を確認し、信頼できる根拠と記事に使える基礎知識を日本語で整理してください。",
     input: `「${keyword}」の記事を書く前に、普段使っているAIで基礎調査をしてください。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 # 既にある重要情報ソースリスト
 ${fields.trustedSources || "なし"}
@@ -214,7 +272,7 @@ ${fields.competitorOutlines || "なし"}
       "あなたはWeb記事のリサーチ設計者です。NotebookLMに読み込ませるための、重要で信頼性の高い情報ソース候補を日本語で整理してください。",
     input: `「${keyword}」の記事を書く前に、NotebookLMへ読み込ませるべき重要情報ソースをリストアップしてください。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 # 既にある文献・資料
 ${fields.sourceMaterials || "なし"}
@@ -286,7 +344,7 @@ ${fields.trustedSources || "なし"}
       "あなたはラッコキーワードAPIと接続されたGPTsです。キーワードの検索上位記事から、SEO記事構成に使うh2/h3見出しだけを取得し、指定形式のJSONだけで返してください。",
     input: `「${keyword}」について、ラッコキーワードAPIの見出し抽出を使い、検索上位5記事のh2/h3を取得してください。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 # API取得条件
 - 対象キーワード：${keyword}
@@ -329,7 +387,7 @@ ${articleSettings(fields)}
       "あなたはSEOを十分に理解しているプロのWebライターです。日本語で簡潔に出力してください。",
     input: `「${keyword}」というキーワードでSEO記事を書きます。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -360,7 +418,7 @@ ${knowledgeSection(fields)}
 # ペルソナ、顕在ニーズ、潜在ニーズ
 ${intent}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -395,7 +453,7 @@ h2：見出し`,
       "あなたは記事の主張と流れを整理する編集者です。後続の執筆で内容がぶれないためのあらすじだけを日本語で出力してください。",
     input: `「${keyword}」の記事構成をもとに、記事全体のあらすじを作成してください。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -428,7 +486,7 @@ ${outline}
       "あなたは記事の主張と流れを整理する編集者です。既存のあらすじを修正指示に沿って改善し、採用できる完成版だけを日本語で出力してください。",
     input: `「${keyword}」の記事あらすじを修正してください。
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -470,7 +528,7 @@ ${synopsisRevisionNote || "現在のあらすじを確認し、記事内容が�
 # 採用タイトル
 ${title || "未定"}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -520,7 +578,7 @@ ${synopsis}
 # ペルソナ、顕在ニーズ、潜在ニーズ
 ${intent}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -548,7 +606,7 @@ ${synopsis}
 # 記事タイトル
 ${title}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -576,7 +634,7 @@ ${synopsis}
 # ペルソナ、顕在ニーズ、潜在ニーズ
 ${intent}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -636,7 +694,7 @@ ${title}
 # まとめの見出し
 ${summaryHeading}
 
-${articleSettings(fields)}
+${articleContext(fields)}
 
 ${knowledgeSection(fields)}
 
@@ -852,31 +910,172 @@ const fetchRakkoHeadlines = async (keyword) => {
   };
 };
 
+const splitWordPressTerms = (value) =>
+  compact(value)
+    .split(/[\n,、，]+/u)
+    .map(compact)
+    .filter(Boolean);
+
+const stripMarkdown = (value) =>
+  compact(value)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*\d+\.\s+/gm, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const excerptFrom = (value, length = 120) => {
+  const text = stripMarkdown(value);
+  return text.length > length ? `${text.slice(0, length)}...` : text;
+};
+
+const slugifyWordPress = (value) =>
+  compact(value)
+    .normalize("NFKC")
+    .replace(/[^\p{Letter}\p{Number}\s-]/gu, "")
+    .trim()
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase()
+    .slice(0, 80);
+
+const wordPressSlug = (fields) =>
+  slugifyWordPress(fields.wpSlug || fields.title || fields.selectedTitle || fields.keyword) || "article";
+
+const escapeHtml = (value) =>
+  String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+const escapeAttribute = (value) => escapeHtml(value).replace(/"/g, "&quot;");
+
+const inlineMarkdownToHtml = (value) =>
+  escapeHtml(value)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      (_, text, href) => `<a href="${escapeAttribute(href)}">${text}</a>`,
+    );
+
+const markdownToWordPressHtml = (markdown) => {
+  const lines = compact(markdown).split(/\r?\n/);
+  const html = [];
+  let paragraph = [];
+  const flushParagraph = () => {
+    if (!paragraph.length) {
+      return;
+    }
+    html.push(`<p>${inlineMarkdownToHtml(paragraph.join(" "))}</p>`);
+    paragraph = [];
+  };
+
+  for (const line of lines) {
+    const text = line.trim();
+    if (!text) {
+      flushParagraph();
+      continue;
+    }
+
+    const heading = text.match(/^(#{1,6})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      const level = Math.min(6, heading[1].length);
+      html.push(`<h${level}>${inlineMarkdownToHtml(heading[2])}</h${level}>`);
+      continue;
+    }
+
+    if (/^[-*+]\s+/.test(text)) {
+      flushParagraph();
+      html.push(`<p>${inlineMarkdownToHtml(text.replace(/^[-*+]\s+/, ""))}</p>`);
+      continue;
+    }
+
+    paragraph.push(text);
+  }
+
+  flushParagraph();
+  return html.join("\n");
+};
+
+const wordPressMetaFor = (fields, draftMarkdown, savedAt) => ({
+  title: compact(fields.title) || compact(fields.selectedTitle) || compact(fields.keyword) || "article",
+  slug: wordPressSlug(fields),
+  categories: splitWordPressTerms(fields.wpCategories),
+  tags: splitWordPressTerms(fields.wpTags),
+  metaDescription: compact(fields.wpMetaDescription) || excerptFrom(draftMarkdown, 120),
+  excerpt: excerptFrom(draftMarkdown, 120),
+  status: "draft",
+  format: "standard",
+  savedAt,
+});
+
+const wordPressEntryMarkdown = (meta) => `# WordPress入稿メモ
+
+- タイトル：${meta.title}
+- スラッグ：${meta.slug}
+- カテゴリー：${meta.categories.join(", ") || "未指定"}
+- タグ：${meta.tags.join(", ") || "未指定"}
+- メタディスクリプション：${meta.metaDescription || "未指定"}
+- 公開状態：${meta.status}
+
+## 入稿手順
+
+1. wordpress-content.html の本文をWordPressエディターへ貼り付けます。
+2. wordpress-meta.json を見ながらスラッグ、カテゴリー、タグ、抜粋、メタディスクリプションを設定します。
+3. プレビューで見出し、改行、リンクを確認してから下書き保存します。
+`;
+
 const saveArticleProject = async (fields, draftMarkdown) => {
   const now = new Date();
-  const stamp = now.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  const createdAt = now.toISOString();
+  const stamp = createdAt.replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   const projectName = `${safeSegment(fields.keyword, "article")}_${stamp}`;
   const projectDir = join(articleProjectsDir, projectName);
   const synopsis = compact(fields.approvedSynopsis) || compact(fields.synopsis) || compact(fields.synopsisOutput);
+  const publishTarget = publishTargetValue(fields.publishTarget);
+  const wordpressMeta = publishTarget === "wordpress" ? wordPressMetaFor(fields, draftMarkdown, createdAt) : null;
   const articlePlan = {
     keyword: compact(fields.keyword),
+    articleMode: compact(fields.articleMode),
+    publishTarget,
     targetLength: compact(fields.targetLength),
     bodyAllocation: compact(fields.bodyAllocation),
     articlePurpose: compact(fields.articlePurpose),
     articleTone: compact(fields.articleTone),
     selectedTitle: compact(fields.title),
     summaryHeading: compact(fields.summaryHeading),
-    createdAt: now.toISOString(),
+    ...(wordpressMeta ? {wordpress: wordpressMeta} : {}),
+    createdAt,
   };
   const files = {
     "request.json": JSON.stringify(
       {
         keyword: compact(fields.keyword),
+        articleMode: compact(fields.articleMode),
+        publishTarget,
         targetLength: compact(fields.targetLength),
         bodyAllocation: compact(fields.bodyAllocation),
         articlePurpose: compact(fields.articlePurpose),
         articleTone: compact(fields.articleTone),
-        createdAt: now.toISOString(),
+        wordpress: {
+          slug: compact(fields.wpSlug),
+          categories: compact(fields.wpCategories),
+          tags: compact(fields.wpTags),
+          metaDescription: compact(fields.wpMetaDescription),
+        },
+        personalPerspective: Object.fromEntries(
+          personalPerspectiveFields.map(([key, label]) => [key, {label, value: compact(fields[key])}]),
+        ),
+        createdAt,
       },
       null,
       2,
@@ -890,6 +1089,7 @@ const saveArticleProject = async (fields, draftMarkdown) => {
     "serp-analysis.md": `# 検索上位記事の構成\n\n${compact(fields.competitorOutlines) || "なし"}\n`,
     "outline.md": `# 記事構成\n\n${compact(fields.outline) || "なし"}\n`,
     "synopsis.md": `# 採用あらすじ\n\n${synopsis || "なし"}\n\n# あらすじ修正メモ\n\n${compact(fields.synopsisRevisionNote) || "なし"}\n`,
+    "personal-perspective.md": `${personalPerspectiveSection(fields) || "# note・自分発信メモ\n\nなし"}\n`,
     "preflight-check.md": `# 本文前チェック結果\n\n${compact(fields.preflightCheck) || "なし"}\n`,
     "article-plan.json": JSON.stringify(articlePlan, null, 2),
     "draft.md": compact(draftMarkdown) || "まだ下書きはありません。",
@@ -897,13 +1097,19 @@ const saveArticleProject = async (fields, draftMarkdown) => {
       {
         status: "not_reviewed",
         notes: [],
-        createdAt: now.toISOString(),
+        createdAt,
       },
       null,
       2,
     ),
-    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- ai-research.md: AI調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- review.json: レビュー結果の保存先\n`,
+    "README.md": `# ${compact(fields.keyword) || "article"}\n\nこのフォルダーは Webarticle から保存した記事プロジェクトです。\n\n## 主なファイル\n\n- request.json: 入力条件\n- trusted-sources.md: 重要情報ソースリスト\n- ai-research.md: AI調査メモ\n- knowledge.md: NotebookLMメモとリサーチセット\n- sources.md: 文献・資料\n- rakko-gpts.md: ラッコGPTs結果\n- search-intent.md: 検索意図\n- serp-analysis.md: 検索上位記事の構成\n- outline.md: 記事構成\n- synopsis.md: 採用あらすじ\n- personal-perspective.md: note・自分発信メモ\n- preflight-check.md: 本文前チェック\n- article-plan.json: タイトルなどの記事計画\n- draft.md: 記事下書き\n- wordpress-meta.json / wordpress-content.html / wordpress-entry.md: WordPress選択時の入稿用ファイル\n- review.json: レビュー結果の保存先\n`,
   };
+
+  if (wordpressMeta) {
+    files["wordpress-meta.json"] = JSON.stringify(wordpressMeta, null, 2);
+    files["wordpress-content.html"] = markdownToWordPressHtml(draftMarkdown) || "<p>まだ下書きはありません。</p>";
+    files["wordpress-entry.md"] = wordPressEntryMarkdown(wordpressMeta);
+  }
 
   await mkdir(projectDir, {recursive: true});
   await Promise.all(

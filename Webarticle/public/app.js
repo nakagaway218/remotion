@@ -1,10 +1,24 @@
 const ids = [
   "keyword",
   "model",
+  "articleMode",
   "targetLength",
   "bodyAllocation",
   "articlePurpose",
   "articleTone",
+  "publishTarget",
+  "wpSlug",
+  "wpCategories",
+  "wpTags",
+  "wpMetaDescription",
+  "coreMessage",
+  "personalOpinions",
+  "personalExperience",
+  "emphasisPoints",
+  "commitmentPoints",
+  "preferredExpressions",
+  "avoidExpressions",
+  "readerFeeling",
   "chatgptPrompt",
   "trustedSources",
   "codexResearchMemo",
@@ -47,6 +61,11 @@ const applyRakkoGptsResultButton = document.getElementById("applyRakkoGptsResult
 const apiDetails = document.getElementById("apiDetails");
 const adoptSynopsisButton = document.getElementById("adoptSynopsis");
 const synopsisAdoptStatus = document.getElementById("synopsisAdoptStatus");
+const publishTargetInputs = Array.from(
+  document.querySelectorAll(".publish-target input[name='publishTargetChoice']"),
+);
+const publishTargetCopy = document.getElementById("publishTargetCopy");
+const wordpressDetails = document.getElementById("wordpressDetails");
 const storageKey = "web-article-writer-state-v1";
 let rakkoSourcePages = [];
 
@@ -61,7 +80,11 @@ const readState = () => {
 const saveState = () => {
   localStorage.setItem(
     storageKey,
-    JSON.stringify(Object.fromEntries(ids.map((id) => [id, elements[id].value]))),
+    JSON.stringify(
+      Object.fromEntries(
+        ids.filter((id) => elements[id]).map((id) => [id, elements[id].value]),
+      ),
+    ),
   );
 };
 
@@ -96,12 +119,57 @@ const setPanel = (panelId) => {
   });
 };
 
+const publishTargetCopyByValue = {
+  note: "note向けに、書き手の視点と読後感を残しやすくします。",
+  blog: "ブログ向けに、検索意図と読みやすい構成を優先します。",
+  wordpress: "WordPress向けに、記事本文と入稿メモを一緒に残します。",
+};
+
+const normalizePublishTarget = (value) =>
+  ["note", "blog", "wordpress"].includes(value) ? value : "note";
+
+const syncPublishTarget = (value = elements.publishTarget?.value) => {
+  const target = normalizePublishTarget(value);
+  if (elements.publishTarget) {
+    elements.publishTarget.value = target;
+  }
+  publishTargetInputs.forEach((input) => {
+    const isSelected = input.value === target;
+    input.checked = isSelected;
+    input.closest("label")?.classList.toggle("is-active", isSelected);
+  });
+  if (publishTargetCopy) {
+    publishTargetCopy.textContent = publishTargetCopyByValue[target];
+  }
+  if (wordpressDetails) {
+    const isWordPress = target === "wordpress";
+    wordpressDetails.hidden = !isWordPress;
+    if (isWordPress) {
+      wordpressDetails.open = true;
+    }
+  }
+};
+
 const fields = () => ({
   keyword: elements.keyword.value,
+  articleMode: elements.articleMode.value,
   targetLength: elements.targetLength.value,
   bodyAllocation: elements.bodyAllocation.value,
   articlePurpose: elements.articlePurpose.value,
   articleTone: elements.articleTone.value,
+  publishTarget: elements.publishTarget?.value || "note",
+  wpSlug: elements.wpSlug?.value || "",
+  wpCategories: elements.wpCategories?.value || "",
+  wpTags: elements.wpTags?.value || "",
+  wpMetaDescription: elements.wpMetaDescription?.value || "",
+  coreMessage: elements.coreMessage.value,
+  personalOpinions: elements.personalOpinions.value,
+  personalExperience: elements.personalExperience.value,
+  emphasisPoints: elements.emphasisPoints.value,
+  commitmentPoints: elements.commitmentPoints.value,
+  preferredExpressions: elements.preferredExpressions.value,
+  avoidExpressions: elements.avoidExpressions.value,
+  readerFeeling: elements.readerFeeling.value,
   trustedSources: elements.trustedSources.value,
   codexResearchMemo: elements.codexResearchMemo.value,
   knowledgeMemo: elements.knowledgeMemo.value,
@@ -811,6 +879,7 @@ Object.entries(readState()).forEach(([id, value]) => {
     elements[id].value = value;
   }
 });
+syncPublishTarget();
 
 document.querySelectorAll(".step-tabs button").forEach((button) => {
   button.addEventListener("click", () => setPanel(button.dataset.panel));
@@ -826,7 +895,18 @@ document.querySelectorAll("[data-prompt]").forEach((button) => {
   button.addEventListener("click", () => buildChatgptPrompt(button.dataset.prompt, button));
 });
 
+publishTargetInputs.forEach((input) => {
+  input.addEventListener("change", () => {
+    syncPublishTarget(input.value);
+    saveState();
+    refreshPreview();
+  });
+});
+
 ids.forEach((id) => {
+  if (!elements[id]) {
+    return;
+  }
   elements[id].addEventListener("input", () => {
     saveState();
     refreshPreview();

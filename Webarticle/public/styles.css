@@ -189,9 +189,108 @@ p {
 
 .article-spec {
   display: grid;
-  grid-template-columns: minmax(120px, 0.72fr) repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(140px, 0.78fr) minmax(120px, 0.66fr) repeat(3, minmax(0, 1fr));
   gap: 14px;
   margin-top: 14px;
+}
+
+.publish-target-wrap {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.publish-target-wrap h2 {
+  margin-top: 3px;
+  font-size: 18px;
+}
+
+.publish-target {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.publish-target label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.publish-target label:hover {
+  border-color: var(--teal);
+}
+
+.publish-target label:focus-within {
+  outline: 2px solid rgba(12, 116, 107, 0.24);
+  outline-offset: 2px;
+}
+
+.publish-target label.is-active,
+.publish-target label:has(input:checked) {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(12, 116, 107, 0.18);
+}
+
+.publish-target input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.publish-target-copy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.personal-details,
+.wordpress-details {
+  margin-top: 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.personal-details summary,
+.wordpress-details summary {
+  cursor: pointer;
+  padding: 13px 16px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.personal-grid,
+.wordpress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 16px 16px;
+}
+
+.personal-grid textarea,
+.wordpress-grid textarea {
+  min-height: 84px;
 }
 
 .budget-strip {
@@ -484,6 +583,10 @@ p {
   .article-spec,
   .step-tabs {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .personal-grid {
+    grid-template-columns: 1fr;
   }
 
   .panel-head,
