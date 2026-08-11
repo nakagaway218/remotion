@@ -105,6 +105,13 @@ From `packages/example`:
 - For a task, consult relevant original files named in `CodexMemory/Codex-Handoff.md`, `docs/`, and `tasks/`. Treat `CodexMemory/Codex-Reference-Pack.md` as a generated index/fallback and do not edit it directly.
 - When the user names an additional reference file, read that file only as needed for the task.
 
+## LM Studio Delegation
+
+- For a one-off task delegated to LM Studio, read `docs/LM_STUDIO_DELEGATION.md` and use `AiLaunchers/Invoke-LMStudioTask.ps1`.
+- Do not run `Start-Codex-GPT-OSS-20B` merely to prepare a one-off request. It may unload models used by another task.
+- Inspect available models, choose one explicitly for the task, and report the selected model to the user.
+- Treat local-model output as advisory and verify important facts and proposed changes before using them.
+
 ## Work Log Policy
 
 - 作業を行った場合は、終了時に `.codex/worklog.md` に作業記録を追記する。

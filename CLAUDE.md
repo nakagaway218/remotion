@@ -12,6 +12,7 @@ Detailed shared context should live in common Markdown files, not duplicated her
 4. Read `docs/DECISIONS.md` for important shared decisions.
 5. Check `tasks/README.md`, then any relevant files under `tasks/active/`, `tasks/paused/`, and `tasks/done/`.
 6. When repository history or detailed background matters, also read `AI_CONTEXT.md`, `DESIGN.md`, and `SKILL.md`.
+7. When delegating a one-off task to LM Studio, read `docs/LM_STUDIO_DELEGATION.md` and use `AiLaunchers/Invoke-LMStudioTask.ps1`.
 
 ## Working Notes
 
