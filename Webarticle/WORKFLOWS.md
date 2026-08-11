@@ -2,7 +2,8 @@
 
 ## Article Creation
 
-1. Fill in keyword, target length, body allocation, article purpose, and tone.
+1. Fill in keyword, article mode, target length, body allocation, article purpose, and tone.
+   For note/self-authored articles, select `note・自分発信` and fill in `note・自分発信メモ`.
 2. If the topic is specialized, use `AI調査用プロンプト`.
 3. Paste trusted source candidates into `重要情報ソースリスト`.
 4. Paste AI research output into `AI調査メモ`.
@@ -76,7 +77,7 @@ For prompt checks:
 
 1. Start the server with a temporary `PORT`.
 2. Send sample data to `/api/prompt`.
-3. Confirm `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` appear in affected downstream prompts.
+3. Confirm `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, `インポートした文献・資料`, and `note・自分発信メモ` appear in affected downstream prompts.
 
 ## Project Save Workflow
 
@@ -94,6 +95,7 @@ The tool writes:
 - `serp-analysis.md`
 - `outline.md`
 - `synopsis.md`
+- `personal-perspective.md`
 - `preflight-check.md`
 - `article-plan.json`
 - `draft.md`

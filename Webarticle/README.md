@@ -19,7 +19,7 @@ node server.mjs
 ## 使い方
 
 1. キーワードを入力します。
-   上部で目標文字数、本文の分量配分、記事用途、トーンも指定できます。
+   上部で記事モード、目標文字数、本文の分量配分、記事用途、トーンも指定できます。
 2. 専門性が高い記事では、基礎知識ステップの `AI調査用プロンプト` を普段使っているAIへ貼り、信頼できる情報ソースと基礎知識を整理します。
    調査結果は `AI調査メモ` へ貼り戻します。
    NotebookLMへ文献を読ませたい場合だけ、`情報ソース候補プロンプト`、`リサーチセット作成`、`NotebookLM用プロンプト` を追加で使います。
@@ -36,6 +36,12 @@ node server.mjs
 9. 右側の下書きをコピーまたは Markdown で保存します。
    本文の前に `本文前チェック` でタイトル、構成、あらすじの整合を確認します。
    `プロジェクト保存` を押すと、作業中の中間成果物を `article-projects` にまとめて保存できます。
+
+## note・自分発信モード
+
+- 上部の `記事モード` で `note・自分発信` を選ぶと、情報整理に加えて書き手の意見・感想・体験・こだわりを記事へ反映しやすくなります。
+- `note・自分発信メモ` には、一番言いたいこと、強調したい点、こだわりポイント、避けたい言い方などを入れられます。
+- メモは各ステップのプロンプトに入り、保存時は `personal-perspective.md` にも残ります。
 
 ## AIで基礎知識を作る場合
 
@@ -99,4 +105,4 @@ node server.mjs
 
 - 生成結果は各欄で編集できます。
 - 入力内容はブラウザーのローカル保存に残ります。
-- `プロジェクト保存` は、`request.json`、`trusted-sources.md`、`knowledge.md`、`sources.md`、`rakko-gpts.md`、`search-intent.md`、`serp-analysis.md`、`outline.md`、`synopsis.md`、`preflight-check.md`、`article-plan.json`、`draft.md`、`review.json` を `article-projects/キーワード_日時/` に出力します。
+- `プロジェクト保存` は、`request.json`、`trusted-sources.md`、`ai-research.md`、`knowledge.md`、`sources.md`、`rakko-gpts.md`、`search-intent.md`、`serp-analysis.md`、`outline.md`、`synopsis.md`、`personal-perspective.md`、`preflight-check.md`、`article-plan.json`、`draft.md`、`review.json` を `article-projects/キーワード_日時/` に出力します。

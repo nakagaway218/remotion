@@ -26,6 +26,7 @@ The default operation is manual prompt transfer:
 ## Important Product Decisions
 
 - `重要情報ソースリスト`, `AI調査メモ`, `NotebookLMで作成した基礎知識メモ`, and `インポートした文献・資料` are optional, but when present they must be included in downstream prompts.
+- Article mode supports `依頼記事` and `note・自分発信`; personal perspective fields are optional, but when present they must be included in downstream prompts without weakening evidence/source checks.
 - The knowledge step must not require OpenAI API usage.
 - Specialized topics should support a AI research step as the standard path, with trusted-source discovery and NotebookLM memo creation as optional additions.
 - Imported source materials currently support text-like files such as `txt`, `md`, and `csv`.

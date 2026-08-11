@@ -9,6 +9,7 @@ const costCapUsd = Number(process.env.OPENAI_COST_CAP_USD || "1");
 const maxOutputTokensCap = Number(process.env.OPENAI_MAX_OUTPUT_TOKENS || "2600");
 const apiKey = process.env.OPENAI_API_KEY;
 const root = fileURLToPath(new URL("./public/", import.meta.url));
+const toolsRoot = fileURLToPath(new URL("./Mytools/", import.meta.url));
 const dataDir = fileURLToPath(new URL("./data/", import.meta.url));
 const scriptProjectsDir = fileURLToPath(new URL("./script-projects/", import.meta.url));
 const usageFile = join(dataDir, "usage.json");
@@ -1381,9 +1382,17 @@ const saveScriptProject = async (fields, draftMarkdown) => {
 
 const serveAsset = async (request, response) => {
   const requestPath = new URL(request.url, `http://${request.headers.host}`).pathname;
-  const relativePath = requestPath === "/" ? "index.html" : requestPath.slice(1);
-  const safePath = normalize(relativePath).replace(/^(\.\.[/\\])+/, "");
-  const assetPath = join(root, safePath);
+  const isToolAsset = requestPath === "/Mytools" || requestPath.startsWith("/Mytools/");
+  const targetRoot = isToolAsset ? toolsRoot : root;
+  const relativePath =
+    requestPath === "/"
+      ? "index.html"
+      : isToolAsset
+        ? requestPath.replace(/^\/Mytools\/?/, "") || "index.html"
+        : requestPath.slice(1);
+  const indexPath = relativePath.endsWith("/") ? `${relativePath}index.html` : relativePath;
+  const safePath = normalize(indexPath).replace(/^(\.\.[/\\])+/, "");
+  const assetPath = join(targetRoot, safePath);
 
   try {
     const asset = await readFile(assetPath);

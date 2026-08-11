@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>シリーズ記事用シナリオライティングツール</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body data-mode="note">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Series Article Scenario Writing</p>
+        <h1>シリーズ記事用シナリオライティングツール</h1>
+      </div>
+      <div class="header-actions">
+        <button type="button" id="exportJson">JSON保存</button>
+        <label class="file-button">
+          JSON読込
+          <input type="file" id="importJson" accept="application/json" />
+        </label>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="side-panel">
+        <nav class="tabs" aria-label="編集セクション">
+          <button type="button" class="tab active" data-tab="series">全体構想</button>
+          <button type="button" class="tab" data-tab="continuity">継続設定</button>
+          <button type="button" class="tab" data-tab="episode">今回の記事</button>
+          <button type="button" class="tab" data-tab="output">完成稿</button>
+        </nav>
+
+        <section class="status-panel">
+          <h2>現在方針</h2>
+          <p id="policyPreview">未入力</p>
+        </section>
+      </aside>
+
+      <section class="editor">
+        <section class="tab-panel active" data-panel="series">
+          <div class="section-title">
+            <h2>シリーズ全体の構想</h2>
+            <button type="button" id="addPolicyHistory">方針を履歴に追加</button>
+          </div>
+
+          <label>
+            シリーズ名
+            <input data-field="seriesTitle" type="text" placeholder="例：勉強のやり方がわからない中学生へ" />
+          </label>
+
+          <label>
+            全体構想
+            <textarea data-field="seriesConcept" rows="6" placeholder="連載で扱いたい大きなテーマ、読者像、最終的に残したい印象"></textarea>
+          </label>
+
+          <label>
+            現在方針
+            <textarea data-field="currentPolicy" rows="5" placeholder="現時点で採用する書き方、距離感、終わり方、想定媒体"></textarea>
+          </label>
+
+          <label>
+            方針変更の理由メモ
+            <textarea data-field="policyReason" rows="3" placeholder="なぜ変えるのか、何を残して何を変えるのか"></textarea>
+          </label>
+
+          <label>
+            変更履歴
+            <textarea data-field="policyHistory" rows="8" placeholder="方針を履歴に追加すると、日時つきでここに追記されます"></textarea>
+          </label>
+        </section>
+
+        <section class="tab-panel" data-panel="continuity">
+          <div class="section-title">
+            <h2>継続設定</h2>
+          </div>
+
+          <label>
+            キャラクター設定
+            <textarea data-field="characters" rows="7" placeholder="律、相原先生など。口調、弱点、強み、変化の方向"></textarea>
+          </label>
+
+          <label>
+            関係性の変化
+            <textarea data-field="relationshipDesign" rows="6" placeholder="対立、納得、共通言語、自走、相互承認など"></textarea>
+          </label>
+
+          <label>
+            シリーズの思想的核
+            <textarea data-field="corePhilosophy" rows="6" placeholder="勉強法として絶対に外したくない考え方、親世代へにじませたいメッセージ"></textarea>
+          </label>
+
+          <label>
+            継続して守る表現ルール
+            <textarea data-field="styleRules" rows="5" placeholder="説教臭くしない、先生が答えを押しつけない、会話と内面で理解を進める、など"></textarea>
+          </label>
+        </section>
+
+        <section class="tab-panel" data-panel="episode">
+          <div class="section-title">
+            <h2>今回の記事</h2>
+            <div class="mode-switch" role="radiogroup" aria-label="出力モード">
+              <label><input type="radio" name="publishMode" value="note" checked />note</label>
+              <label><input type="radio" name="publishMode" value="blog" />ブログ</label>
+              <label><input type="radio" name="publishMode" value="wordpress" />WordPress</label>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <label>
+              話数
+              <input data-field="episodeNumber" type="text" placeholder="例：第1話" />
+            </label>
+            <label>
+              仮タイトル
+              <input data-field="articleTitle" type="text" placeholder="例：英文法はいらないと思っていた" />
+            </label>
+          </div>
+
+          <label>
+            今回取り上げたいテーマ
+            <textarea data-field="theme" rows="4" placeholder="今回の中心課題"></textarea>
+          </label>
+
+          <label>
+            伝えたい要点
+            <textarea data-field="keyPoints" rows="7" placeholder="1行に1要点で入力"></textarea>
+          </label>
+
+          <label>
+            使いたい具体例・セリフ候補・注意点
+            <textarea data-field="materials" rows="8" placeholder="入れたい場面、言わせたいセリフ、避けたい表現"></textarea>
+          </label>
+
+          <div class="grid two">
+            <label>
+              想定読者
+              <input data-field="targetReader" type="text" placeholder="例：中学生の保護者、勉強法に悩む生徒" />
+            </label>
+            <label>
+              文字数目安
+              <input data-field="targetLength" type="text" placeholder="例：2500字前後" />
+            </label>
+          </div>
+
+          <label>
+            会話と地の文の配分
+            <input data-field="narrationRatio" type="text" placeholder="例：会話6：地の文4、律の一人称を多め" />
+          </label>
+
+          <div class="blog-only">
+            <div class="section-title compact">
+              <h3>ブログ用モード</h3>
+            </div>
+
+            <div class="grid two">
+              <label>
+                メインキーワード
+                <input data-field="blogKeyword" type="text" placeholder="例：英文法 必要性 勉強法" />
+              </label>
+              <label>
+                SEOタイトル案
+                <input data-field="seoTitle" type="text" placeholder="例：英文法は本当に必要か？成績が安定する勉強法" />
+              </label>
+            </div>
+
+            <div class="grid two">
+              <label>
+                スラッグ
+                <input data-field="slug" type="text" placeholder="例：english-grammar-study-method" />
+              </label>
+              <label>
+                メタディスクリプション
+                <input data-field="metaDescription" type="text" placeholder="検索結果に出す120字前後の説明" />
+              </label>
+            </div>
+
+            <label>
+              H2構成案
+              <textarea data-field="blogSections" rows="5" placeholder="1行に1見出しで入力"></textarea>
+            </label>
+
+            <label>
+              保護者向け補足・CTA
+              <textarea data-field="parentMessage" rows="4" placeholder="通常ブログで明示したい補足、問い合わせや関連記事への導線"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="output">
+          <div class="section-title">
+            <h2>完成稿生成</h2>
+            <div class="button-row">
+              <button type="button" id="generateDraft">完成稿を生成</button>
+              <button type="button" id="generatePrompt">AI執筆プロンプトを作成</button>
+              <button type="button" id="copyOutput">コピー</button>
+            </div>
+          </div>
+
+          <label>
+            完成稿・プロンプト
+            <textarea id="outputText" rows="24" placeholder="生成結果がここに入ります。編集してそのまま下書きとして使えます。"></textarea>
+          </label>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
