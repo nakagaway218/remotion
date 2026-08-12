@@ -98,3 +98,76 @@ LM Studioを使ってCodexの推論クレジットを節約する構成、Qwen�
 
 **未解決事項**
 - LM Studio/Codex本体の対話起動は未実行。
+
+## 2026-08-11 LM Studio連携ランチャーの同時利用確認
+
+**依頼内容**
+`Start-Codex-GPT-OSS-20B` を起動しておけば、Codex DesktopのタスクとLM Studioで作業を分担できるか確認する。
+
+**実施内容**
+- `Start-Codex-GPT-OSS-20B.cmd` と `Prepare-LMStudio-GPT-OSS-20B.ps1` の動作を確認。
+- ランチャーはLM Studioサーバーと `openai/gpt-oss-20b` を準備し、LM Studioをバックエンドにした別のCodex CLIセッションを起動する構成と確認。
+- LM Studio API（`127.0.0.1:1234`）が稼働し、`openai/gpt-oss-20b` がコンテキスト長32768でロード済みであることを確認。
+- 複数タスクからの同時利用は可能だが、自動的な作業分担にはならず、計算資源の競合と同一ファイルの同時編集に注意が必要と判断。
+
+**変更ファイル**
+- `.codex/worklog.md`
+
+**未解決事項**
+- Codex DesktopからLM Studioへ自動委任する仕組みは未構築。必要ならローカルAPI呼び出しによる連携処理を別途用意する。
+
+## 2026-08-11 LM Studio API単発依頼の疎通確認
+
+**依頼内容**
+Codex Desktopの現在タスクから、LM Studio APIへ単発の質問・調査を依頼できる導線が確立しているか確認する。
+
+**実施内容**
+- `http://127.0.0.1:1234/v1/chat/completions` へ `openai/gpt-oss-20b` を指定した短い接続確認を送信。
+- LM Studioから正常な応答（`OK`）を回収し、現在タスクからの単発API呼び出しが実用上通ることを確認。
+
+**変更ファイル**
+- `.codex/worklog.md`
+
+**未解決事項**
+- 「LM Studioに任せて」という依頼から、モデル選択・送信・結果回収までを自動化する共通ラッパーは未構築。
+
+## 2026-08-11 LM Studio単発委譲の共通化
+
+**依頼内容**
+GitHub配下のCodexタスクからLM Studio APIへ単発依頼できる導線を共通化し、将来Claude Codeからも同じ運用を参照できるようにする。
+
+**実施内容**
+- `docs/LM_STUDIO_DELEGATION.md` に、モデル確認・明示選択・依頼・検証の共通手順を作成。
+- `AiLaunchers/Invoke-LMStudioTask.ps1` に、既存モデルを入れ替えずLM StudioのOpenAI互換APIを呼ぶラッパーを追加。
+- リポジトリ内の `AGENTS.md` と `CLAUDE.md` から共通手順を参照するよう更新。
+- GitHub親フォルダの `AGENTS.md` と `CLAUDE.md` にも入口を設け、配下タスクへローカル運用を伝播。
+- モデル一覧取得、PowerShell構文、`openai/gpt-oss-20b` への単発依頼を実地確認。
+
+**変更ファイル**
+- `AGENTS.md`
+- `CLAUDE.md`
+- `AiLaunchers/Invoke-LMStudioTask.ps1`
+- `docs/LM_STUDIO_DELEGATION.md`
+- `.codex/worklog.md`
+- 親フォルダの `../AGENTS.md` と `../CLAUDE.md`（親フォルダはGit管理外）
+
+**未解決事項**
+- 親フォルダ自体はGitリポジトリではないため、親の入口ファイルはこのリポジトリのコミット対象外。
+- リモート反映は、既存の未送信コミットを含むブランチのpush範囲を確認してから行う。
+
+## 2026-08-12 PDF監査後のExcel手修正を見落としとして記録
+
+**依頼内容**
+PDFの写り込み確認後、ユーザーが元のExcelファイルを直接手作業で修正した事実を、今回の監査におけるミスとして残す。
+
+**実施内容**
+- PDF監査レポートに、Excelの手修正が必要だったことを「監査上の見落とし」として追記。
+- 当初の「問題候補なし」は写り込みと見た目の破綻に限った結果であり、元Excelを含む無問題の保証ではないことを明記。
+- 次回の確認項目として、元ExcelとPDFの対応、文字切れ、内容の不整合、修正後の再PDF化結果を追加。
+
+**変更ファイル**
+- `Studymaterials/output/pdf_visual_audit_report.md`
+- `.codex/worklog.md`
+
+**未解決事項**
+- ユーザーが手修正した具体的なセル・内容と、PDFへの反映差分は未照合。
