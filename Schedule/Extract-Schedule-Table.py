@@ -84,7 +84,19 @@ def table_schema(column_count):
             (17, 18, 19, None),
             (20, 21, 23, None),
         )
-    return tuple((1 + day * 3, 2 + day * 3, 3 + day * 3, None) for day in range(6))
+    if column_count == 22:
+        return tuple(
+            (3 + day * 3, 4 + day * 3, 5 + day * 3, None)
+            for day in range(6)
+        )
+    if column_count == 19:
+        return tuple(
+            (1 + day * 3, 2 + day * 3, 3 + day * 3, None)
+            for day in range(6)
+        )
+    raise ValueError(
+        f"Unsupported schedule table layout: {column_count} columns"
+    )
 
 
 def extract_events_from_table(table, instructor, start_date):

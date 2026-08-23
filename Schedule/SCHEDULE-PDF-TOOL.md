@@ -55,5 +55,6 @@ GitHubへ公開することと、CodexでPDFを処理することは別です。
 ## 関連記録
 
 - [Outlook予定表反映作業の反省と再発防止](RETROSPECTIVE-2026-07-27-OUTLOOK-CALENDAR.md)
+- [PDF帳票形式の誤判定に関する反省と再発防止](RETROSPECTIVE-2026-08-23-PDF-LAYOUT-VALIDATION.md)
 
 削除された予定はPDFの記載漏れと区別できないことがあるため、Codexが差分を確認してから扱います。
