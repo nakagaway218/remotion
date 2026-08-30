@@ -1,7 +1,7 @@
 ## Codex work instructions
 
 - This repository contains the restored Remotion codebase plus the user's own project files.
-- The current main user-owned tool area is `Mytool/`.
+- The current main user-owned tool area is `Mytools/`.
 - Match the existing code structure, naming, and style when making changes.
 - Check the current worktree state with `git status` before starting edits.
 - Do not revert or overwrite uncommitted user changes unless the user explicitly asks.
@@ -18,6 +18,16 @@
 - Before reflecting changes on GitHub, review the changed files and diff.
 - Use short English commit messages that describe the change.
 - Ask for user approval before pushing or creating a pull request.
+
+## External source and Zip handling
+
+- When Google Drive, Google Sheets, local folders, or tool reference lists contain Zip files, do not extract them directly into Git.
+- Download or inspect Zip files only in a Git-ignored temporary location.
+- First record a lightweight inspection report: file list, sizes, extensions, nested Zip files, readable candidates, and risky candidates.
+- Do not run scripts, installers, binaries, or external code found inside a Zip.
+- Commit only Markdown inspection reports, summaries, and adoption decisions. Do not commit the Zip body or extracted contents unless the user explicitly approves a sanitized subset.
+- For `ObsidianSecondBrain`, use `scripts/inspect-drive-zip-sources.ps1` and `reports/zip-inspections/` as the reference workflow.
+- Before creating new notes from Zip, Docs, YouTube, or article sources, check whether existing `reports/`, `wiki/`, or `raw/` notes already cover the same content. Prefer updating or linking existing notes when the content overlaps strongly.
 
 ## Setup commands
 
@@ -86,3 +96,29 @@ From `packages/example`:
 - The Remotion Studio (`bun run dev` in `packages/example`) sometimes reports "Already running on port 3000" if a previous instance is still bound. Check with `curl http://localhost:3000` before assuming it failed.
 - After `bun install`, always run `bun run build` before running tests or starting the Studio, as many packages depend on built artifacts from other packages.
 - The `prepare` script in root `package.json` sets git hooks path to `.githooks`. The pre-commit hook runs `bun pre-commit.ts` for formatting.
+
+
+## Local Codex Reference Context
+
+- `AiLaunchers/Prepare-CodexMemory-Hook.ps1` regenerates `CodexMemory/Codex-Reference-Pack.md` when a local Codex launcher starts.
+- The user's first message may be the actual task. Do not ask them to paste a preparation message, reply only with `準備できました`, or wait for a second instruction unless explicitly asked.
+- For a task, consult relevant original files named in `CodexMemory/Codex-Handoff.md`, `docs/`, and `tasks/`. Treat `CodexMemory/Codex-Reference-Pack.md` as a generated index/fallback and do not edit it directly.
+- When the user names an additional reference file, read that file only as needed for the task.
+
+## LM Studio Delegation
+
+- For a one-off task delegated to LM Studio, read `docs/LM_STUDIO_DELEGATION.md` and use `AiLaunchers/Invoke-LMStudioTask.ps1`.
+- Do not run `Start-Codex-GPT-OSS-20B` merely to prepare a one-off request. It may unload models used by another task.
+- Inspect available models, choose one explicitly for the task, and report the selected model to the user.
+- Treat local-model output as advisory and verify important facts and proposed changes before using them.
+
+## Work Log Policy
+
+- 作業を行った場合は、終了時に `.codex/worklog.md` に作業記録を追記する。
+- 記録内容は、日時、依頼内容、実施内容、変更ファイル、未解決事項とする。
+- ファイルを変更していない調査だけの場合も、調査結果を簡潔に記録する。
+- 同じ内容を重複記録しない。
+- Windows環境では `apply_patch` が失敗する場合があるため、ファイルの作成・編集・追記にはPowerShellを使用する。
+- 同じ失敗したコマンドを繰り返し実行しない。
+
+

@@ -28,6 +28,7 @@ The local folder name is `Myownproject`, but the GitHub repository is still name
 - `AI_CONTEXT.md` records background and decisions from the conversation.
 - `DESIGN.md` records structure and file-management policy.
 - `SKILL.md` records repeatable workflows for this repository.
+- For substantial chats that produce commit-level decisions or workflow changes, save a concise context note in the relevant project folder before the context is lost.
 - Files outside `Myownproject/` are not automatically reflected on GitHub.
 - Files that should be reflected on GitHub should be moved or copied into `Myownproject/`.
 - Files that should not be reflected on GitHub should be ignored with `.gitignore`.
@@ -44,7 +45,84 @@ The local folder name is `Myownproject`, but the GitHub repository is still name
 The user's PDF tool is stored in:
 
 ```text
-Mytool/
+Mytools/
 ```
 
 It contains `.bat` launchers, Python scripts, and a README. Generated `.exe` files are intentionally ignored by Git.
+
+## Career AI Project Context
+
+Career and education-AI strategy context is stored in:
+
+```text
+CareerAIProject/
+```
+
+This folder records neutral working context for the user's education, AI-use, and career hypotheses:
+
+- neutralized career and education-AI context in `CareerAIProject/CONTEXT.md`
+- bias-review rules in `CareerAIProject/BIAS_REVIEW.md`
+- AI employee design for hypothesis testing in `CareerAIProject/AI_WORKFORCE.md`
+- source conversation notes in `CareerAIProject/chat_logs/`
+
+When the user asks about AI career strategy, education AI consulting, AI tool adoption, teaching-material business design, or sub-agent/AI-employee application in this domain, read `CareerAIProject/CONTEXT.md` and `CareerAIProject/BIAS_REVIEW.md` first.
+
+## Chat Context Preservation
+
+When a chat contains enough decisions or file changes that a commit may be needed, ask whether the conversation should be saved as future context. If the user asks to save it, write a concise Markdown summary rather than a raw transcript.
+
+Default destinations:
+
+- AI workforce, sub-agent, multi-agent, and workflow judgment context: `AIWorkforceTemplate/05_チャット文脈保存/`
+- Career or education-AI strategy context: `CareerAIProject/chat_logs/`
+- Project-specific work history: the relevant project folder, using `handoff.md`, `log.md`, or `chat_logs/`
+
+## Obsidian Second Brain Context
+
+Obsidian活用のための初期Vault雛形は次に保存している:
+
+```text
+ObsidianSecondBrain/
+```
+
+This folder adapts `fuuuuuuma/ai-second-brain-kit` for the user's `Myownproject` workflow. It keeps a Codex-readable second-brain structure with `Memory.md`, `Home.md`, `raw/`, `wiki/`, `reports/`, `daily/`, `outputs/`, `rules/`, and `templates/`.
+
+When the user asks about Obsidian, second-brain notes, personal knowledge management, or making AI remember project context, read `ObsidianSecondBrain/README.md`, `ObsidianSecondBrain/Memory.md`, and `ObsidianSecondBrain/rules/corrections.md` first.
+
+## Study Materials Context
+
+Study-material workbook rules are kept under `Studymaterials/`.
+
+When the user asks to create or correct middle-school English composition workbooks, read `Studymaterials/README.md`, `Studymaterials/AI_CONTEXT.md`, `Studymaterials/SKILL.md`, and `Studymaterials/english_composition_dialogue_notes.md` first.
+
+Recent durable lesson: for present-perfect workbooks, check not only full English answers but also natural short replies. In `have not` / `haven't` replies, optional tails such as `(visited Kyoto before)` should be marked with parentheses when they may be omitted. Do not apply that rule blindly to `never` lines, because `I have never.` is incomplete without the action phrase. Apply the same check to Yes/No questions and `How many times ...?` replies.
+
+When the user asks to add a new example or question pattern, preserve the existing examples unless replacement is explicitly requested. Treat addition and replacement as different operations; if both cannot coexist cleanly, confirm the intended scope before rewriting the original example.
+
+For workbook formatting corrections, distinguish borders from font emphasis explicitly. Check both the `Border` properties and the `Font` properties for the intended heading row, and verify the rendered Excel PDF. In merged rows, adjacent top and bottom borders can overlap and look thicker than their internal style names suggest.
+
+## Google Drive / Sheets Source Sync
+
+ObsidianSecondBrain now includes a source-index workflow for external materials:
+
+- Google Drive stores heavy raw materials and source spreadsheets.
+- `ObsidianSecondBrain/raw/webclip-index/` stores lightweight Markdown indexes.
+- `ObsidianSecondBrain/scripts/sync-youtube-sheet-index.ps1` detects Google Sheets inside the configured Drive folder and creates index notes while avoiding duplicate URLs.
+- OAuth credentials and tokens live under the Git-root `secrets/` folder and are ignored by Git.
+- The OAuth app was rebuilt as `ObsidianSecondBrain Sync`; future OAuth failures should first check project mismatch, disabled APIs, missing test users, and stale refresh tokens.
+- The detailed recovery log is `ObsidianSecondBrain/reports/2026-06-16-google-api-oauth-lessons.md`.
+
+## Zip Source Inspection
+
+Zip files may appear in Google Drive source folders, Google Sheets source lists such as `ツール参考リスト`, or other folders under `C:\Users\nakag\Desktop\GitHub`.
+
+Default rule: do not commit Zip bodies or extracted contents. Inspect them in a Git-ignored temporary location, then save only lightweight Markdown reports and adoption decisions.
+
+For `ObsidianSecondBrain`, the reference workflow is:
+
+- `ObsidianSecondBrain/scripts/inspect-drive-zip-sources.ps1`
+- `ObsidianSecondBrain/reports/zip-inspections/`
+
+The inspection report should include file names, sizes, extensions, nested Zip files, readable Markdown/YAML/text candidates, risky executable/script candidates, and whether the material duplicates existing `reports/`, `wiki/`, or `raw/` notes.
+
+If the new material overlaps strongly with existing notes, update or link the existing note instead of creating another parallel summary. If it is only partially useful, record `一部だけ採用` or `既存運用で代替可` in the report.

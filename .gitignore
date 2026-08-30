@@ -1,4 +1,5 @@
 node_modules
+__pycache__/
 dist
 tsconfig.tsbuildinfo
 .DS_Store
@@ -37,7 +38,36 @@ packages/example-without-zod/build
 packages/docs/out
 packages/cloudrun/container/ensure-browser.mjs
 
-Mytool/*.exe
-Mytool/*_output.pdf
-Mytool/~temp_*.pdf
-Mytool/merge_state.txt
+Mytools/*.exe
+Mytools/*_output.pdf
+Mytools/~temp_*.pdf
+Mytools/merge_state.txt
+Mytools/folder_backup_sync_last_run.log
+
+Webarticle/server*.log
+*.lnk
+
+ObsidianSecondBrain/.obsidian/
+ObsidianSecondBrain/
+
+~$*.xlsx
+~$*.xls
+~$*.docx
+~$*.pptx
+
+# Local secrets and API credentials
+secrets/
+secret/
+credentials.json
+token.json
+google-oauth-token.json
+client_secret_*.json
+
+# Private school schedule source files and rendered previews
+tmp/pdfs/schoolie-shifts/
+
+# Generated local Codex reference index
+/CodexMemory/Codex-Reference-Pack.md
+
+# Generated local Codex reference index
+/CodexMemory/Codex-Reference-Pack.md

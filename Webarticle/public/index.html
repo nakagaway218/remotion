@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web記事作成</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">SEO article workflow</p>
+        <h1>Web記事作成</h1>
+      </div>
+      <div class="server-status">
+        <span id="statusDot" aria-hidden="true"></span>
+        <span id="statusText">接続確認中</span>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <section class="editor-pane" aria-label="記事作成ステップ">
+        <div class="settings-row">
+          <label>
+            キーワード
+            <input id="keyword" autocomplete="off" placeholder="例：Webライター 始め方" />
+          </label>
+          <div class="plus-badge">
+            <p class="eyebrow">Standard</p>
+            <strong>ChatGPT Plus 手動連携</strong>
+          </div>
+        </div>
+        <section class="article-spec" aria-label="記事仕様">
+          <label>
+            記事モード
+            <select id="articleMode">
+              <option value="commissioned">依頼記事</option>
+              <option value="note-self">note・自分発信</option>
+            </select>
+          </label>
+          <label>
+            目標文字数
+            <input id="targetLength" inputmode="numeric" type="number" min="800" step="100" value="4000" />
+          </label>
+          <label>
+            本文の分量配分
+            <select id="bodyAllocation">
+              <option value="auto">自動配分</option>
+              <option value="balanced">h2ごとに均等</option>
+              <option value="priority">重要見出しを厚く</option>
+              <option value="manual">追加ルールで指定</option>
+            </select>
+          </label>
+          <label>
+            記事の用途
+            <select id="articlePurpose">
+              <option value="seo-blog">SEOブログ</option>
+              <option value="column">コラム</option>
+              <option value="comparison">比較記事</option>
+              <option value="experience">体験談寄り</option>
+            </select>
+          </label>
+          <label>
+            トーン
+            <select id="articleTone">
+              <option value="beginner">初心者向け</option>
+              <option value="gentle">やさしい</option>
+              <option value="concise">端的</option>
+              <option value="expert">専門家向け</option>
+            </select>
+          </label>
+        </section>
+        <section class="publish-target-wrap" aria-label="公開先">
+          <div>
+            <p class="eyebrow">Publish target</p>
+            <h2>公開先</h2>
+          </div>
+          <div class="publish-target" role="radiogroup" aria-label="公開先を選択">
+            <label class="is-active">
+              <input type="radio" name="publishTargetChoice" value="note" checked />
+              <span>note</span>
+            </label>
+            <label>
+              <input type="radio" name="publishTargetChoice" value="blog" />
+              <span>ブログ</span>
+            </label>
+            <label>
+              <input type="radio" name="publishTargetChoice" value="wordpress" />
+              <span>WordPress</span>
+            </label>
+          </div>
+          <input id="publishTarget" type="hidden" value="note" />
+          <p class="publish-target-copy" id="publishTargetCopy">note向けに、書き手の視点と読後感を残しやすくします。</p>
+        </section>
+        <details class="wordpress-details" id="wordpressDetails" hidden>
+          <summary>WordPress入稿メモ</summary>
+          <div class="wordpress-grid">
+            <label>
+              スラッグ
+              <input id="wpSlug" autocomplete="off" placeholder="例：web-writer-start" />
+            </label>
+            <label>
+              カテゴリー
+              <input id="wpCategories" autocomplete="off" placeholder="例：Webライティング, 副業" />
+            </label>
+            <label>
+              タグ
+              <input id="wpTags" autocomplete="off" placeholder="例：初心者, note, WordPress" />
+            </label>
+            <label>
+              メタディスクリプション
+              <textarea id="wpMetaDescription" placeholder="検索結果やSNS共有で使う短い説明文"></textarea>
+            </label>
+          </div>
+        </details>
+        <details class="personal-details" open>
+          <summary>note・自分発信メモ</summary>
+          <div class="personal-grid">
+            <label>
+              一番言いたいこと
+              <textarea id="coreMessage" placeholder="この記事で最後に残したい主張や軸"></textarea>
+            </label>
+            <label>
+              私の意見・感想
+              <textarea id="personalOpinions" placeholder="自分はどう感じたか、どこに違和感や納得感があるか"></textarea>
+            </label>
+            <label>
+              体験・背景
+              <textarea id="personalExperience" placeholder="きっかけ、経験、読者に共有したい前提"></textarea>
+            </label>
+            <label>
+              強調したい点
+              <textarea id="emphasisPoints" placeholder="何度も読者に伝わってほしい要点"></textarea>
+            </label>
+            <label>
+              こだわりポイント
+              <textarea id="commitmentPoints" placeholder="言葉選び、構成、読後感で外したくないこと"></textarea>
+            </label>
+            <label>
+              あえて入れたい言葉
+              <textarea id="preferredExpressions" placeholder="自分らしい表現、必ず使いたい言い回し"></textarea>
+            </label>
+            <label>
+              避けたい言い方
+              <textarea id="avoidExpressions" placeholder="強すぎる断定、煽り、使いたくない表現など"></textarea>
+            </label>
+            <label>
+              読者に残したい気持ち
+              <textarea id="readerFeeling" placeholder="読み終わった人に持ち帰ってほしい感情"></textarea>
+            </label>
+          </div>
+        </details>
+        <section class="chatgpt-prompt-pane" aria-label="プロンプト連携">
+          <div class="prompt-head">
+            <div>
+              <p class="eyebrow">Manual prompt flow</p>
+              <h2>プロンプトを作って貼る</h2>
+            </div>
+            <button id="copyPrompt" title="プロンプトをコピー">プロンプトをコピー</button>
+          </div>
+          <textarea
+            id="chatgptPrompt"
+            rows="8"
+            placeholder="各ステップのプロンプト作成ボタンを押すと、ここに貼り付け用の指示文が入ります。"
+          ></textarea>
+        </section>
+        <details class="api-details" id="apiDetails">
+          <summary>API生成の詳細設定</summary>
+          <div class="api-settings">
+            <label>
+              API用モデル
+              <select id="model">
+                <option value="gpt-5-mini">gpt-5-mini</option>
+                <option value="gpt-5-nano">gpt-5-nano</option>
+              </select>
+            </label>
+            <div class="budget-strip" aria-live="polite">
+              <div>
+                <p class="eyebrow">OpenAI cost guard</p>
+                <strong id="budgetText">費用上限を確認中</strong>
+              </div>
+              <p id="budgetMeta">API生成の使用量を保存して停止判定します。</p>
+            </div>
+          </div>
+        </details>
+
+        <nav class="step-tabs" aria-label="作成ステップ">
+          <button class="is-active" data-panel="knowledge">1 基礎知識</button>
+          <button data-panel="intent">2 検索意図</button>
+          <button data-panel="outline">3 構成</button>
+          <button data-panel="synopsis">4 あらすじ</button>
+          <button data-panel="titles">5 タイトル</button>
+          <button data-panel="preflight">6 本文前チェック</button>
+          <button data-panel="lead">7 リード文</button>
+          <button data-panel="body">8 本文</button>
+          <button data-panel="summary">9 まとめ</button>
+        </nav>
+
+        <article class="step-panel is-active" id="knowledge">
+          <div class="panel-head">
+            <h2>基礎知識</h2>
+            <div class="panel-actions">
+              <label class="file-action">
+                資料読込
+                <input id="sourceMaterialsFile" type="file" accept=".txt,.md,.csv,text/plain,text/markdown,text/csv" multiple />
+              </label>
+              <button data-prompt="sourceDiscovery">情報ソース候補プロンプト</button>
+              <button class="primary" data-prompt="codexResearch">AI調査用プロンプト</button>
+              <button data-prompt="knowledge">NotebookLM用プロンプト</button>
+              <button id="buildResearchSet">リサーチセット作成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            専門性が高い記事では、AI調査で信頼できる情報ソースと基礎知識を整理します。NotebookLMは追加で文献を読み込ませたい場合の任意工程として使えます。
+          </p>
+          <label>
+            重要情報ソースリスト
+            <textarea
+              id="trustedSources"
+              rows="10"
+              placeholder="公的機関、専門団体、一次情報、信頼できる解説記事など、NotebookLMに読み込ませたいソース候補を貼り付けます。URL、資料名、信頼できる理由、記事で使う観点を書いてください。"
+            ></textarea>
+          </label>
+          <label>
+            AI調査メモ
+            <textarea
+              id="codexResearchMemo"
+              rows="12"
+              placeholder="AI調査の結果を貼り付けます。信頼できるソース、基礎知識、注意点、記事に使う観点をまとめて入れてください。標準ではこの欄を後続工程に反映します。"
+            ></textarea>
+          </label>
+          <label>
+            NotebookLMで作成した基礎知識メモ
+            <textarea
+              id="knowledgeMemo"
+              rows="12"
+              placeholder="NotebookLMの出力を貼り付けます。制度、用語、注意点、記事に活かす観点などがあると後続の内容がぶれにくくなります。"
+            ></textarea>
+          </label>
+          <label>
+            インポートした文献・資料
+            <textarea
+              id="sourceMaterials"
+              rows="12"
+              placeholder="資料読込で txt / md / csv を読み込むか、文献の要約・抜粋・URL・出典メモを貼り付けます。後続プロンプトに反映されます。"
+            ></textarea>
+          </label>
+          <label>
+            NotebookLM用リサーチセット
+            <textarea
+              id="notebookResearchSet"
+              rows="12"
+              placeholder="ラッコJSON/CSVを読み込んだ後に「リサーチセット作成」を押すと、NotebookLMに貼る調査依頼文とURL一覧が入ります。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="intent">
+          <div class="panel-head">
+            <h2>検索意図</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="intent">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="intent">API生成</button>
+            </div>
+          </div>
+          <label>
+            ペルソナ、顕在ニーズ、潜在ニーズ
+            <textarea id="intentOutput" rows="12" placeholder="生成結果は編集できます。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="outline">
+          <div class="panel-head">
+            <h2>構成</h2>
+            <div class="panel-actions">
+              <label class="file-action">
+                CSV/JSON読込
+                <input id="rakkoCsv" type="file" accept=".csv,.json,text/csv,application/json" />
+              </label>
+              <button data-prompt="rakkoGpts">ラッコGPTs用プロンプト</button>
+              <button id="applyRakkoGptsResult">GPTs結果を反映</button>
+              <button id="fetchRakko">ラッコから取得</button>
+              <button class="primary" data-prompt="outline">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="outline">API生成</button>
+            </div>
+          </div>
+          <label>
+            ラッコGPTs結果
+            <textarea
+              id="rakkoGptsResult"
+              rows="8"
+              placeholder="ChatGPTのラッコキーワード連携GPTsが返したJSONまたは見出しテキストを貼り付けます。貼り付け後に「GPTs結果を反映」を押します。"
+            ></textarea>
+          </label>
+          <label>
+            検索上位5記事の構成
+            <textarea
+              id="competitorOutlines"
+              rows="10"
+              placeholder="ラッコキーワードなどで取得した h2、h3 を貼り付けます。記事ごとに区切ると扱いやすいです。"
+            ></textarea>
+          </label>
+          <p class="inline-note" id="rakkoStatus">ラッコのCSVを読み込むか、API キーがある場合は上位見出しを自動入力します。</p>
+          <label>
+            構成保存用
+            <textarea id="outlineOutput" rows="16" placeholder="h2、h3 の構成が入ります。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="synopsis">
+          <div class="panel-head">
+            <h2>あらすじ</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="synopsis">ChatGPT用プロンプト</button>
+              <button data-prompt="synopsisReview">修正プロンプト</button>
+              <button class="api-action" data-generate="synopsis">API生成</button>
+            </div>
+          </div>
+          <label>
+            あらすじ下書き
+            <textarea
+              id="synopsisOutput"
+              rows="10"
+              placeholder="ChatGPTが作成した中心メッセージ、全体の流れ、見出しごとの役割を貼り付けます。"
+            ></textarea>
+          </label>
+          <label>
+            修正したい点
+            <textarea
+              id="synopsisRevisionNote"
+              rows="4"
+              placeholder="例：初心者向けにもっと具体的にする / 商品名を出さない / 結論を資格取得ではなく案件獲得に寄せる"
+            ></textarea>
+          </label>
+          <div class="adopt-row">
+            <button id="adoptSynopsis">このあらすじを採用</button>
+            <p id="synopsisAdoptStatus">採用版が後続ステップに使われます。</p>
+          </div>
+          <label>
+            採用するあらすじ
+            <textarea
+              id="approvedSynopsis"
+              rows="10"
+              placeholder="採用ボタンで下書きをコピーするか、修正版を貼り付けます。後続ステップはこちらを参照します。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="titles">
+          <div class="panel-head">
+            <h2>タイトル</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="titles">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="titles">API生成</button>
+            </div>
+          </div>
+          <label>
+            タイトル案
+            <textarea id="titlesOutput" rows="11" placeholder="生成したタイトル案が入ります。"></textarea>
+          </label>
+          <label>
+            採用タイトル
+            <input id="selectedTitle" placeholder="採用するタイトルを貼り付けます。" />
+          </label>
+        </article>
+
+        <article class="step-panel" id="preflight">
+          <div class="panel-head">
+            <h2>本文前チェック</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="preflight">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="preflight">API生成</button>
+            </div>
+          </div>
+          <p class="inline-note">
+            本文を書く前に、タイトルの約束、見出しごとの境界、まとめ設計を確認します。結果は本文とまとめのプロンプトに反映されます。
+          </p>
+          <label>
+            本文前チェック結果
+            <textarea
+              id="preflightCheck"
+              rows="14"
+              placeholder="タイトルと構成のズレ、各h2の書くこと・書かないこと・読者に残す一文、まとめ設計を保存します。"
+            ></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="lead">
+          <div class="panel-head">
+            <h2>リード文</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="lead">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="lead">API生成</button>
+            </div>
+          </div>
+          <label>
+            リード文
+            <textarea id="leadOutput" rows="10" placeholder="導入文が入ります。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="body">
+          <div class="panel-head">
+            <h2>本文</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="body">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="body">API生成</button>
+            </div>
+          </div>
+          <label>
+            出力したい見出し
+            <textarea
+              id="bodyHeadings"
+              rows="8"
+              placeholder="h2ごとに構成の一部を貼り付けます。"
+            ></textarea>
+          </label>
+          <label>
+            見出し別文字数指定
+            <textarea
+              id="headingLengthPlan"
+              rows="4"
+              placeholder="例：h2：始め方 300文字 / h3：準備するもの 250文字。手動配分時に使います。"
+            ></textarea>
+          </label>
+          <label>
+            追加ルール
+            <textarea
+              id="extraRules"
+              rows="4"
+              placeholder="クライアントの表記ルール、禁止表現、手動配分時の見出し別文字数など。"
+            ></textarea>
+          </label>
+          <label>
+            本文生成結果
+            <textarea id="bodyDraft" rows="16" placeholder="生成した本文を追記しながら整えます。"></textarea>
+          </label>
+        </article>
+
+        <article class="step-panel" id="summary">
+          <div class="panel-head">
+            <h2>まとめ文</h2>
+            <div class="panel-actions">
+              <button class="primary" data-prompt="summary">ChatGPT用プロンプト</button>
+              <button class="api-action" data-generate="summary">API生成</button>
+            </div>
+          </div>
+          <label>
+            まとめの見出し
+            <input id="summaryHeading" placeholder="例：h2：まとめ｜Webライターを始めて一歩踏み出そう" />
+          </label>
+          <label>
+            まとめ文
+            <textarea id="summaryOutput" rows="10" placeholder="まとめ文が入ります。"></textarea>
+          </label>
+        </article>
+      </section>
+
+      <aside class="preview-pane" aria-label="記事プレビュー">
+        <div class="preview-head">
+          <div>
+            <p class="eyebrow">Article draft</p>
+            <h2>記事下書き</h2>
+          </div>
+          <div class="preview-actions">
+            <button id="copyMarkdown" title="Markdownをコピー">コピー</button>
+            <button id="downloadMarkdown" title="Markdownファイルを保存">保存</button>
+            <button id="saveProject" title="中間成果物を保存">プロジェクト保存</button>
+          </div>
+        </div>
+        <pre id="articlePreview"></pre>
+      </aside>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
