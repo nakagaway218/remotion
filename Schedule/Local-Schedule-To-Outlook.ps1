@@ -2,6 +2,8 @@
 param(
     [string[]]$PdfPath,
     [switch]$AnalyzeOnly,
+    [string[]]$TargetSlot,
+    [switch]$ApplyDirectly,
     [string]$InstructorNameForTest
 )
 
@@ -686,7 +688,7 @@ function Convert-PdfToEvents {
     $work = Join-Path $privateRoot ("analysis-" + $hash.Substring(0, 12))
     New-Item -ItemType Directory -Force -Path $work | Out-Null
 
-    if ($school -eq '水口校' -and $Python) {
+    if ($Python) {
         $tableExtractor = Join-Path $scriptRoot 'Extract-Schedule-Table.py'
         $tableResultPath = Join-Path $work 'embedded-table-events.json'
         if (Test-Path -LiteralPath $tableExtractor) {
@@ -1180,31 +1182,84 @@ function Ensure-YellowCategory {
 }
 
 function Split-ScheduleValue {
-    param([string]$Value)
+    param(
+        [string]$Value,
+        [switch]$PreserveEmpty
+    )
 
     if ([string]::IsNullOrWhiteSpace($Value)) {
         return @()
     }
-    @([regex]::Split($Value.Trim(), '\s*/\s*') | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    $parts = @([regex]::Split($Value.Trim(), '\s*/\s*'))
+    if ($PreserveEmpty) {
+        return $parts
+    }
+    @($parts | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
 }
 
-function Format-WaterEventBody {
+function Convert-ToCircledNumber {
+    param([string]$Value)
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return ''
+    }
+    $normalized = $Value.Trim()
+    $fullWidthDigits = '０１２３４５６７８９'
+    for ($i = 0; $i -lt 10; $i++) {
+        $normalized = $normalized.Replace([string]$fullWidthDigits[$i], [string]$i)
+    }
+    $circledNumbers = @('', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫', '⑬', '⑭', '⑮', '⑯', '⑰', '⑱', '⑲', '⑳')
+    $number = 0
+    if ([int]::TryParse($normalized, [ref]$number) -and $number -ge 1 -and $number -le 20) {
+        return $circledNumbers[$number]
+    }
+    $normalized
+}
+
+function Format-ScheduleEventBody {
     param([object]$Event)
 
     $students = @(Split-ScheduleValue -Value ([string]$Event.Student))
-    $subjects = @(Split-ScheduleValue -Value ([string]$Event.Subject))
-    $numbers = @(Split-ScheduleValue -Value ([string]$Event.Number))
+    $subjects = @(Split-ScheduleValue -Value ([string]$Event.Subject) -PreserveEmpty)
+    $numbers = @(Split-ScheduleValue -Value ([string]$Event.Number) -PreserveEmpty)
     $lineCount = [Math]::Max($students.Count, [Math]::Max($subjects.Count, $numbers.Count))
+    $seenStudents = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
     $lines = for ($i = 0; $i -lt $lineCount; $i++) {
         $student = if ($i -lt $students.Count) { $students[$i] } elseif ($students.Count -eq 1) { $students[0] } else { '' }
         $subject = if ($i -lt $subjects.Count) { $subjects[$i] } elseif ($subjects.Count -eq 1) { $subjects[0] } else { '' }
-        $number = if ($i -lt $numbers.Count) { $numbers[$i] } elseif ($numbers.Count -eq 1) { $numbers[0] } else { '' }
+        $number = if ($i -lt $numbers.Count) { Convert-ToCircledNumber -Value $numbers[$i] } elseif ($numbers.Count -eq 1) { Convert-ToCircledNumber -Value $numbers[0] } else { '' }
         if (-not [string]::IsNullOrWhiteSpace($number) -and $subject -notlike "*$number*") {
             $subject = (($subject, $number | Where-Object { $_ }) -join ' ')
         }
-        (($student, $subject | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ' ').Trim()
+        $line = (($student, $subject | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join ' ').Trim()
+        $studentKey = if ([string]::IsNullOrWhiteSpace($student)) { $line } else { $student.Trim() }
+        if (-not [string]::IsNullOrWhiteSpace($line) -and $seenStudents.Add($studentKey)) {
+            $line
+        }
     }
-    @($lines | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }) -join "`r`n"
+    @($lines) -join "`r`n"
+}
+
+function Get-ScheduleEventKey {
+    param(
+        [datetime]$Start,
+        [string]$School
+    )
+    '{0}|{1}' -f $Start.Ticks, $School.Trim()
+}
+
+function Test-TargetSlot {
+    param(
+        [object]$Event,
+        [string]$Selector
+    )
+    $parts = @([regex]::Split($Selector, '\|'))
+    if ($parts.Count -ne 3) {
+        throw "TargetSlot は YYYY-MM-DD|HH:mm|校舎 の形式で指定してください: $Selector"
+    }
+    ([string]$Event.Date -like $parts[0]) -and
+        ([string]$Event.Start -like $parts[1]) -and
+        ([string]$Event.School -like $parts[2])
 }
 
 function Apply-Events {
@@ -1217,9 +1272,10 @@ function Apply-Events {
     Ensure-YellowCategory -Namespace $Namespace
     $created = 0
     $updated = 0
+    $removedDuplicates = 0
     $now = Get-Date
     $preparedEvents = @()
-    $desiredStartTicks = @{}
+    $desiredKeys = @{}
 
     foreach ($event in $Events) {
         $date = [datetime]::ParseExact($event.Date, 'yyyy-MM-dd', $null)
@@ -1229,15 +1285,18 @@ function Apply-Events {
             continue
         }
 
+        $key = Get-ScheduleEventKey -Start $start -School $event.School
         $preparedEvents += [pscustomobject]@{
             Event = $event
             Start = $start
             End = $end
+            Key = $key
         }
-        $desiredStartTicks[[string]$start.Ticks] = $true
+        $desiredKeys[$key] = $true
     }
 
-    $appointmentsByStart = @{}
+    $eventGroups = @($preparedEvents | Group-Object Key)
+    $appointmentsByKey = @{}
     $calendarItems = $Calendar.Items
     $calendarItemCount = $calendarItems.Count
     for ($i = 1; $i -le $calendarItemCount; $i++) {
@@ -1246,32 +1305,45 @@ function Apply-Events {
             if ($candidate.Class -ne 26 -or [string]$candidate.Subject -notlike '*IE*個別*') {
                 continue
             }
-            if ([datetime]$candidate.Start -gt $now -and [string]$candidate.Categories -ne '黄色') {
-                $candidate.Categories = '黄色'
-                $candidate.Save()
-            }
-            $key = [string]([datetime]$candidate.Start).Ticks
-            if ($desiredStartTicks.ContainsKey($key) -and -not $appointmentsByStart.ContainsKey($key)) {
-                $appointmentsByStart[$key] = $candidate
+            $key = Get-ScheduleEventKey -Start ([datetime]$candidate.Start) -School ([string]$candidate.Location)
+            if ($desiredKeys.ContainsKey($key)) {
+                if (-not $appointmentsByKey.ContainsKey($key)) {
+                    $appointmentsByKey[$key] = New-Object System.Collections.ArrayList
+                }
+                [void]$appointmentsByKey[$key].Add($candidate)
             }
         } catch {
             # Skip unreadable items.
         }
     }
 
-    foreach ($prepared in $preparedEvents) {
+    foreach ($eventGroup in $eventGroups) {
+        $prepared = $eventGroup.Group[0]
         $event = $prepared.Event
         $start = $prepared.Start
-        $end = $prepared.End
-        $key = [string]$start.Ticks
-        $appointment = if ($appointmentsByStart.ContainsKey($key)) { $appointmentsByStart[$key] } else { $null }
+        $end = ($eventGroup.Group | Sort-Object End -Descending | Select-Object -First 1).End
+        $key = $eventGroup.Name
+        $appointments = if ($appointmentsByKey.ContainsKey($key)) { @($appointmentsByKey[$key]) } else { @() }
+        $appointment = if ($appointments.Count -gt 0) { $appointments[0] } else { $null }
 
         if (-not $appointment) {
             $appointment = $Calendar.Items.Add(1)
             $created++
         } else {
             $updated++
+            for ($duplicateIndex = 1; $duplicateIndex -lt $appointments.Count; $duplicateIndex++) {
+                $appointments[$duplicateIndex].Delete()
+                $removedDuplicates++
+            }
         }
+
+        $mergedEvent = [pscustomobject]@{
+            Student = (@($eventGroup.Group | ForEach-Object { $_.Event.Student }) -join ' / ')
+            Subject = (@($eventGroup.Group | ForEach-Object { $_.Event.Subject }) -join ' / ')
+            Number = (@($eventGroup.Group | ForEach-Object { $_.Event.Number }) -join ' / ')
+        }
+        $formattedBody = Format-ScheduleEventBody -Event $mergedEvent
+        $bodyLines = if ([string]::IsNullOrWhiteSpace($formattedBody)) { @() } else { @($formattedBody -split "`r?`n") }
 
         $appointment.Subject = 'IE 個別指導'
         $appointment.Start = $start
@@ -1280,8 +1352,10 @@ function Apply-Events {
         $appointment.Categories = '黄色'
         $appointment.ReminderSet = $false
         if ($event.School -eq '水口校') {
-            $appointment.Body = Format-WaterEventBody -Event $event
-        } else {
+            $appointment.Body = $bodyLines -join "`r`n"
+        }
+        else {
+            # 守山北校は日時だけを登録し、個人情報を本文へ入れない。
             $appointment.Body = ''
         }
 
@@ -1296,13 +1370,21 @@ function Apply-Events {
     [pscustomobject]@{
         Created = $created
         Updated = $updated
+        RemovedDuplicates = $removedDuplicates
     }
 }
 
 try {
     Add-Type -AssemblyName System.Windows.Forms
-    Write-LocalLog -Message ('開始 AnalyzeOnly={0}' -f [bool]$AnalyzeOnly)
-    if (-not $AnalyzeOnly) {
+    $effectiveTargetSlots = @(
+        @($TargetSlot) | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) }
+    )
+
+    if ($ApplyDirectly -and $effectiveTargetSlots.Count -eq 0) {
+        throw '-ApplyDirectly には -TargetSlot の指定が必要です。'
+    }
+    Write-LocalLog -Message ('開始 AnalyzeOnly={0} ApplyDirectly={1}' -f [bool]$AnalyzeOnly, [bool]$ApplyDirectly)
+    if (-not $AnalyzeOnly -and -not $ApplyDirectly) {
         Show-Message -Text "処理を開始しました。`r`nPDFの読み取りに2～4分ほどかかる場合があります。`r`n確認画面が出るまでお待ちください。"
     }
 
@@ -1311,6 +1393,9 @@ try {
     $pdfs = @(Select-LatestSchedulePdfs -Paths @(Get-InputPdfs))
     Write-LocalLog -Message ('対象PDF {0}件' -f $pdfs.Count)
     if ($pdfs.Count -eq 0) {
+        if ($ApplyDirectly) {
+            throw '未確認の対象シフトPDFはありません。'
+        }
         if ($AnalyzeOnly) {
             [pscustomobject]@{ eventCount = 0; dates = @() } | ConvertTo-Json -Compress
         } else {
@@ -1349,6 +1434,20 @@ try {
     $events = @($events | Sort-Object Date, Start, School, Student, Subject -Unique)
     Write-LocalLog -Message ('抽出予定 {0}件' -f $events.Count)
 
+    if ($effectiveTargetSlots.Count -gt 0) {
+        $filteredEvents = @()
+        foreach ($candidateEvent in $events) {
+            foreach ($selector in $effectiveTargetSlots) {
+                if (Test-TargetSlot -Event $candidateEvent -Selector $selector) {
+                    $filteredEvents += $candidateEvent
+                    break
+                }
+            }
+        }
+        $events = @($filteredEvents)
+        Write-LocalLog -Message ('対象枠抽出 {0}件 Selector={1}' -f $events.Count, ($effectiveTargetSlots -join ','))
+    }
+
     if ($AnalyzeOnly) {
         $incompleteCount = @(Get-IncompleteMizuguchiEvents -Events $events).Count
         [pscustomobject]@{
@@ -1372,6 +1471,9 @@ try {
     }
 
     if ($events.Count -eq 0) {
+        if ($ApplyDirectly) {
+            throw '指定した対象枠に一致する予定を読み取れませんでした。'
+        }
         Show-Message -Text '担当者名に一致する未来の予定を読み取れませんでした。PDF上の担当者名を確認してください。' -Icon Warning
         exit 1
     }
@@ -1380,8 +1482,38 @@ try {
     $incomplete = @(Get-IncompleteMizuguchiEvents -Events $events)
     if ($incomplete.Count -gt 0) {
         Write-LocalLog -Message ('読み取り未完了 {0}件。確認画面とOutlook反映を中止' -f $incomplete.Count)
+        if ($ApplyDirectly) {
+            throw "水口校の生徒名または教科名を確定できない予定が $($incomplete.Count) 件あります。Outlookは変更していません。"
+        }
         Show-Message -Text "PDFを行・日付欄・元画像の3通りで再確認しましたが、水口校の生徒名または教科名を確定できない予定が $($incomplete.Count) 件ありました。`r`n確認画面は開かず、Outlookも変更していません。PDFの画質や最新版かどうかを確認して、もう一度実行してください。" -Icon Warning
         exit 1
+    }
+
+    if ($ApplyDirectly) {
+        $outlookData = Get-TargetStoreAndCalendars -Config $config
+        $calendarInfo = @($outlookData.Calendars | Where-Object {
+            ([string]$_.Folder.EntryID -eq [string]$config.calendarEntryId) -and
+            ([string]$_.PstPath -eq [string]$config.pstPath)
+        } | Select-Object -First 1)
+        if ($calendarInfo.Count -eq 0) {
+            throw '保存済みの対象PST予定表が見つかりません。設定画面から対象を選び直してください。'
+        }
+        $calendarInfo = $calendarInfo[0]
+        $applied = Apply-Events -Events $events -Calendar $calendarInfo.Folder -Namespace $outlookData.Namespace
+        Write-LocalLog -Message ('直接反映完了 New={0} Updated={1} RemovedDuplicates={2}' -f $applied.Created, $applied.Updated, $applied.RemovedDuplicates)
+        $slotCount = @($events | ForEach-Object {
+            $eventDate = [datetime]::ParseExact($_.Date, 'yyyy-MM-dd', $null)
+            Get-ScheduleEventKey -Start $eventDate.Add([timespan]::Parse($_.Start)) -School $_.School
+        } | Sort-Object -Unique).Count
+        [pscustomobject]@{
+            eventCount = $events.Count
+            slotCount = $slotCount
+            created = $applied.Created
+            updated = $applied.Updated
+            removedDuplicates = $applied.RemovedDuplicates
+            dates = @($events | ForEach-Object { $_.Date } | Sort-Object -Unique)
+        } | ConvertTo-Json -Compress
+        exit 0
     }
 
     Show-Message -Text "PDFを3通りの方法で確認し、必要項目をすべて読み取れました。`r`n内容を最終確認してください。通常は入力不要で、全件が選択済みです。" -Icon Information
@@ -1413,7 +1545,7 @@ try {
     $config.pstPath = [string]$calendarInfo.PstPath
     Save-Config -Config $config
     $applied = Apply-Events -Events @($review.Events) -Calendar $calendar -Namespace $outlookData.Namespace
-    Write-LocalLog -Message ('反映完了 New={0} Updated={1}' -f $applied.Created, $applied.Updated)
+    Write-LocalLog -Message ('反映完了 New={0} Updated={1} RemovedDuplicates={2}' -f $applied.Created, $applied.Updated, $applied.RemovedDuplicates)
 
     $allEventsApplied = @($review.Events).Count -eq $events.Count
     if ($allEventsApplied) {
@@ -1423,10 +1555,10 @@ try {
         }
     }
     $pendingMessage = if ($allEventsApplied) { '' } else { "`r`n未選択の予定があるため、PDFは未確認のまま残しました。" }
-    Show-Message -Text (("完了しました。`r`n新規: {0}件`r`n更新: {1}件" -f $applied.Created, $applied.Updated) + $pendingMessage)
+    Show-Message -Text (("完了しました。`r`n新規: {0}件`r`n更新: {1}件`r`n重複削除: {2}件" -f $applied.Created, $applied.Updated, $applied.RemovedDuplicates) + $pendingMessage)
 } catch {
     Write-LocalLog -Message ('エラー: {0}' -f $_.Exception.Message)
-    if ($AnalyzeOnly) {
+    if ($AnalyzeOnly -or $ApplyDirectly) {
         throw
     }
     try {

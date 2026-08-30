@@ -13,7 +13,22 @@ PERIOD_TIMES = (
     ("20:10", "21:40"),
 )
 DEFAULT_PERIOD_ROWS = (1, 10, 22, 36)
-NUMBER_PATTERN = re.compile(r"^(.*?)[\s\u3000]*([0-9]+|[\u2460-\u2473])$")
+NUMBER_PATTERN = re.compile(r"^(.*?)[\s\u3000]*([0-9０-９]+|[\u2460-\u2473])$")
+FULLWIDTH_DIGITS = str.maketrans("０１２３４５６７８９", "0123456789")
+
+
+def normalize_number(value):
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    if len(text) == 1 and "①" <= text <= "⑳":
+        return text
+    normalized = text.translate(FULLWIDTH_DIGITS)
+    if normalized.isdigit():
+        number = int(normalized)
+        if 1 <= number <= 20:
+            return chr(0x245F + number)
+    return normalized
 
 
 def clean_lines(value):
@@ -30,30 +45,33 @@ def split_subjects(value):
     raw_lines = clean_lines(value)
     subjects = []
     numbers = []
-    all_numbered = True
     for line in raw_lines:
         match = NUMBER_PATTERN.match(line)
         if match and match.group(1).strip():
             subjects.append(match.group(1).strip())
-            numbers.append(match.group(2))
+            numbers.append(normalize_number(match.group(2)))
         else:
             subjects.append(line)
             numbers.append("")
-            all_numbered = False
-    if not all_numbered:
-        return raw_lines, [""] * len(raw_lines)
     return subjects, numbers
 
 
-def period_starts(table):
+def period_starts(table, column_count):
     starts = list(DEFAULT_PERIOD_ROWS)
+    detected = {}
     labels = {"A": 0, "B": 1, "C": 2, "D": 3, "Ａ": 0, "Ｂ": 1, "Ｃ": 2, "Ｄ": 3}
     for row_index, row in enumerate(table):
         if not row:
             continue
         label = str(row[0] or "").strip()
         if label in labels:
-            starts[labels[label]] = row_index
+            period_index = labels[label]
+            starts[period_index] = row_index
+            detected[period_index] = row_index
+    if column_count <= 8 and 0 in detected and 1 in detected:
+        gap = detected[1] - detected[0]
+        if gap > 0:
+            starts = [detected[0] + (period_index * gap) for period_index in range(4)]
     return starts
 
 
@@ -66,6 +84,8 @@ def period_for_row(row_index, starts):
 
 
 def table_schema(column_count):
+    if column_count <= 8:
+        return tuple((1 + day, None, None, None) for day in range(6))
     if column_count >= 45:
         return (
             (1, 3, 6, 5),
@@ -74,6 +94,15 @@ def table_schema(column_count):
             (25, 27, 29, 28),
             (32, 34, 36, 35),
             (39, 41, 44, 43),
+        )
+    if column_count == 23:
+        return (
+            (1, 2, 4, None),
+            (6, 7, 8, None),
+            (10, 11, 12, None),
+            (13, 14, 15, None),
+            (16, 17, 18, None),
+            (19, 20, 22, None),
         )
     if column_count >= 24:
         return (
@@ -101,8 +130,9 @@ def table_schema(column_count):
 
 def extract_events_from_table(table, instructor, start_date):
     events = []
-    starts = period_starts(table)
-    schema = table_schema(max(len(row) for row in table))
+    column_count = max(len(row) for row in table)
+    starts = period_starts(table, column_count)
+    schema = table_schema(column_count)
     for row_index, row in enumerate(table):
         for day_index, columns in enumerate(schema):
             column_index, student_column, subject_column, number_column = columns
@@ -111,44 +141,46 @@ def extract_events_from_table(table, instructor, start_date):
             cell = row[column_index]
             if not cell or instructor not in str(cell):
                 continue
-            if student_column >= len(row) or subject_column >= len(row):
+            has_body_columns = student_column is not None and subject_column is not None
+            if has_body_columns and (student_column >= len(row) or subject_column >= len(row)):
                 continue
 
             period_index = period_for_row(row_index, starts)
             if period_index is None or period_index >= len(PERIOD_TIMES):
                 continue
 
-            students = clean_lines(row[student_column])
-            subject_lines = clean_lines(row[subject_column])
+            students = clean_lines(row[student_column]) if student_column is not None and student_column < len(row) else []
+            subject_lines = clean_lines(row[subject_column]) if subject_column is not None and subject_column < len(row) else []
             number_lines = (
                 clean_lines(row[number_column])
                 if number_column is not None and number_column < len(row)
                 else []
             )
-            continuation_index = row_index + 1
-            while continuation_index < len(table):
-                continuation = table[continuation_index]
-                if max(column_index, student_column, subject_column) >= len(continuation):
-                    break
-                if clean_lines(continuation[column_index]):
-                    break
-                next_students = clean_lines(continuation[student_column])
-                next_subjects = clean_lines(continuation[subject_column])
-                if not next_students and not next_subjects:
-                    if period_for_row(continuation_index, starts) != period_index:
+            if has_body_columns:
+                continuation_index = row_index + 1
+                while continuation_index < len(table):
+                    continuation = table[continuation_index]
+                    if max(column_index, student_column, subject_column) >= len(continuation):
                         break
+                    if clean_lines(continuation[column_index]):
+                        break
+                    next_students = clean_lines(continuation[student_column])
+                    next_subjects = clean_lines(continuation[subject_column])
+                    if not next_students and not next_subjects:
+                        if period_for_row(continuation_index, starts) != period_index:
+                            break
+                        continuation_index += 1
+                        continue
+                    students.extend(next_students)
+                    subject_lines.extend(next_subjects)
+                    if number_column is not None and number_column < len(continuation):
+                        number_lines.extend(clean_lines(continuation[number_column]))
                     continuation_index += 1
-                    continue
-                students.extend(next_students)
-                subject_lines.extend(next_subjects)
-                if number_column is not None and number_column < len(continuation):
-                    number_lines.extend(clean_lines(continuation[number_column]))
-                continuation_index += 1
 
             subjects, numbers = split_subjects("\n".join(subject_lines))
             if number_lines:
-                numbers = number_lines
-            if not students and not subjects:
+                numbers = [normalize_number(number) for number in number_lines]
+            if has_body_columns and not students and not subjects:
                 continue
             event_date = start_date + timedelta(days=day_index)
             events.append(

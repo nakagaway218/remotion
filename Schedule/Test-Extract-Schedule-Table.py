@@ -48,8 +48,8 @@ class ExtractScheduleTableTest(unittest.TestCase):
         mixed = by_date["2026-08-04"]
         self.assertEqual(mixed["start"], "18:30")
         self.assertEqual(mixed["student"], "StudentA / StudentB")
-        self.assertEqual(mixed["subject"], "数学 / 数学⑥")
-        self.assertEqual(mixed["number"], " / ")
+        self.assertEqual(mixed["subject"], "数学 / 数学")
+        self.assertEqual(mixed["number"], " / ⑥")
 
         blank_row = by_date["2026-08-07"]
         self.assertEqual(blank_row["student"], "StudentC / StudentノD")
@@ -78,6 +78,11 @@ class ExtractScheduleTableTest(unittest.TestCase):
         table[30][14] = "英語"
         table[31][12] = "NEXT"
 
+        table[38][12] = "TEST"
+        table[38][13] = "StudentE"
+        table[38][14] = "英語6"
+        table[39][12] = "NEXT"
+
         events = SCHEDULE_TABLE.extract_events_from_table(
             table, "TEST", date(2026, 8, 31)
         )
@@ -85,8 +90,13 @@ class ExtractScheduleTableTest(unittest.TestCase):
 
         tuesday_c = by_slot[("2026-09-01", "18:30")]
         self.assertEqual(tuesday_c["student"], "StudentA / StudentB")
-        self.assertEqual(tuesday_c["subject"], "数学 / 英語⑤")
-        self.assertEqual(tuesday_c["number"], " / ")
+        self.assertEqual(tuesday_c["subject"], "数学 / 英語")
+        self.assertEqual(tuesday_c["number"], " / ⑤")
+
+        thursday_d = by_slot[("2026-09-03", "20:10")]
+        self.assertEqual(thursday_d["student"], "StudentE")
+        self.assertEqual(thursday_d["subject"], "英語")
+        self.assertEqual(thursday_d["number"], "⑥")
 
         thursday_b = by_slot[("2026-09-03", "16:50")]
         self.assertEqual(thursday_b["student"], "StudentC")
